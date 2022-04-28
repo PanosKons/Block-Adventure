@@ -2,6 +2,7 @@
 #include "GameManager.h"
 #include "GlobalVariables.h"
 #include <iostream>
+#include "ManagerUI.h"
 static float second;
 static int FrameCount = 0;
 void GameManager::Update(float deltaTime)
@@ -21,6 +22,7 @@ void GameManager::Start()
 {
 	new World(0);
 	player = new Player();
+	ManagerUI::Init();
 }
 void GameManager::Shutdown()
 {
