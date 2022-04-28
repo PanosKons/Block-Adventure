@@ -351,5 +351,3 @@ MigrationBackup/
 # Zipped files
 *.rar
 *.zip
-# Chunk files
-*.chunk
