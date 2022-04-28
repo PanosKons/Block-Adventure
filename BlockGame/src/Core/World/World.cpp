@@ -6,7 +6,8 @@
 #include "Math/EngineMath.h"
 #include "Timer.h"
 #include "SavingData.h"
-int64_t Vector2ToLong(int x, int y)
+constexpr int temposize = 60;
+int64_t ToLong(int x, int y)
 {
 	int64_t data = 0;
 	int* p = (int*)&data;
@@ -22,7 +23,6 @@ void World::Save()
 		SavingData::SaveChunk(element.second);
 	}
 }
-
 void World::Render()
 {
 	for (auto& element : ChunkMap)
@@ -66,25 +66,24 @@ Block* World::MakeBlock(BLOCK_ID id)
 	return nullptr;
 }
 static std::mutex s_ChunkMutex;
-constexpr int temposize = 6;
+constexpr int spawnChunks = 3;
 void LoadChunk(Vector2<int> Position, World* world, std::unordered_map<int64_t, Chunk*>* ChunkMap)
 {
 	Chunk* chunk = new Chunk({ Position.x,Position.y }, world);
 	std::lock_guard<std::mutex> lock(s_ChunkMutex);
-	ChunkMap->emplace(Position.y + Position.x * temposize, chunk);
-	//ChunkMap->emplace(Vector2ToLong(Position.x,Position.y), chunk);
+	ChunkMap->emplace(ToLong(Position.x,Position.y), chunk);
 }
 World::World(int seed)
 {
 	Timer t;
 	GameManager::Overworld = this;
 	{
-		std::array<std::future<void>, temposize* temposize> futures;
-		for (int x = 0; x < temposize-1; x++)
+		std::array<std::future<void>, spawnChunks * spawnChunks> futures;
+		for (int x = 0; x < spawnChunks; x++)
 		{
-			for (int y = 0; y < temposize-1; y++)
+			for (int y = 0; y < spawnChunks; y++)
 			{
-				futures[y + x * temposize] = std::async(std::launch::async, LoadChunk, Vector2<int>(x, y), this, &ChunkMap);
+				futures[y + x * spawnChunks] = std::async(std::launch::async, LoadChunk, Vector2<int>(x, y), this, &ChunkMap);
 			}
 		}
 	}
@@ -99,25 +98,22 @@ Block* World::GetBlock(Vector3<int> pos)
 	if (pos.y < 0 || pos.y >= ChunkHeight || pos.z < 0 || pos.x < 0) return nullptr;
 	int x = Math::Floor(pos.x / (float)ChunkSize);
 	int z = Math::Floor(pos.z / (float)ChunkSize);
-	if (ChunkMap.find(z + x * temposize) != ChunkMap.end())
-		return ChunkMap[z + x * temposize]->GetBlock({ pos.x % ChunkSize, pos.y, pos.z % ChunkSize });
-	//if (ChunkMap.find(Vector2ToLong(pos.x,pos.z)) != ChunkMap.end())
-	//	return ChunkMap[Vector2ToLong(pos.x, pos.z)]->GetBlock({ pos.x % ChunkSize, pos.y, pos.z % ChunkSize });
+	if (ChunkMap.find(ToLong(x,z)) != ChunkMap.end())
+		return ChunkMap[ToLong(x, z)]->GetBlock({ pos.x % ChunkSize, pos.y, pos.z % ChunkSize });
 	return nullptr;
 }
 Chunk* World::GetChunk(Block* block)
 {
 	int x = block->Position.x / ChunkSize;
 	int z = block->Position.z / ChunkSize;
-	return ChunkMap[z + x * temposize];
-	/*return ChunkMap[Vector2ToLong(x, z)];*/
+	return ChunkMap[ToLong(x, z)];
 }
 void World::LoadNewChunks(Vector2<int> position)
 {
 	if (ChunkMap.find(position.y + position.x * temposize) == ChunkMap.end())
 	{
 		LoadChunk(Vector2<int>(position.x, position.y), this, &ChunkMap);
-		ChunkMap[position.y + position.x * temposize]->UpdateAllBlocks();
+		ChunkMap[ToLong(position.x, position.y)]->UpdateAllBlocks();
 	}
 }
 void World::LoadNewChunks(Vector2<int> position,int radius)
