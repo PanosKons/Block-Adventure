@@ -9,4 +9,3 @@ extern int ScreenHeight;
 extern GLFWwindow* ApplicationWindow;
 extern int FPS;
 extern bool Playing;
-extern std::unordered_map<BLOCK_ID, BlockProperties> blockProperties;

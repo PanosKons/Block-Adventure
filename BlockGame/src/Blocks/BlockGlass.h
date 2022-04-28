@@ -5,4 +5,5 @@ class BlockGlass : public Block
 public:
 	BlockGlass();
 	BLOCK_ID GetBlockId() override;
+	BlockProperties GetBlockProperties() override;
 };

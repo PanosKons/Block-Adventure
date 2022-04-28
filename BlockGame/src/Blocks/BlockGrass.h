@@ -4,4 +4,5 @@ class BlockGrass :public Block
 {
 	BLOCK_ID GetBlockId() override;
 	void Update() override;
+	BlockProperties GetBlockProperties() override;
 };

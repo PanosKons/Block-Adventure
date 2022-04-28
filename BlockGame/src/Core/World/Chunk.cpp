@@ -121,7 +121,7 @@ void Chunk::DrawBlock(Block* block)
 	IndexBuffer* indexBuffer;
 	block->Transparent ? indexBuffer = m_IndexBufferTransparent.get() : indexBuffer = m_IndexBuffer.get();
 	if (!(block->RenderedSides & (unsigned char)64)) return;
-	std::array<unsigned char, 6>& arr = blockProperties[block->GetBlockId()].textureSides;
+	std::array<unsigned char, 6> arr = block->GetBlockProperties().textureSides;
 	Vertex a;
 	a.texId = 0.0f;
 	if (block->RenderedSides & (unsigned char)1) {

@@ -8,3 +8,7 @@ BlockWater::BlockWater()
 {
 	//Transparent = true;
 }
+BlockProperties BlockWater::GetBlockProperties()
+{
+	return { 120,TOOL::Axe,0,{4,4,4,4,5,5} };
+}

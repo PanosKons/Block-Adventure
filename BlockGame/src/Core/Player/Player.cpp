@@ -59,8 +59,7 @@ void Player::MarkBlockToBreak()
 	if (block == nullptr) return;
 	isBreakingBlock = true;
 	breakingBlock = block;
-	BlockProperties& bp = blockProperties[block->GetBlockId()];
-	TimeToBreak = (float)bp.hardness;
+	TimeToBreak = (float)block->GetBlockProperties().hardness;
 }
 void Player::CursorMoved(double xpos, double ypos)
 {

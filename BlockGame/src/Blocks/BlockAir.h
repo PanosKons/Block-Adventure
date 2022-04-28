@@ -5,5 +5,6 @@ class BlockAir : public Block
 public:
 	BlockAir();
 	BLOCK_ID GetBlockId() override;
+	BlockProperties GetBlockProperties() override;
 	void Update() override;
 };

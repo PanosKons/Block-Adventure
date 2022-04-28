@@ -18,3 +18,7 @@ void BlockGrass::Update()
 		}
 	}
 }
+BlockProperties BlockGrass::GetBlockProperties()
+{
+	return { 60,TOOL::Shovel,0,{1,1,1,1,2,0} };
+}

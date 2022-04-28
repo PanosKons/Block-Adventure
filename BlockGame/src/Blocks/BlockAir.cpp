@@ -11,3 +11,7 @@ BlockAir::BlockAir()
 	RenderedSides = 0;
 	Transparent = true;
 }
+BlockProperties BlockAir::GetBlockProperties()
+{
+	return { 0,TOOL::None,0, {0,0,0,0,0,0} };
+}

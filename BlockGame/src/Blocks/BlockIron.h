@@ -3,4 +3,5 @@
 class BlockIron : public Block
 {
 	BLOCK_ID GetBlockId() override;
+	BlockProperties GetBlockProperties() override;
 };

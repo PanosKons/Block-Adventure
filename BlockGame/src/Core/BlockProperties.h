@@ -2,7 +2,7 @@
 #include <array>
 enum class TOOL
 {
-	Pickaxe, Shovel, Axe
+	Pickaxe, Shovel, Axe, None
 };
 struct BlockProperties //Each block is paired with some properties at global variables
 {
