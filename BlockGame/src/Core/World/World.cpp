@@ -6,7 +6,6 @@
 #include "Math/EngineMath.h"
 #include "Timer.h"
 #include "SavingData.h"
-constexpr int temposize = 60;
 int64_t ToLong(int x, int y)
 {
 	int64_t data = 0;
@@ -65,10 +64,10 @@ Block* World::MakeBlock(BLOCK_ID id)
 	}
 	return nullptr;
 }
-static std::mutex s_ChunkMutex;
 constexpr int spawnChunks = 3;
 void LoadChunk(Vector2<int> Position, World* world, std::unordered_map<int64_t, Chunk*>* ChunkMap)
 {
+	static std::mutex s_ChunkMutex;
 	Chunk* chunk = new Chunk({ Position.x,Position.y }, world);
 	std::lock_guard<std::mutex> lock(s_ChunkMutex);
 	ChunkMap->emplace(ToLong(Position.x,Position.y), chunk);
@@ -95,11 +94,11 @@ World::World(int seed)
 }
 Block* World::GetBlock(Vector3<int> pos)
 {
-	if (pos.y < 0 || pos.y >= ChunkHeight || pos.z < 0 || pos.x < 0) return nullptr;
+	if (pos.y < 0 || pos.y >= ChunkHeight) return nullptr;
 	int x = Math::Floor(pos.x / (float)ChunkSize);
 	int z = Math::Floor(pos.z / (float)ChunkSize);
 	if (ChunkMap.find(ToLong(x,z)) != ChunkMap.end())
-		return ChunkMap[ToLong(x, z)]->GetBlock({ pos.x % ChunkSize, pos.y, pos.z % ChunkSize });
+		return ChunkMap[ToLong(x, z)]->GetBlock({ (pos.x + BIG_NUMBER) % ChunkSize, pos.y, (pos.z + BIG_NUMBER) % ChunkSize });
 	return nullptr;
 }
 Chunk* World::GetChunk(Block* block)
@@ -110,7 +109,7 @@ Chunk* World::GetChunk(Block* block)
 }
 void World::LoadNewChunks(Vector2<int> position)
 {
-	if (ChunkMap.find(position.y + position.x * temposize) == ChunkMap.end())
+	if (ChunkMap.find(ToLong(position.x, position.y)) == ChunkMap.end())
 	{
 		LoadChunk(Vector2<int>(position.x, position.y), this, &ChunkMap);
 		ChunkMap[ToLong(position.x, position.y)]->UpdateAllBlocks();

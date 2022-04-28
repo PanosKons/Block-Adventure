@@ -21,6 +21,12 @@ int Math::Floor(float a)
 {
 	return (int)floor(a);
 }
+int Math::Abs(int a)
+{
+	if (a >= 0)
+		return a;
+	else return -a;
+}
 int Math::Powi(int a, int b)
 {
 	int res = 1;

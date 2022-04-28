@@ -9,4 +9,5 @@ public:
 	static int Min(int a, int b);
 	static int Floor(float a);
 	static int Powi(int a, int b);
+	static int Abs(int a);
 };
