@@ -114,21 +114,23 @@ Chunk* World::GetChunk(Block* block)
 }
 void World::LoadNewChunks(Vector2<int> position)
 {
-	for (int x = position.x - 1; x < position.x + 2; x++)
+	if (ChunkMap.find(position.y + position.x * temposize) == ChunkMap.end())
 	{
-		for (int y = position.y - 1; y < position.y + 2; y++)
-		{
-			if (ChunkMap.find(Vector2ToLong(position.x,position.y)) == ChunkMap.end())
-			{
-				LoadChunk(Vector2<int>(x, y), this, &ChunkMap);
-			}
-		}
+		LoadChunk(Vector2<int>(position.x, position.y), this, &ChunkMap);
+		ChunkMap[position.y + position.x * temposize]->UpdateAllBlocks();
 	}
-	for (int x = position.x - 1; x < position.x + 2; x++)
+}
+void World::LoadNewChunks(Vector2<int> position,int radius)
+{
+ 	int startX = position.x - radius;
+	int startY = position.y - radius;
+	int EndX = position.x + radius;
+	int EndY = position.y + radius;
+	for (int x = startX; x <= EndX; x++)
 	{
-		for (int y = position.y - 1; y < position.y + 2; y++)
+		for (int y = startY; y <= EndY; y++)
 		{
-			ChunkMap[position.y + position.x * temposize]->UpdateAllBlocks();
+			LoadNewChunks({ x, y });
 		}
 	}
 }

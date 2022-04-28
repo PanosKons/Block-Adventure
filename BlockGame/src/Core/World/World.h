@@ -13,6 +13,7 @@ public:
 	static Block* MakeBlock(BLOCK_ID id);
 	void Save();
 	void LoadNewChunks(Vector2<int> position);
+	void LoadNewChunks(Vector2<int> position,int radius);
 private:
 	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };

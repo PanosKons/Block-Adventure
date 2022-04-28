@@ -215,7 +215,7 @@ void Player::Update(float deltaTime)
 	Vector2<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		GameManager::Overworld->LoadNewChunks(chunkpos);
+		GameManager::Overworld->LoadNewChunks(chunkpos,1);
 		ChunkPosition = chunkpos;
 	}
 }
