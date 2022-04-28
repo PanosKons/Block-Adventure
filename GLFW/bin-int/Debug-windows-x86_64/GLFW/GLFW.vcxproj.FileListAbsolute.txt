@@ -1,0 +1,2 @@
+C:\Users\vkaio\Desktop\GameEngine\Busen\vendor\GLFW\bin\Debug-windows-x86_64\GLFW\GLFW.pdb
+C:\Users\vkaio\Desktop\GameEngine\Busen\vendor\GLFW\bin-int\Debug-windows-x86_64\GLFW\GLFW.pdb
