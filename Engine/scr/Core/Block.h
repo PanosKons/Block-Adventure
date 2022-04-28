@@ -3,7 +3,7 @@
 class World;
 enum BLOCK_ID
 {
-	Air, Sand, Grass_block, Dirt, Cobblestone, Log, Leaves
+	Air, Sand, Grass_block, Dirt, Cobblestone, Log, Leaves, Tnt
 };
 class Block
 {

@@ -18,9 +18,9 @@ World::World(int seed)
 {
 	//Timer t;
 	GameManager::Overworld = this;
-	for (int x = 0; x < 4; x++)
+	for (int x = 0; x < 6; x++)
 	{
-		for (int y = 0; y < 4; y++)
+		for (int y = 0; y < 6; y++)
 		{
 			ChunkMap.push_back(new Chunk({ x,y }, this));
 		}

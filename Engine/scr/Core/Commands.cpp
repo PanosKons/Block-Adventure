@@ -13,7 +13,8 @@ static std::unordered_map<std::string, BLOCK_ID> blockIds =
 	{"GRASS_BLOCK",BLOCK_ID::Grass_block },
 	{"SAND",BLOCK_ID::Sand },
 	{"LOG",BLOCK_ID::Log },
-	{"LEAVES",BLOCK_ID::Leaves }
+	{"LEAVES",BLOCK_ID::Leaves },
+	{"TNT",BLOCK_ID::Tnt }
 };
 void Commands::ExecuteCommand(const std::string& command)
 {

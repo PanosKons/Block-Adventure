@@ -7,7 +7,7 @@
 #include "Block.h"
 class World;
 constexpr int ChunkSize = 16;
-constexpr int ChunkHeight = 96;
+constexpr int ChunkHeight = 128;
 class Chunk {
 public:
 	bool Changed = true;

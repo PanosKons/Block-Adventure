@@ -111,6 +111,7 @@ namespace Renderer {
 		Texture::Load("res/textures/slot.png", 14);
 		Texture::Load("res/textures/log.png", 4);
 		Texture::Load("res/textures/leaves.png", 5);
+		Texture::Load("res/textures/tnt.png", 6);
 		Texture::Load("res/textures/cobblestone.png", 3);
 		Texture::Load("res/textures/dirt.png", 2);
 		Texture::Load("res/textures/grass_block.png", 1);

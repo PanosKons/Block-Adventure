@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="scr\Math\Noise.h" />
     <ClInclude Include="scr\Core\ItemStack.h" />
     <ClInclude Include="scr\Core\Character.h" />
     <ClInclude Include="scr\Core\Commands.h" />
@@ -113,9 +114,11 @@
     <ClInclude Include="scr\Rendering\VertexBufferLayout.h" />
     <ClInclude Include="scr\Timer.h" />
     <ClInclude Include="scr\vendor\hash_for_tuples.h" />
+    <ClInclude Include="scr\vendor\PerlinNoise.hpp" />
     <ClInclude Include="scr\vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="scr\Math\Noise.cpp" />
     <ClCompile Include="scr\Core\ItemStack.cpp" />
     <ClCompile Include="scr\Core\Commands.cpp" />
     <ClCompile Include="scr\Core\GlobalVariables.cpp" />

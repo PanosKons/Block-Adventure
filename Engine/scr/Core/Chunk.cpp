@@ -1,5 +1,6 @@
 #include "Chunk.h"
 #include "World.h"
+#include "../Math/Noise.h"
 Chunk::Chunk(Vector2<int> Position, World* world)
 	:Position(Position), world(world)
 {
@@ -15,7 +16,8 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 			for (int z = 0; z < ChunkSize; z++)
 			{
 				(*blocks)[x][y][z].Transform = { x + ChunkSize * Position.x,y,z + ChunkSize * Position.y };
-				double level = (sin(6 * (Position.x * ChunkSize + x)) * cos(6 * (Position.y * ChunkSize + z)) * 7 + 47);
+				int level = Noise::GetYLevel(x + Position.x * 16, z + Position.y * 16);
+				//double level = (sin(6 * (Position.x * ChunkSize + x)) * cos(6 * (Position.y * ChunkSize + z)) * 7 + 47);
 				if (y == (int)level)
 				{
 					(*blocks)[x][y][z].id = Grass_block;
@@ -24,13 +26,16 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 				{
 					(*blocks)[x][y][z].id = Cobblestone;
 				}
-				if (y == (int)(level)+1 && (y + x + z) % 15 == 0)
-				{
-					(*blocks)[x][y][z].id = Log;
-					(*blocks)[x][y + 1][z].id = Log;
-					(*blocks)[x][y + 2][z].id = Log;
-					(*blocks)[x][y + 3][z].id = Log;
-				}
+				//if (y == (int)(level)+1 && (y * y * y + x * x + z) % 30 == 0)
+				//{
+				//	(*blocks)[x][y][z].id = Log;
+				//	(*blocks)[x][y + 1][z].id = Log;
+				//	(*blocks)[x][y + 2][z].id = Log;
+				//	(*blocks)[x][y + 3][z].id = Log;
+				//	(*blocks)[x][y + 4][z].id = Log;
+				//	(*blocks)[x][y + 5][z].id = Log;
+				//	(*blocks)[x][y + 6][z].id = Log;
+				//}
 			}
 		}
 	}
