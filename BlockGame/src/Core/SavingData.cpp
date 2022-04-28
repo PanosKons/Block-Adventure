@@ -9,7 +9,7 @@
 void SavingData::SaveChunk(Chunk* chunk)
 {
 	std::ofstream fout;
-	fout.open("data/chunks/" + StringConvertions::ToString(chunk->Position.x) + "," + StringConvertions::ToString(chunk->Position.y), std::ios::binary);
+	fout.open("data/chunks/" + StringConvertions::ToString(chunk->Position.x) + "," + StringConvertions::ToString(chunk->Position.y) + ".chunk", std::ios::binary);
 	std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>();
 	auto& a = chunk->blocks;
 	for (int x = 0; x < ChunkSize; x++)
@@ -26,7 +26,7 @@ std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* S
 	std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>();
 	std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>();
 	std::ifstream fin;
-	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y);
+	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + ".chunk";
 	if (!std::filesystem::exists(path)) return nullptr;
 	fin.open(path, std::ios::binary | std::ios::in);
 	fin.read((char*)(*bytes).data(), (*bytes).size() * sizeof(unsigned short));
