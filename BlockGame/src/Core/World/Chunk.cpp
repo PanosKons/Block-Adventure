@@ -58,7 +58,7 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 				int level = HeightMap[x + z * ChunkSize];
 				if (y == level)
 				{
-					if (y % 2)
+					if (y < 30)
 					{
 						(*blocks)[x][y][z] = new BlockGrass();
 					}
