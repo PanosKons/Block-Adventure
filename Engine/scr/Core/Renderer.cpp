@@ -1,3 +1,4 @@
+#include <Engine.h>
 #include "Renderer.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -60,6 +61,7 @@ namespace Renderer {
 			float now = (float)glfwGetTime();
 			float deltaTime = now - previous;
 			previous = now;
+			glClearColor(0.0f, 0.8f, 1.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			GameManager::Update(deltaTime);
 			m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight, -30.0f, 30.0f));
@@ -67,6 +69,7 @@ namespace Renderer {
 			glfwSwapBuffers(ApplicationWindow);
 			glfwPollEvents();
 		}
+
 		glfwDestroyWindow(ApplicationWindow);
 		glfwTerminate();
 		GameManager::Shutdown();
@@ -87,7 +90,7 @@ namespace Renderer {
 			return -1;
 		}
 		glfwMakeContextCurrent(ApplicationWindow);
-		glfwSwapInterval(1);
+		glfwSwapInterval(0);
 		glfwSetInputMode(ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return -1;
@@ -96,6 +99,7 @@ namespace Renderer {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
 		unsigned int m_RendererID;
 		glCreateVertexArrays(1, &m_RendererID);
 		glBindVertexArray(m_RendererID);
@@ -109,13 +113,7 @@ namespace Renderer {
 		Texture::Load("res/textures/selected_slot.png", 15);
 		Texture::Load("res/textures/text.png", 13);
 		Texture::Load("res/textures/slot.png", 14);
-		Texture::Load("res/textures/log.png", 4);
-		Texture::Load("res/textures/leaves.png", 5);
-		Texture::Load("res/textures/tnt.png", 6);
-		Texture::Load("res/textures/cobblestone.png", 3);
-		Texture::Load("res/textures/dirt.png", 2);
-		Texture::Load("res/textures/grass_block.png", 1);
-		Texture::Load("res/textures/sand.png", 0);
+		Texture::Load("res/textures/TextureAtlas.png", 0);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);

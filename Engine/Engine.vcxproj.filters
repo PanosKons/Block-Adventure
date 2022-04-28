@@ -51,7 +51,7 @@
     <ClInclude Include="scr\Core\Physics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Core\Block.h">
+    <ClInclude Include="scr\Blocks\Block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scr\Math\Cuboid.h">
@@ -67,9 +67,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scr\Core\Chunk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\vendor\hash_for_tuples.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scr\Timer.h">
@@ -93,9 +90,6 @@
     <ClInclude Include="scr\Core\Commands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Core\Character.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="scr\Core\ItemStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -103,6 +97,42 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scr\vendor\PerlinNoise.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks\BlockAir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks\BlockCobblestone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks\BlockGrass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks\BlockLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Core\SavingData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\util\StringConvertions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks\BlockIron.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks\BlockDirt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Core\BlockProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Entities\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Blocks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Core\Structure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -135,9 +165,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Core\Physics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\Block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Math\Cuboid.cpp">
@@ -183,6 +210,42 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Math\Noise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\BlockAir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\BlockCobblestone.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\BlockGrass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\BlockLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Core\SavingData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\util\StringConvertions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\Block.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\BlockIron.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Blocks\BlockDirt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Entities\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Core\Structure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -57,6 +57,10 @@ public:
 	{
 		return { other.x,other.y,(T)0 };
 	}
+	bool operator==(Vector3<T> other)
+	{
+		return x == other.x && y == other.y && z == other.z;
+	}
 	void Magnitude()
 	{
 		return sqrt(powf(x, 2) + powf(y, 2) + powf(z, 2));

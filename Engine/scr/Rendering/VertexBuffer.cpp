@@ -1,10 +1,9 @@
+#include <Engine.h>
 #include "VertexBuffer.h"
 #include "glad/glad.h"
 VertexBuffer::VertexBuffer()
-	:m_RendererID(0), m_Size(0)
-{
-	glGenBuffers(1, &m_RendererID);
-}
+	:m_RendererID(-1), m_Size(0)
+{}
 VertexBuffer::~VertexBuffer()
 {
 	glDeleteBuffers(1, &m_RendererID);
@@ -31,5 +30,7 @@ void VertexBuffer::Add(Vertex& Element)
 }
 void VertexBuffer::Bind()
 {
+	if (m_RendererID == -1)
+		glGenBuffers(1, &m_RendererID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 }

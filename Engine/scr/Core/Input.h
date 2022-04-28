@@ -8,4 +8,6 @@ public:
 	static void SetCursorCallback(void (*CursorCallback)(GLFWwindow* window, double xpos, double ypos));
 	static void SetMouseCallback(void (*MouseCallback)(GLFWwindow* window, int button, int action, int mods));
 	static void SetKeyCallback(void (*KeyCallback)(GLFWwindow* window, int key, int actioncode, int action, int mods));
+	static void SetCharCallback(void (*CharCallback)(GLFWwindow* window, unsigned int key));
+	static int GetMouseState(int Mouse);
 };

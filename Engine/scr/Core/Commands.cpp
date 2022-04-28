@@ -1,20 +1,17 @@
+#include <Engine.h>
 #include "Commands.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
 #include "GameManager.h"
-#include <unordered_map>
 #include "../Math/EngineMath.h"
+#include "Structure.h"
+#include "SavingData.h"
 static std::unordered_map<std::string, BLOCK_ID> blockIds =
 {
-	{"AIR",BLOCK_ID::Air },
-	{"COBBLESTONE",BLOCK_ID::Cobblestone },
-	{"DIRT",BLOCK_ID::Dirt },
-	{"GRASS_BLOCK",BLOCK_ID::Grass_block },
-	{"SAND",BLOCK_ID::Sand },
-	{"LOG",BLOCK_ID::Log },
-	{"LEAVES",BLOCK_ID::Leaves },
-	{"TNT",BLOCK_ID::Tnt }
+	{"air",BLOCK_ID::Air },
+	{"cobblestone",BLOCK_ID::Cobblestone },
+	{"grass",BLOCK_ID::Grass },
+	{"log",BLOCK_ID::Log },
+	{"dirt",BLOCK_ID::Dirt },
+	{"iron",BLOCK_ID::Iron }
 };
 void Commands::ExecuteCommand(const std::string& command)
 {
@@ -25,7 +22,7 @@ void Commands::ExecuteCommand(const std::string& command)
 		ss >> token;
 		tokens.push_back(token);
 	}
-	if (tokens[0] == "/GIVE")
+	if (tokens[0] == "/give")
 	{
 		if (tokens.size() == 3)
 		{
@@ -34,25 +31,51 @@ void Commands::ExecuteCommand(const std::string& command)
 			stack.count += std::stoi(tokens[2]);
 		}
 	}
-	if (tokens[0] == "/SETBLOCK")
+	if (tokens[0] == "/structure")
 	{
-		if (tokens.size() == 5)
+		if (tokens.size() == 11)
 		{
-			Block* block = GameManager::Overworld->GetBlock({ std::stoi(tokens[1]), std::stoi(tokens[2]), std::stoi(tokens[3]) });
-			if (block == nullptr) return;
-			block->ChangeState(blockIds[tokens[4]]);
+			Vector3<int> Position = { std::stoi(tokens[1]),std::stoi(tokens[2]),std::stoi(tokens[3]) };
+			Vector3<int> Size = { std::stoi(tokens[4]),std::stoi(tokens[5]),std::stoi(tokens[6]) };
+			Vector3<int> Center = { std::stoi(tokens[7]),std::stoi(tokens[8]),std::stoi(tokens[9]) };
+			Structure str(Center);
+			std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* data = new std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>();
+			for (int x = 0; x < Size.x; x++)
+			{
+				for (int y = 0; y < Size.y; y++)
+				{
+					for (int z = 0; z < Size.z; z++)
+					{
+						(*data)[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z })->GetBlockId();
+					}
+				}
+			}
+			str.data = data;
+			SavingData::SaveStructure(tokens[10], str);
 		}
 	}
-	if (tokens[0] == "/TP")
+	if (tokens[0] == "/tp")
 	{
 		if (tokens.size() == 4)
 		{
 			GameManager::player->Position = { (float)std::stoi(tokens[1]), (float)std::stoi(tokens[2]), (float)std::stoi(tokens[3]) };
 		}
 	}
-	if (tokens[0] == "/FILL")
+	if (tokens[0] == "/set")
 	{
-		if (tokens.size() == 8)
+		if (tokens.size() == 2)
+		{
+			Block* block = GameManager::player->GetFacingBlock();
+			if (block == nullptr) return;
+			if (block->GetBlockId() != blockIds[tokens[1]]) block->OnBreak(blockIds[tokens[1]]);
+		}
+		else if (tokens.size() == 5)
+		{
+			Block* block = GameManager::Overworld->GetBlock({ std::stoi(tokens[1]), std::stoi(tokens[2]), std::stoi(tokens[3]) });
+			if (block == nullptr) return;
+			if (block->GetBlockId() != blockIds[tokens[4]]) block->OnBreak(blockIds[tokens[4]]);
+		}
+		else if (tokens.size() == 8)
 		{
 			int arr[] =
 			{
@@ -71,7 +94,7 @@ void Commands::ExecuteCommand(const std::string& command)
 					{
 						Block* block = GameManager::Overworld->GetBlock({ x, y, z });
 						if (block == nullptr) return;
-						block->ChangeState(blockIds[tokens[7]]);
+						if (block->GetBlockId() != blockIds[tokens[7]])block->OnBreak(blockIds[tokens[7]]);
 					}
 		}
 	}

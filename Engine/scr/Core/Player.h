@@ -4,7 +4,7 @@
 #include "../vendor/glm/glm.hpp"
 #include "../vendor/glm/gtc/matrix_transform.hpp"
 #include "MainCamera.h"
-#include "Block.h"
+#include "../Blocks/Block.h"
 #include <array>
 #include "ItemStack.h"
 class Player
@@ -15,6 +15,7 @@ public:
 	Cuboid Hitbox;
 	Block* GetFacingBlock();
 	Block* GetBlockToPlace();
+	void MarkBlockToBreak();
 	void Update(float deltaTime);
 	int GetFirstAvaiableSlot(BLOCK_ID id);
 	float yaw = -90.0f;
@@ -23,12 +24,16 @@ public:
 	float lastY = 0.0f;
 	float JumpCooldown = 0.0f;
 	float speed = 5.0f;
+	bool isBreakingBlock = false;
+	float BlockPlaceDelay = 0.3f;
+	float TimeToBreak = 0.0f;
+	Block* breakingBlock = nullptr;
+	int RenderDistance = 5;
 	bool firstMouse = true;
 	Vector3<float> Velocity;
 	MainCamera mainCamera;
 	std::array<ItemStack, 9> Inventory;
 	char ActiveSlot;
 	bool grounded;
-	void MouseButton(int button, int action);
 	void CursorMoved(double xpos, double ypos);
 };

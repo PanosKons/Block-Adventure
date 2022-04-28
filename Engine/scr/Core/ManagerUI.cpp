@@ -1,3 +1,4 @@
+#include <Engine.h>
 #include "ManagerUI.h"
 #include "Renderer.h"
 #include "GameManager.h"
@@ -7,6 +8,7 @@
 #include "Input.h"
 #include <iostream>
 #include "Commands.h"
+#include "../util/StringConvertions.h"
 static std::unique_ptr<IndexBuffer> m_IndexBuffer;
 static std::unique_ptr<VertexBuffer> m_VertexBuffer;
 static bool debugActive = false;
@@ -97,6 +99,25 @@ void ManagerUI::PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector
 	m_VertexBuffer->Add(a);
 	m_IndexBuffer->AddRectangle();
 }
+void ManagerUI::PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID)
+{
+	Vertex a;
+	a.color = Color;
+	a.texId = TextureID;
+	a.texCords = TexCords;
+	a.position = Position;
+	m_VertexBuffer->Add(a);
+	a.texCords.y += TexSize.y;
+	a.position.y += Size.y;
+	m_VertexBuffer->Add(a);
+	a.texCords.x += TexSize.x;
+	a.position.x += Size.x;
+	m_VertexBuffer->Add(a);
+	a.texCords.y = TexCords.y;
+	a.position.y -= Size.y;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+}
 void ManagerUI::UpdateUI()
 {
 	Vector3<float> SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.3f };
@@ -109,14 +130,17 @@ void ManagerUI::UpdateUI()
 	for (int i = 0; i < 9; i++)
 	{
 		if (GameManager::player->Inventory[i].count != 0)
-			PrintSquare({ SlotPosition.x + 8, SlotPosition.y + 8,SlotPosition.z }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, GameManager::player->Inventory[i].id - 1);
+		{
+			unsigned char a = blockProperties[GameManager::player->Inventory[i].id].textureSides[0];
+			PrintSquare({ SlotPosition.x + 8, SlotPosition.y + 8,SlotPosition.z }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f);
+		}
 		SlotPosition.x += SlotWidth;
 	}
 	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.1f };
 	for (int i = 0; i < 9; i++)
 	{
 		if (GameManager::player->Inventory[i].count != 0)
-			PrintString(ToString(GameManager::player->Inventory[i].count), SlotPosition);
+			PrintString(StringConvertions::ToString(GameManager::player->Inventory[i].count), SlotPosition);
 		SlotPosition.x += SlotWidth;
 	}
 	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.05f };
@@ -125,15 +149,15 @@ void ManagerUI::UpdateUI()
 	if (debugActive)
 	{
 		Vector3<float> TextPosition = { 0.0f,(float)(ScreenHeight - charHeight - 2),BaseLayer };
-		PrintString("FPS:" + ToString(FPS), TextPosition);
+		PrintString("FPS:" + StringConvertions::ToString(FPS), TextPosition);
 		TextPosition.y -= charHeightOffset;
-		PrintString("Position:" + ToString((int)GameManager::player->Position.x) + "," + ToString((int)GameManager::player->Position.y) + "," + ToString((int)GameManager::player->Position.z), TextPosition);
+		PrintString("Position:" + StringConvertions::ToString((int)GameManager::player->Position.x) + "," + StringConvertions::ToString((int)GameManager::player->Position.y) + "," + StringConvertions::ToString((int)GameManager::player->Position.z), TextPosition);
 		TextPosition.y -= charHeightOffset;
 		PrintString("Grounded:" + ToString(GameManager::player->grounded), TextPosition);
 		Block* bl = GameManager::player->GetFacingBlock();
 		if (bl != nullptr) {
 			TextPosition.y -= charHeightOffset;
-			PrintString("Facing block:" + ToString(bl->Transform.x) + "," + ToString(bl->Transform.y) + "," + ToString(bl->Transform.z), TextPosition);
+			PrintString("Facing block:" + StringConvertions::ToString(bl->Position.x) + "," + StringConvertions::ToString(bl->Position.y) + "," + StringConvertions::ToString(bl->Position.z), TextPosition);
 		}
 	}
 	if (TypingActive)
@@ -181,15 +205,19 @@ void ToggleStates(int key, int action)
 	}
 	if (key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS && !Playing)
 	{
-		chatbox.pop_back();
-	}
-	if (!Playing && action == GLFW_PRESS && key <= 255)
-	{
-		chatbox += (char)key;
+		if (!chatbox.empty())
+			chatbox.pop_back();
 	}
 	if (key == GLFW_KEY_T && action == GLFW_PRESS && Playing) {
 		TypingActive = !TypingActive;
 		Playing = !Playing;
+	}
+}
+void TextInput(unsigned int codepoint)
+{
+	if (!Playing && codepoint <= 255)
+	{
+		chatbox += (char)codepoint;
 	}
 }
 void ManagerUI::Init()
@@ -197,4 +225,5 @@ void ManagerUI::Init()
 	m_VertexBuffer = std::make_unique<VertexBuffer>();
 	m_IndexBuffer = std::make_unique<IndexBuffer>();
 	Input::SetKeyCallback([](GLFWwindow* window, int key, int actioncode, int action, int mods) { ToggleStates(key, action); });
+	Input::SetCharCallback([](GLFWwindow* window, unsigned int key) {TextInput(key); });
 }

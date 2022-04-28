@@ -1,3 +1,4 @@
+#include <Engine.h>
 #include "EngineMath.h"
 #include <math.h>
 float Math::Max(float a, float b)

@@ -1,153 +1,225 @@
+#include <Engine.h>
+#include <Blocks.h>
 #include "Chunk.h"
 #include "World.h"
 #include "../Math/Noise.h"
+#include "SavingData.h"
+#include "GlobalVariables.h"
+void Chunk::SpawnStructure(Vector3<int> Positionn, Structure str)
+{
+	auto a = str.data;
+	for (int x = 0; x < StructureSize; x++)
+	{
+		for (int y = 0; y < StructureSize; y++)
+		{
+			for (int z = 0; z < StructureSize; z++)
+			{
+				if ((*a)[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
+				if (Positionn.x + x < ChunkSize && Positionn.y + y < ChunkHeight && Positionn.z + z < ChunkSize) {
+					delete (*blocks)[Positionn.x + x][Positionn.y + y][Positionn.z + z];
+					(*blocks)[Positionn.x + x][Positionn.y + y][Positionn.z + z] = world->MakeBlock((*a)[x + y * StructureSize + z * StructureSize * StructureSize]);
+				}
+			}
+		}
+	}
+}
+static Structure str({ 0,0,0 }, "tree");
 Chunk::Chunk(Vector2<int> Position, World* world)
 	:Position(Position), world(world)
 {
 	m_VertexBuffer = std::make_unique<VertexBuffer>();
-	m_VertexBuffer->Bind();
-	m_VertexBuffer->Allocate();
 	m_IndexBuffer = std::make_unique<IndexBuffer>();
-	blocks = new std::array<std::array<std::array<Block, ChunkSize>, ChunkHeight>, ChunkSize>();
+	auto a = SavingData::LoadChunk(Position);
+	if (a != nullptr)
+	{
+		blocks = a;
+		return;
+	}
+	blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>();
+	srand(1);
+	std::array<int, ChunkSize* ChunkSize> HeightMap;
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int z = 0; z < ChunkSize; z++)
+		{
+			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * 16, z + Position.y * 16);
+		}
+	}
 	for (int x = 0; x < ChunkSize; x++)
 	{
 		for (int y = 0; y < ChunkHeight; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				(*blocks)[x][y][z].Transform = { x + ChunkSize * Position.x,y,z + ChunkSize * Position.y };
-				int level = Noise::GetYLevel(x + Position.x * 16, z + Position.y * 16);
-				//double level = (sin(6 * (Position.x * ChunkSize + x)) * cos(6 * (Position.y * ChunkSize + z)) * 7 + 47);
-				if (y == (int)level)
+				int level = HeightMap[x + z * ChunkSize];
+				if (y == level)
 				{
-					(*blocks)[x][y][z].id = Grass_block;
+					(*blocks)[x][y][z] = new BlockGrass();
+				}
+				else if (y + 1 == level)
+				{
+					(*blocks)[x][y][z] = new BlockDirt();
+				}
+				else if (y + 2 == level)
+				{
+					(*blocks)[x][y][z] = new BlockDirt();
 				}
 				else if (y < level)
 				{
-					(*blocks)[x][y][z].id = Cobblestone;
+					(*blocks)[x][y][z] = new BlockCobblestone();
 				}
-				//if (y == (int)(level)+1 && (y * y * y + x * x + z) % 30 == 0)
-				//{
-				//	(*blocks)[x][y][z].id = Log;
-				//	(*blocks)[x][y + 1][z].id = Log;
-				//	(*blocks)[x][y + 2][z].id = Log;
-				//	(*blocks)[x][y + 3][z].id = Log;
-				//	(*blocks)[x][y + 4][z].id = Log;
-				//	(*blocks)[x][y + 5][z].id = Log;
-				//	(*blocks)[x][y + 6][z].id = Log;
-				//}
+				else
+				{
+					(*blocks)[x][y][z] = new BlockAir();
+				}
+			}
+		}
+	}
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int z = 0; z < ChunkSize; z++)
+		{
+			if (rand() % 100 == 0)
+			{
+				SpawnStructure({ x,HeightMap[x + z * ChunkSize] + 1 ,z }, str);
+			}
+		}
+	}
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 0; z < ChunkSize; z++)
+			{
+				(*blocks)[x][y][z]->Position = { x + ChunkSize * Position.x,y,z + ChunkSize * Position.y };
 			}
 		}
 	}
 }
+
 Chunk::~Chunk()
 {
 	delete blocks;
 }
 Block* Chunk::GetBlock(Vector3<int> Position) const
 {
-	return &(*blocks)[Position.x][Position.y][Position.z];
+	return (*blocks)[Position.x][Position.y][Position.z];
 }
-void Chunk::DrawBlock(Block& block)
+#define ONEOVER16 0.0625f
+void Chunk::DrawBlock(Block* block)
 {
-	if (block.id == BLOCK_ID::Air) return;
+	if (!(block->RenderedSides & (unsigned char)64)) return;
+	std::array<unsigned char, 6>& arr = blockProperties[block->GetBlockId()].textureSides;
 	Vertex a;
-	a.texId = (float)(block.id - 1);
-	if (block.RenderedSides & (unsigned char)1) {
+	a.texId = 0.0f;
+	if (block->RenderedSides & (unsigned char)1) {
+		float texcordsX = ((arr[0]) % 16) / 16.0f;
+		float texcordsY = ((arr[0]) / 16) / 16.0f;
 		a.color = { 0.9f,0.9f,0.9f,1.0f };
-		a.position = Vector::FloatVector(block.Transform);
+		a.texCords = { texcordsX, texcordsY };
+		a.position = Vector::FloatVector(block->Position);
 		m_VertexBuffer->Add(a);
 		a.position.x += 1.0f;
-		a.texCords.x = 1;
+		a.texCords.x += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.y += 1.0f;
-		a.texCords.y = 1;
+		a.texCords.y += ONEOVER16;
 		m_VertexBuffer->Add(a);
-		a.position.x = block.Transform.x;
-		a.texCords.x = 0;
+		a.position.x = (float)block->Position.x;
+		a.texCords.x = texcordsX;
 		m_VertexBuffer->Add(a);
 	}
-	if (block.RenderedSides & (unsigned char)2) {
+	if (block->RenderedSides & (unsigned char)2) {
+		float texcordsX = ((arr[1]) % 16) / 16.0f;
+		float texcordsY = ((arr[1]) / 16) / 16.0f;
 		a.color = { 0.85f,0.85f,0.85f,1.0f };
-		a.position = Vector::FloatVector(block.Transform);
-		a.texCords.y = 0;
+		a.position = Vector::FloatVector(block->Position);
+		a.texCords = { texcordsX, texcordsY };
 		a.position.x += 1.0f;
 		m_VertexBuffer->Add(a);
 		a.position.z += 1.0f;
-		a.texCords.x = 1;
+		a.texCords.x += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.y += 1.0f;
-		a.texCords.y = 1;
+		a.texCords.y += ONEOVER16;
 		m_VertexBuffer->Add(a);
-		a.position.z = block.Transform.z;
-		a.texCords.x = 0;
+		a.position.z = (float)block->Position.z;
+		a.texCords.x = texcordsX;
 		m_VertexBuffer->Add(a);
 	}
-	if (block.RenderedSides & (unsigned char)4) {
+	if (block->RenderedSides & (unsigned char)4) {
+		float texcordsX = ((arr[2]) % 16) / 16.0f;
+		float texcordsY = ((arr[2]) / 16) / 16.0f;
 		a.color = { 0.75f,0.75f,0.75f,1.0f };
-		a.position = Vector::FloatVector(block.Transform);
-		a.texCords.y = 0;
+		a.position = Vector::FloatVector(block->Position);
+		a.texCords = { texcordsX, texcordsY };
 		a.position.z += 1.0f;
 		a.position.x += 1.0f;
 		m_VertexBuffer->Add(a);
-		a.position.x = block.Transform.x;
-		a.texCords.x = 1;
+		a.position.x = (float)block->Position.x;
+		a.texCords.x += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.y += 1.0f;
-		a.texCords.y = 1;
+		a.texCords.y += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.x += 1.0f;
-		a.texCords.x = 0;
+		a.texCords.x = texcordsX;
 		m_VertexBuffer->Add(a);
 	}
-	if (block.RenderedSides & (unsigned char)8) {
+	if (block->RenderedSides & (unsigned char)8) {
+		float texcordsX = ((arr[3]) % 16) / 16.0f;
+		float texcordsY = ((arr[3]) / 16) / 16.0f;
 		a.color = { 0.8f,0.8f,0.8f,1.0f };
-		a.position = Vector::FloatVector(block.Transform);
+		a.position = Vector::FloatVector(block->Position);
 		a.position.z += 1.0f;
-		a.texCords.y = 0;
+		a.texCords = { texcordsX, texcordsY };
 		m_VertexBuffer->Add(a);
-		a.position.z = block.Transform.z;
-		a.texCords.x = 1;
+		a.position.z = (float)block->Position.z;
+		a.texCords.x += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.y += 1.0f;
-		a.texCords.y = 1;
+		a.texCords.y += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.z += 1.0f;
-		a.texCords.x = 0;
+		a.texCords.x = texcordsX;
 		m_VertexBuffer->Add(a);
 	}
-	if (block.RenderedSides & (unsigned char)16) {
+	if (block->RenderedSides & (unsigned char)16) {
+		float texcordsX = ((arr[4]) % 16) / 16.0f;
+		float texcordsY = ((arr[4]) / 16) / 16.0f;
 		a.color = { 0.7f,0.7f,0.7f,1.0f };
-		a.position = Vector::FloatVector(block.Transform);
-		a.texCords.y = 0;
+		a.position = Vector::FloatVector(block->Position);
+		a.texCords = { texcordsX, texcordsY };
 		m_VertexBuffer->Add(a);
 		a.position.z += 1.0f;
-		a.texCords.x = 1;
+		a.texCords.x += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.x += 1.0f;
-		a.texCords.y = 1;
+		a.texCords.y += ONEOVER16;
 		m_VertexBuffer->Add(a);
-		a.position.z = block.Transform.z;
-		a.texCords.x = 0;
+		a.position.z = (float)block->Position.z;
+		a.texCords.x = texcordsX;
 		m_VertexBuffer->Add(a);
 	}
-	if (block.RenderedSides & (unsigned char)32) {
+	if (block->RenderedSides & (unsigned char)32) {
+		float texcordsX = ((arr[5]) % 16) / 16.0f;
+		float texcordsY = ((arr[5]) / 16) / 16.0f;
 		a.color = { 1.0f,1.0f,1.0f,1.0f };
-		a.position = Vector::FloatVector(block.Transform);
+		a.position = Vector::FloatVector(block->Position);
 		a.position.y += 1.0f;
-		a.texCords.y = 0;
+		a.texCords = { texcordsX, texcordsY };
 		m_VertexBuffer->Add(a);
 		a.position.x += 1.0f;
-		a.texCords.x = 1;
+		a.texCords.x += ONEOVER16;
 		m_VertexBuffer->Add(a);
 		a.position.z += 1.0f;
-		a.texCords.y = 1;
+		a.texCords.y += ONEOVER16;
 		m_VertexBuffer->Add(a);
-		a.position.x = block.Transform.x;
-		a.texCords.x = 0;
+		a.position.x = (float)block->Position.x;
+		a.texCords.x = texcordsX;
 		m_VertexBuffer->Add(a);
 	}
-	m_IndexBuffer->AddCuboid(block.RenderedSides);
+	m_IndexBuffer->AddCuboid(block->RenderedSides);
 }
 void Chunk::Draw() {
 	m_VertexBuffer->Bind();
@@ -173,7 +245,7 @@ void Chunk::UpdateAllBlocks()
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				(*blocks)[x][y][z].Update();
+				(*blocks)[x][y][z]->Update();
 			}
 		}
 	}

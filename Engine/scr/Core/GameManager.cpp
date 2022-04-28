@@ -1,3 +1,4 @@
+#include <Engine.h>
 #include "GameManager.h"
 #include "GlobalVariables.h"
 #include <iostream>
@@ -13,16 +14,17 @@ void GameManager::Update(float deltaTime)
 	}
 	FrameCount++;
 	second += deltaTime;
-	player->Update(deltaTime);
 	Overworld->Render();
+	player->Update(deltaTime);
 }
 void GameManager::Start()
 {
-	player = new Player();
 	new World(0);
+	player = new Player();
 }
 void GameManager::Shutdown()
 {
+	Overworld->Save();
 	delete player;
 	delete Overworld;
 }

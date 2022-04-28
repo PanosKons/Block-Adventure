@@ -1,3 +1,4 @@
+#include <Engine.h>
 #include "Noise.h"
 #include "../vendor/PerlinNoise.hpp"
 constexpr double frequency = 8.0; //0.1 - 64.0
@@ -7,5 +8,5 @@ const siv::PerlinNoise perlin(seed);
 int Noise::GetYLevel(int x, int z)
 {
 	double a = perlin.accumulatedOctaveNoise2D_0_1(x / 48.0f, z / 48.0f, octaves);
-	return a * 64;
+	return (int)(a * 64);
 }

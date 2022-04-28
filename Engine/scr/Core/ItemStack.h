@@ -1,5 +1,5 @@
 #pragma once
-#include "Block.h"
+#include "../Blocks/Block.h"
 class ItemStack
 {
 public:

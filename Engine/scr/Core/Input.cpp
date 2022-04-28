@@ -1,6 +1,11 @@
+#include <Engine.h>
 #include "Input.h"
 #include "Renderer.h"
 #include "GlobalVariables.h"
+void Input::SetCharCallback(void (*CharCallback)(GLFWwindow* window, unsigned int key))
+{
+	glfwSetCharCallback(ApplicationWindow, CharCallback);
+}
 void Input::SetCursorCallback(void (*CursorCallback)(GLFWwindow* window, double xpos, double ypos))
 {
 	glfwSetCursorPosCallback(ApplicationWindow, CursorCallback);
@@ -16,4 +21,8 @@ void Input::SetKeyCallback(void (*KeyCallback)(GLFWwindow* window, int key, int 
 int Input::GetKeyState(int key)
 {
 	return glfwGetKey(ApplicationWindow, key);
+}
+int Input::GetMouseState(int Mouse)
+{
+	return glfwGetMouseButton(ApplicationWindow, Mouse);
 }
