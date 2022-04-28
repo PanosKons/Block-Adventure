@@ -12,17 +12,26 @@ static std::unique_ptr<VertexBuffer> m_VertexBuffer;
 static bool debugActive = false;
 static bool TypingActive = false;
 static std::string chatbox;
+static std::string lastCommand;
 constexpr float charWidthOffset = 28.0f;
 constexpr float charHeightOffset = 32.0f;
 constexpr float charWidth = 32.0f;
 constexpr float charHeight = 32.0f;
-
-void ManagerUI::PrintString(std::string&& Text, Vector2<float> position)
+constexpr float SlotWidth = 64.0f;
+constexpr float SlotHeight = 64.0f;
+constexpr float BaseLayer = 10.0f;
+std::string ManagerUI::ToString(bool value)
+{
+	if (value)
+		return "true";
+	else return "false";
+}
+void ManagerUI::PrintString(std::string&& Text, Vector3<float> position)
 {
 	Vertex a;
 	a.color = { 1,1,1,1 };
 	a.texId = 13;
-	a.position = { position.x,position.y,1.0f };
+	a.position = position;
 	for (char digit : Text)
 	{
 		int x = digit % 16;
@@ -43,12 +52,12 @@ void ManagerUI::PrintString(std::string&& Text, Vector2<float> position)
 		a.position.x -= charWidth - charWidthOffset;
 	}
 }
-void ManagerUI::PrintString(std::string& Text, Vector2<float> position)
+void ManagerUI::PrintString(std::string& Text, Vector3<float> position)
 {
 	Vertex a;
 	a.color = { 1,1,1,1 };
 	a.texId = 13;
-	a.position = { position.x,position.y,1.0f };
+	a.position = position;
 	for (char digit : Text)
 	{
 		int x = digit % 16;
@@ -69,13 +78,13 @@ void ManagerUI::PrintString(std::string& Text, Vector2<float> position)
 		a.position.x -= charWidth - charWidthOffset;
 	}
 }
-void ManagerUI::PrintSquare(Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, float TextureID)
+void ManagerUI::PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, float TextureID)
 {
 	Vertex a;
 	a.color = Color;
 	a.texId = TextureID;
 	a.texCords = { 0,0 };
-	a.position = { Position.x,Position.y,1.0f };
+	a.position = Position;
 	m_VertexBuffer->Add(a);
 	a.texCords = { 0,1 };
 	a.position.y += Size.y;
@@ -90,15 +99,37 @@ void ManagerUI::PrintSquare(Vector2<float> Position, Vector2<float> Size, Vector
 }
 void ManagerUI::UpdateUI()
 {
-	PrintSquare({ (float)(ScreenWidth - 16) / 2,(float)(ScreenHeight - 16) / 2 }, { 32.0f, 32.0f }, { 1, 1, 1, 1 }, 12);
-
+	Vector3<float> SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.3f };
+	for (int i = 0; i < 9; i++)
+	{
+		PrintSquare(SlotPosition, { SlotWidth,SlotHeight }, { 1,1,1,1 }, 14);
+		SlotPosition.x += SlotWidth;
+	}
+	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.2f };
+	for (int i = 0; i < 9; i++)
+	{
+		if (GameManager::player->Inventory[i].count != 0)
+			PrintSquare({ SlotPosition.x + 8, SlotPosition.y + 8,SlotPosition.z }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, GameManager::player->Inventory[i].id - 1);
+		SlotPosition.x += SlotWidth;
+	}
+	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.1f };
+	for (int i = 0; i < 9; i++)
+	{
+		if (GameManager::player->Inventory[i].count != 0)
+			PrintString(ToString(GameManager::player->Inventory[i].count), SlotPosition);
+		SlotPosition.x += SlotWidth;
+	}
+	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.05f };
+	PrintSquare({ SlotPosition.x + SlotWidth * GameManager::player->ActiveSlot,SlotPosition.y,SlotPosition.z }, { SlotWidth,SlotHeight }, { 1,1,1,1 }, 15);
+	PrintSquare({ (float)(ScreenWidth - 16) / 2,(float)(ScreenHeight - 16) / 2,BaseLayer }, { 32.0f, 32.0f }, { 1, 1, 1, 1 }, 12);
 	if (debugActive)
 	{
-		Vector2<float> TextPosition = { 0.0f,(float)(ScreenHeight - charHeight - 2) };
+		Vector3<float> TextPosition = { 0.0f,(float)(ScreenHeight - charHeight - 2),BaseLayer };
 		PrintString("FPS:" + ToString(FPS), TextPosition);
 		TextPosition.y -= charHeightOffset;
 		PrintString("Position:" + ToString((int)GameManager::player->Position.x) + "," + ToString((int)GameManager::player->Position.y) + "," + ToString((int)GameManager::player->Position.z), TextPosition);
 		TextPosition.y -= charHeightOffset;
+		PrintString("Grounded:" + ToString(GameManager::player->grounded), TextPosition);
 		Block* bl = GameManager::player->GetFacingBlock();
 		if (bl != nullptr) {
 			TextPosition.y -= charHeightOffset;
@@ -107,9 +138,9 @@ void ManagerUI::UpdateUI()
 	}
 	if (TypingActive)
 	{
-		Vector2<float> TypingText = { 0.0f,0.0f };
+		Vector3<float> TypingText = { 0.0f,0.0f,BaseLayer };
 		PrintString(chatbox, TypingText);
-		PrintSquare({ 0.0f,0.0f }, { (float)ScreenWidth, charHeight }, { 0.2f, 0.2f, 0.2f, 0.6f }, -1);
+		PrintSquare({ 0.0f,0.0f,BaseLayer + 0.1f }, { (float)ScreenWidth, charHeight }, { 0.2f, 0.2f, 0.2f, 0.6f }, -1);
 	}
 	m_VertexBuffer->Bind();
 	m_VertexBuffer->Allocate();
@@ -119,6 +150,10 @@ void ManagerUI::UpdateUI()
 }
 void ToggleStates(int key, int action)
 {
+	if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9 && action == GLFW_PRESS && Playing)
+	{
+		GameManager::player->ActiveSlot = key - 49;
+	}
 	if (key == GLFW_KEY_F3 && action == GLFW_PRESS && Playing) {
 		debugActive = !debugActive;
 	}
@@ -132,11 +167,16 @@ void ToggleStates(int key, int action)
 		Playing = !Playing;
 		chatbox = "";
 	}
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS && !Playing)
+	{
+		chatbox = lastCommand;
+	}
 	if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && !Playing)
 	{
 		TypingActive = !TypingActive;
 		Playing = !Playing;
 		Commands::ExecuteCommand(chatbox);
+		lastCommand = chatbox;
 		chatbox = "";
 	}
 	if (key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS && !Playing)
@@ -146,6 +186,10 @@ void ToggleStates(int key, int action)
 	if (!Playing && action == GLFW_PRESS && key <= 255)
 	{
 		chatbox += (char)key;
+	}
+	if (key == GLFW_KEY_T && action == GLFW_PRESS && Playing) {
+		TypingActive = !TypingActive;
+		Playing = !Playing;
 	}
 }
 void ManagerUI::Init()

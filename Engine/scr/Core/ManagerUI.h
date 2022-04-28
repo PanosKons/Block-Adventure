@@ -8,15 +8,16 @@ class ManagerUI
 public:
 	static void Init();
 	static void UpdateUI();
+	static std::string ToString(bool value);
 	template<typename T>
-	static std::string ToString(T Number)
+	static std::string ToString(T value)
 	{
 		std::ostringstream os;
 
-		os << Number;
+		os << value;
 		return os.str();
 	}
-	static void PrintString(std::string&& Text, Vector2<float> position);
-	static void PrintString(std::string& Text, Vector2<float> position);
-	static void PrintSquare(Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, float TextureID);
+	static void PrintString(std::string&& Text, Vector3<float> position);
+	static void PrintString(std::string& Text, Vector3<float> position);
+	static void PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, float TextureID);
 };

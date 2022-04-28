@@ -18,7 +18,6 @@ namespace Renderer {
 	static std::vector<std::string> m_Textures;
 	static glm::mat4 proj;
 	static float fov = 70.0f;
-
 	void DrawChunk(Chunk* chunk)
 	{
 		chunk->m_VertexBuffer->Bind();
@@ -41,6 +40,17 @@ namespace Renderer {
 		layout.Calculate();
 		glDrawElements(GL_TRIANGLES, (GLsizei)(ib.GetData().size()), GL_UNSIGNED_INT, ib.GetData().data());
 	}
+	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib, unsigned int count, unsigned int offset)
+	{
+		vb.Bind();
+		VertexBufferLayout layout;
+		layout.Push<float>(3);
+		layout.Push<float>(4);
+		layout.Push<float>(2);
+		layout.Push<float>(1);
+		layout.Calculate();
+		glDrawElements(GL_TRIANGLES, (GLsizei)count, GL_UNSIGNED_INT, ib.GetData().data() + offset);
+	}
 	void Run()
 	{
 		while (!glfwWindowShouldClose(ApplicationWindow))
@@ -52,7 +62,7 @@ namespace Renderer {
 			previous = now;
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			GameManager::Update(deltaTime);
-			m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight));
+			m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight, -30.0f, 30.0f));
 			ManagerUI::UpdateUI();
 			glfwSwapBuffers(ApplicationWindow);
 			glfwPollEvents();
@@ -77,7 +87,7 @@ namespace Renderer {
 			return -1;
 		}
 		glfwMakeContextCurrent(ApplicationWindow);
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 		glfwSetInputMode(ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return -1;
@@ -85,24 +95,26 @@ namespace Renderer {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		unsigned int m_RendererID;
 		glCreateVertexArrays(1, &m_RendererID);
 		glBindVertexArray(m_RendererID);
 
-		m_Shader = std::make_unique<Shader>("C:/CPP/Solutions/Engine/Engine/res/shaders/Base.shader");
+		m_Shader = std::make_unique<Shader>("res/shaders/Base.shader");
 		m_Shader->Bind();
 		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 		m_Shader->SetUniform1iv("u_texture", textures, 32);
 		proj = glm::perspective(glm::radians(fov), (float)ScreenWidth / (float)ScreenHeight, 0.1f, -30.0f);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/cursor.png", 12);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/text.png", 13);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/log.png", 4);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/leaves.png", 5);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/cobblestone.png", 3);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/dirt.png", 2);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/grass_block.png", 1);
-		Texture::Load("C:/CPP/Solutions/Engine/Engine/res/textures/sand.png", 0);
+		Texture::Load("res/textures/cursor.png", 12);
+		Texture::Load("res/textures/selected_slot.png", 15);
+		Texture::Load("res/textures/text.png", 13);
+		Texture::Load("res/textures/slot.png", 14);
+		Texture::Load("res/textures/log.png", 4);
+		Texture::Load("res/textures/leaves.png", 5);
+		Texture::Load("res/textures/cobblestone.png", 3);
+		Texture::Load("res/textures/dirt.png", 2);
+		Texture::Load("res/textures/grass_block.png", 1);
+		Texture::Load("res/textures/sand.png", 0);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);

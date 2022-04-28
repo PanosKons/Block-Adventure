@@ -5,6 +5,8 @@
 #include "../vendor/glm/gtc/matrix_transform.hpp"
 #include "MainCamera.h"
 #include "Block.h"
+#include <array>
+#include "ItemStack.h"
 class Player
 {
 public:
@@ -14,14 +16,18 @@ public:
 	Block* GetFacingBlock();
 	Block* GetBlockToPlace();
 	void Update(float deltaTime);
+	int GetFirstAvaiableSlot(BLOCK_ID id);
 	float yaw = -90.0f;
 	float pitch = -80.0f;
 	float lastX = 0.0f;
 	float lastY = 0.0f;
+	float JumpCooldown = 0.0f;
+	float speed = 5.0f;
 	bool firstMouse = true;
-	float speed = 10;
 	Vector3<float> Velocity;
 	MainCamera mainCamera;
+	std::array<ItemStack, 9> Inventory;
+	char ActiveSlot;
 	bool grounded;
 	void MouseButton(int button, int action);
 	void CursorMoved(double xpos, double ypos);

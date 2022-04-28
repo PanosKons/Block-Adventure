@@ -14,5 +14,6 @@ namespace Renderer
 	int CreateWindow(const std::string& name);
 	void DrawChunk(Chunk* chunk);
 	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib);
+	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib, unsigned int count, unsigned int offset);
 	void Run();
 };

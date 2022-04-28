@@ -96,6 +96,9 @@
     <ClInclude Include="scr\Core\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="scr\Core\ItemStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\Core\Renderer.cpp">
@@ -168,6 +171,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Core\Commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Core\ItemStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

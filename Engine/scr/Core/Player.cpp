@@ -6,10 +6,22 @@
 #include <iostream>
 #include "GlobalVariables.h"
 Player::Player()
-	:mainCamera(), grounded(false), Velocity(), Position({ 20.5f,63.0f,20.5f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
+	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(), Position({ 20.5f,63.0f,20.5f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
 {
 	Input::SetCursorCallback([](GLFWwindow* window, double xpos, double ypos) {GameManager::player->CursorMoved(xpos, ypos); });
 	Input::SetMouseCallback([](GLFWwindow* window, int button, int action, int mods) {GameManager::player->MouseButton(button, action); });
+}
+int Player::GetFirstAvaiableSlot(BLOCK_ID id)
+{
+	for (int i = 0; i < Inventory.size(); i++)
+	{
+		if (Inventory[i].id == id) return i;
+	}
+	for (int i = 0; i < Inventory.size(); i++)
+	{
+		if (Inventory[i].id == 0 || Inventory[i].count == 0) return i;
+	}
+	return -1;
 }
 Block* Player::GetFacingBlock()
 {
@@ -48,6 +60,9 @@ void Player::MouseButton(int button, int action)
 	{
 		Block* block = GetFacingBlock();
 		if (block == nullptr) return;
+		int index = GetFirstAvaiableSlot(block->id);
+		Inventory[index].id = block->id;
+		Inventory[index].count++;
 		block->ChangeState(BLOCK_ID::Air);
 	}
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
@@ -55,7 +70,11 @@ void Player::MouseButton(int button, int action)
 		Block* block = GetBlockToPlace();
 		if (block == nullptr) return;
 		if (block->Transform.x == (int)mainCamera.cameraPos.x && (block->Transform.y == (int)mainCamera.cameraPos.y || block->Transform.y == (int)mainCamera.cameraPos.y - 1) && block->Transform.z == (int)mainCamera.cameraPos.z) return;
-		block->ChangeState(BLOCK_ID::Cobblestone);
+		if (Inventory[ActiveSlot].count > 0)
+		{
+			block->ChangeState(Inventory[ActiveSlot].id);
+			Inventory[ActiveSlot].count--;
+		}
 	}
 }
 void Player::CursorMoved(double xpos, double ypos)
@@ -91,54 +110,80 @@ void Player::CursorMoved(double xpos, double ypos)
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	mainCamera.cameraFront = glm::normalize(front);
 }
+static int value = 0;
 void Player::Update(float deltaTime)
 {
-	grounded = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)Position.y, (int)(Position.z - 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)Position.y, (int)(Position.z - 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)Position.y, (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)Position.y, (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air;
+	JumpCooldown -= deltaTime;
+	grounded = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.27f), (int)Position.y, (int)(Position.z - 0.27f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.27f), (int)Position.y, (int)(Position.z - 0.27f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.27f), (int)Position.y, (int)(Position.z + 0.27f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.27f), (int)Position.y, (int)(Position.z + 0.27f) })->id != BLOCK_ID::Air;
 	if (!grounded)
 	{
-		Velocity.y -= 0.005f * deltaTime;
+		Velocity.y -= 0.000013f / deltaTime;
 	}
 	else
 	{
-		Velocity.y = 0;
+		if (Velocity.y < 0) Velocity.y = 0;
 	}
-	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && grounded && Playing)
+	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && grounded && Playing && JumpCooldown <= 0)
 	{
-		Velocity.y = 5.0f * deltaTime;
+		Velocity.y = 8.5f * deltaTime;
+		JumpCooldown += 0.4f;
+	}
+	if (Input::GetKeyState(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && Playing)
+	{
+		speed = 6.0f;
+	}
+	else
+	{
+		speed = 4.0f;
 	}
 	if (Input::GetKeyState(GLFW_KEY_W) == GLFW_PRESS && Playing)
 	{
-		Velocity.x = 3.0f * cos(glm::radians(yaw)) * deltaTime;
-		Velocity.z = 3.0f * sin(glm::radians(yaw)) * deltaTime;
+		Velocity.x = speed * cos(glm::radians(yaw)) * deltaTime;
+		Velocity.z = speed * sin(glm::radians(yaw)) * deltaTime;
+	}
+	else if (Input::GetKeyState(GLFW_KEY_S) == GLFW_PRESS && Playing)
+	{
+		Velocity.x = -speed * cos(glm::radians(yaw)) * deltaTime;
+		Velocity.z = -speed * sin(glm::radians(yaw)) * deltaTime;
+	}
+	else if (Input::GetKeyState(GLFW_KEY_D) == GLFW_PRESS && Playing)
+	{
+		Velocity.x = speed * cos(glm::radians(yaw + 90)) * deltaTime;
+		Velocity.z = speed * sin(glm::radians(yaw + 90)) * deltaTime;
+	}
+	else if (Input::GetKeyState(GLFW_KEY_A) == GLFW_PRESS && Playing)
+	{
+		Velocity.x = -speed * cos(glm::radians(yaw + 90)) * deltaTime;
+		Velocity.z = -speed * sin(glm::radians(yaw + 90)) * deltaTime;
 	}
 	else
 	{
 		Velocity.x = 0;
 		Velocity.z = 0;
 	}
-	bool XCollisionMinus = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.3f), (int)(Position.y + 0.1f), (int)(Position.z - 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.3f), (int)(Position.y + 0.1f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.3f), (int)(Position.y + 1.1f), (int)(Position.z - 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.3f), (int)(Position.y + 1.1f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air;
-	bool XCollisionPos = GameManager::Overworld->GetBlock({ (int)(Position.x + 0.3f), (int)(Position.y + 0.1f), (int)(Position.z - 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.3f), (int)(Position.y + 0.1f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.3f), (int)(Position.y + 1.1f), (int)(Position.z - 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.3f), (int)(Position.y + 1.1f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air;
-	bool ZCollisionMinus = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)(Position.y + 0.1f), (int)(Position.z - 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)(Position.y + 0.1f), (int)(Position.z - 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)(Position.y + 1.1f), (int)(Position.z - 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)(Position.y + 1.1f), (int)(Position.z - 0.3f) })->id != BLOCK_ID::Air;
-	bool ZCollisionPos = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)(Position.y + 0.1f), (int)(Position.z + 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)(Position.y + 0.1f), (int)(Position.z + 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)(Position.y + 1.1f), (int)(Position.z + 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)(Position.y + 1.1f), (int)(Position.z + 0.3f) })->id != BLOCK_ID::Air;
-	bool YCollisionPos = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)(Position.y + 1.9f), (int)(Position.z + 0.3f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)(Position.y + 1.9f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.29f), (int)(Position.y + 1.9f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air
-		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.29f), (int)(Position.y + 1.9f), (int)(Position.z + 0.29f) })->id != BLOCK_ID::Air;
+	bool XCollisionMinus = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.31f), (int)(Position.y + 0.2f), (int)(Position.z - 0.28f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.31f), (int)(Position.y + 0.2f), (int)(Position.z + 0.28f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.31f), (int)(Position.y + 1.1f), (int)(Position.z - 0.28f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.31f), (int)(Position.y + 1.1f), (int)(Position.z + 0.28f) })->id != BLOCK_ID::Air;
+	bool XCollisionPos = GameManager::Overworld->GetBlock({ (int)(Position.x + 0.31f), (int)(Position.y + 0.2f), (int)(Position.z - 0.28f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.31f), (int)(Position.y + 0.2f), (int)(Position.z + 0.28f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.31f), (int)(Position.y + 1.1f), (int)(Position.z - 0.28f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.31f), (int)(Position.y + 1.1f), (int)(Position.z + 0.28f) })->id != BLOCK_ID::Air;
+	bool ZCollisionMinus = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.28f), (int)(Position.y + 0.2f), (int)(Position.z - 0.31f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.28f), (int)(Position.y + 0.2f), (int)(Position.z - 0.31f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.28f), (int)(Position.y + 1.1f), (int)(Position.z - 0.31f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.28f), (int)(Position.y + 1.1f), (int)(Position.z - 0.31f) })->id != BLOCK_ID::Air;
+	bool ZCollisionPos = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.28f), (int)(Position.y + 0.2f), (int)(Position.z + 0.3f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.28f), (int)(Position.y + 0.2f), (int)(Position.z + 0.31f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.28f), (int)(Position.y + 1.1f), (int)(Position.z + 0.31f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.28f), (int)(Position.y + 1.1f), (int)(Position.z + 0.31f) })->id != BLOCK_ID::Air;
+	bool YCollisionPos = GameManager::Overworld->GetBlock({ (int)(Position.x - 0.27f), (int)(Position.y + 1.9f), (int)(Position.z + 0.27f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.27f), (int)(Position.y + 1.9f), (int)(Position.z + 0.27f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x + 0.27f), (int)(Position.y + 1.9f), (int)(Position.z - 0.27f) })->id != BLOCK_ID::Air
+		|| GameManager::Overworld->GetBlock({ (int)(Position.x - 0.27f), (int)(Position.y + 1.9f), (int)(Position.z - 0.27f) })->id != BLOCK_ID::Air;
 	if (XCollisionPos && Velocity.x > 0) Velocity.x = 0;
 	if (XCollisionMinus && Velocity.x < 0) Velocity.x = 0;
 	if (ZCollisionPos && Velocity.z > 0) Velocity.z = 0;
@@ -146,21 +191,6 @@ void Player::Update(float deltaTime)
 	if (YCollisionPos && Velocity.y > 0) Velocity.y = 0;
 	/*glm::vec3 vec(0.0f);
 	glm::vec2 v(0.0f);
-	if (Input::GetKeyState(GLFW_KEY_S) == GLFW_PRESS)
-	{
-		v.x -= cos(glm::radians(yaw));
-		v.y -= sin(glm::radians(yaw));
-	}
-	if (Input::GetKeyState(GLFW_KEY_A) == GLFW_PRESS)
-	{
-		v.x -= cos(glm::radians(yaw + 90));
-		v.y -= sin(glm::radians(yaw + 90));
-	}
-	if (Input::GetKeyState(GLFW_KEY_D) == GLFW_PRESS)
-	{
-		v.x += cos(glm::radians(yaw + 90));
-		v.y += sin(glm::radians(yaw + 90));
-	}
 	if (v.x != 0 && v.y != 0)
 		v = glm::normalize(v);
 	vec.x = v.x;

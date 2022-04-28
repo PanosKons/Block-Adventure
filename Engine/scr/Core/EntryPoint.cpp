@@ -2,7 +2,7 @@
 #include "GameManager.h"
 #include "ManagerUI.h"
 #include "GlobalVariables.h"
-int WinMain()
+int main()
 {
 	ScreenWidth = 1440;
 	ScreenHeight = 960;

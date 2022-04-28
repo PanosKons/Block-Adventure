@@ -24,6 +24,15 @@ void Commands::ExecuteCommand(const std::string& command)
 		ss >> token;
 		tokens.push_back(token);
 	}
+	if (tokens[0] == "/GIVE")
+	{
+		if (tokens.size() == 3)
+		{
+			ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot(blockIds[tokens[1]])];
+			stack.id = blockIds[tokens[1]];
+			stack.count += std::stoi(tokens[2]);
+		}
+	}
 	if (tokens[0] == "/SETBLOCK")
 	{
 		if (tokens.size() == 5)
