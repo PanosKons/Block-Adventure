@@ -8,3 +8,4 @@
 #include "Blocks/BlockGlass.h"
 #include "Blocks/BlockLeaves.h"
 #include "Blocks/BlockWater.h"
+#include "Blocks/BlockDryGrass.h"

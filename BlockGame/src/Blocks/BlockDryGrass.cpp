@@ -1,11 +1,11 @@
 #include <Engine.h>
-#include "BlockGrass.h"
+#include "BlockDryGrass.h"
 #include "../Core/GameManager.h"
-BLOCK_ID BlockGrass::GetBlockId()
+BLOCK_ID BlockDryGrass::GetBlockId()
 {
-	return BLOCK_ID::Grass;
+	return BLOCK_ID::DryGrass;
 }
-void BlockGrass::Update()
+void BlockDryGrass::Update()
 {
 	Block::Update();
 	Block* block = GameManager::Overworld->GetBlock({ Position.x, Position.y + 1, Position.z });
@@ -17,7 +17,7 @@ void BlockGrass::Update()
 		}
 	}
 }
-BlockProperties BlockGrass::GetBlockProperties()
+BlockProperties BlockDryGrass::GetBlockProperties()
 {
-	return { 60,TOOL::Shovel,0,{1,1,1,1,2,0} };
+	return { 60,TOOL::Shovel,0,{11,11,11,11,2,10} };
 }

@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Blocks\BlockDryGrass.cpp" />
     <ClCompile Include="src\Blocks\Block.cpp" />
     <ClCompile Include="src\Blocks\BlockAir.cpp" />
     <ClCompile Include="src\Blocks\BlockCobblestone.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\Core\World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Blocks\BlockDryGrass.h" />
     <ClInclude Include="src\Blocks.h" />
     <ClInclude Include="src\Blocks\Block.h" />
     <ClInclude Include="src\Blocks\BlockAir.h" />
@@ -185,6 +187,7 @@
     <ClInclude Include="src\Blocks\BlockLeaves.h" />
     <ClInclude Include="src\Blocks\BlockLog.h" />
     <ClInclude Include="src\Blocks\BlockWater.h" />
+    <ClInclude Include="src\Blocks\SpecialProperties\IClickable.h" />
     <ClInclude Include="src\Core\BlockProperties.h" />
     <ClInclude Include="src\Core\World\Chunk.h" />
     <ClInclude Include="src\Core\UI\Commands.h" />

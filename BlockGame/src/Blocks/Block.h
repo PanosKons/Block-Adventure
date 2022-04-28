@@ -3,7 +3,7 @@
 #include "../BlockProperties.h"
 enum class BLOCK_ID
 {
-	Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water
+	Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass
 };
 class Block //Base class all blocks derive from
 {
