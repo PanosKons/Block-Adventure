@@ -7,7 +7,7 @@
 #include <iostream>
 #include "GlobalVariables.h"
 Player::Player()
-	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 20.5f,63.0f,20.5f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
+	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 8.5f,63.0f,8.5f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
 {
 	Input::SetCursorCallback([](GLFWwindow* window, double xpos, double ypos) {GameManager::player->CursorMoved(xpos, ypos); });
 }
@@ -212,4 +212,10 @@ void Player::Update(float deltaTime)
 	if (YCollisionPos && Velocity.y > 0) Velocity.y = 0;
 	Position += Velocity * deltaTime;
 	mainCamera.cameraPos = glm::vec3(Position.x, Position.y + 1.8f, Position.z);
+	Vector2<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.z) / ChunkSize };
+	if (chunkpos != ChunkPosition)
+	{
+		GameManager::Overworld->LoadNewChunks(chunkpos);
+		ChunkPosition = chunkpos;
+	}
 }

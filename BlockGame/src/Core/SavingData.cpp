@@ -60,7 +60,6 @@ void SavingData::SaveStructure(std::string& name, Structure structure)
 	fout.write((const char*)(*structure.data).data(), (*structure.data).size() * sizeof(BLOCK_ID));
 	fout.close();
 }
-
 void SavingData::ActivateLoading(bool value)
 {
 	Activated = value;

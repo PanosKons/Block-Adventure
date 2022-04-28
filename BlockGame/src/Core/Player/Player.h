@@ -37,4 +37,6 @@ public:
 	char ActiveSlot;
 	bool grounded;
 	void CursorMoved(double xpos, double ypos);
+
+	Vector2<int> ChunkPosition = { 0,0 };
 };

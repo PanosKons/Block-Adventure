@@ -12,6 +12,7 @@ public:
 	Chunk* GetChunk(Block* block);
 	static Block* MakeBlock(BLOCK_ID id);
 	void Save();
+	void LoadNewChunks(Vector2<int> position);
 private:
-	std::unordered_map<int, Chunk*> ChunkMap;
+	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };

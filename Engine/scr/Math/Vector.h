@@ -21,6 +21,11 @@ public:
 	{
 		return { x * value,y * value };
 	}
+	bool operator!=(Vector2 other)
+	{
+		if (x == other.x && y == other.y) return false;
+		return true;
+	}
 };
 template<typename T>
 class Vector3
