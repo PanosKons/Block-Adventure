@@ -2,6 +2,7 @@
 #include "ManagerUI.h"
 #include "Renderer.h"
 #include "GameManager.h"
+#include "World.h"
 #include <sstream>
 #include "vendor/glm/gtc/matrix_transform.hpp"
 #include "GlobalVariables.h"
@@ -131,7 +132,7 @@ void ManagerUI::UpdateUI()
 	{
 		if (GameManager::player->Inventory[i].count != 0)
 		{
-			unsigned char a = 1; //TEMPORARY
+			unsigned char a = GetTexture((int)GameManager::player->Inventory[i].id)[0];
 			PrintSquare({ SlotPosition.x + 8, SlotPosition.y + 8,SlotPosition.z }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f);
 		}
 		SlotPosition.x += SlotWidth;

@@ -157,6 +157,7 @@
     <ClCompile Include="src\Blocks\BlockLeaves.cpp" />
     <ClCompile Include="src\Blocks\BlockLog.cpp" />
     <ClCompile Include="src\Blocks\BlockWater.cpp" />
+    <ClCompile Include="src\Core\BlockProperties.cpp" />
     <ClCompile Include="src\Core\World\Chunk.cpp" />
     <ClCompile Include="src\Core\UI\Commands.cpp" />
     <ClCompile Include="src\Core\EntryPoint.cpp" />
