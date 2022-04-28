@@ -27,28 +27,28 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -163,33 +163,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="scr\Blocks.h" />
-    <ClInclude Include="scr\Entities\Entity.h" />
-    <ClInclude Include="scr\Core\BlockProperties.h" />
-    <ClInclude Include="scr\Blocks\BlockDirt.h" />
-    <ClInclude Include="scr\Blocks\BlockIron.h" />
-    <ClInclude Include="scr\Core\SavingData.h" />
-    <ClInclude Include="scr\Blocks\BlockGrass.h" />
-    <ClInclude Include="scr\Blocks\BlockCobblestone.h" />
-    <ClInclude Include="scr\Blocks\BlockLog.h" />
-    <ClInclude Include="scr\Blocks\BlockAir.h" />
     <ClInclude Include="scr\Math\Noise.h" />
-    <ClInclude Include="scr\Core\ItemStack.h" />
-    <ClInclude Include="scr\Core\Commands.h" />
-    <ClInclude Include="scr\Core\GlobalVariables.h" />
-    <ClInclude Include="scr\Core\ManagerUI.h" />
-    <ClInclude Include="scr\Core\MainCamera.h" />
-    <ClInclude Include="scr\Core\Input.h" />
-    <ClInclude Include="scr\Core\Chunk.h" />
-    <ClInclude Include="scr\Core\GameManager.h" />
-    <ClInclude Include="scr\Core\Player.h" />
-    <ClInclude Include="scr\Core\World.h" />
     <ClInclude Include="scr\Math\Cuboid.h" />
-    <ClInclude Include="scr\Blocks\Block.h" />
-    <ClInclude Include="scr\Core\Physics.h" />
     <ClInclude Include="scr\Math\Ray.h" />
     <ClInclude Include="scr\Rendering\IndexBuffer.h" />
-    <ClInclude Include="scr\Core\Renderer.h" />
     <ClInclude Include="scr\Engine.h" />
     <ClInclude Include="scr\Math\mat4.h" />
     <ClInclude Include="scr\Math\EngineMath.h" />
@@ -202,10 +179,8 @@
     <ClInclude Include="scr\vendor\PerlinNoise.hpp" />
     <ClInclude Include="scr\vendor\stb_image.h" />
     <ClInclude Include="scr\util\StringConvertions.h" />
-    <ClInclude Include="scr\Core\Structure.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="scr\Core\Structure.cpp" />
     <ClCompile Include="scr\Engine.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -220,32 +195,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="scr\Entities\Entity.cpp" />
-    <ClCompile Include="scr\Blocks\BlockDirt.cpp" />
-    <ClCompile Include="scr\Blocks\BlockIron.cpp" />
-    <ClCompile Include="scr\Blocks\Block.cpp" />
-    <ClCompile Include="scr\Core\SavingData.cpp" />
-    <ClCompile Include="scr\Blocks\BlockGrass.cpp" />
-    <ClCompile Include="scr\Blocks\BlockCobblestone.cpp" />
-    <ClCompile Include="scr\Blocks\BlockAir.cpp" />
-    <ClCompile Include="scr\Blocks\BlockLog.cpp" />
     <ClCompile Include="scr\Math\Noise.cpp" />
-    <ClCompile Include="scr\Core\ItemStack.cpp" />
-    <ClCompile Include="scr\Core\Commands.cpp" />
-    <ClCompile Include="scr\Core\GlobalVariables.cpp" />
-    <ClCompile Include="scr\Core\ManagerUI.cpp" />
-    <ClCompile Include="scr\Core\Input.cpp" />
-    <ClCompile Include="scr\Core\Chunk.cpp" />
-    <ClCompile Include="scr\Core\GameManager.cpp" />
-    <ClCompile Include="scr\Core\MainCamera.cpp" />
-    <ClCompile Include="scr\Core\Player.cpp" />
-    <ClCompile Include="scr\Core\EntryPoint.cpp" />
-    <ClCompile Include="scr\Core\World.cpp" />
     <ClCompile Include="scr\Math\Cuboid.cpp" />
-    <ClCompile Include="scr\Core\Physics.cpp" />
     <ClCompile Include="scr\Math\Ray.cpp" />
     <ClCompile Include="scr\Rendering\IndexBuffer.cpp" />
-    <ClCompile Include="scr\Core\Renderer.cpp" />
     <ClCompile Include="scr\Math\mat4.cpp" />
     <ClCompile Include="scr\Math\EngineMath.cpp" />
     <ClCompile Include="scr\Rendering\Shader.cpp" />
@@ -263,9 +216,6 @@
     <ProjectReference Include="..\GLFW\GLFW.vcxproj">
       <Project>{154b857c-0182-860d-aa6e-6c109684020f}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\Base.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\white.png" />

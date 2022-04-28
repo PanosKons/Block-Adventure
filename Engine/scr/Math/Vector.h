@@ -53,6 +53,12 @@ public:
 		y += other.y;
 		z += other.z;
 	}
+	void operator-=(Vector3<T> other)
+	{
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
+	}
 	Vector3 operator=(Vector2<T> other)
 	{
 		return { other.x,other.y,(T)0 };

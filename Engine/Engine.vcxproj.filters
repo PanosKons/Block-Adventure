@@ -18,9 +18,6 @@
     <ClInclude Include="scr\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Core\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="scr\Rendering\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,49 +45,13 @@
     <ClInclude Include="scr\Rendering\IndexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Core\Physics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks\Block.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="scr\Math\Cuboid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\GameManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\Chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scr\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Core\Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\MainCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="scr\Math\Ray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\ManagerUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\GlobalVariables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\Commands.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\ItemStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scr\Math\Noise.h">
@@ -99,47 +60,11 @@
     <ClInclude Include="scr\vendor\PerlinNoise.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Blocks\BlockAir.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks\BlockCobblestone.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks\BlockGrass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks\BlockLog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\SavingData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="scr\util\StringConvertions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks\BlockIron.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks\BlockDirt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\BlockProperties.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Entities\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Blocks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Core\Structure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="scr\Core\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="scr\Rendering\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -164,93 +89,24 @@
     <ClCompile Include="scr\Rendering\IndexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scr\Core\Physics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="scr\Math\Cuboid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\EntryPoint.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\World.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\GameManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\Chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scr\Core\Input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\MainCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="scr\Math\Ray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\ManagerUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\GlobalVariables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\Commands.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\ItemStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Math\Noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scr\Blocks\BlockAir.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Blocks\BlockCobblestone.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Blocks\BlockGrass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Blocks\BlockLog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Core\SavingData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="scr\util\StringConvertions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Blocks\Block.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Blocks\BlockIron.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Blocks\BlockDirt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Entities\Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scr\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scr\Core\Structure.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\Base.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\white.png">
