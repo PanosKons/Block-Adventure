@@ -34,19 +34,14 @@ Block* World::MakeBlock(BLOCK_ID id)
 	{
 	case BLOCK_ID::Air:
 		return new BlockAir;
-		break;
 	case BLOCK_ID::Cobblestone:
 		return new BlockCobblestone;
-		break;
 	case BLOCK_ID::Grass:
 		return new BlockGrass;
-		break;
 	case BLOCK_ID::Log:
 		return new BlockLog;
-		break;
 	case BLOCK_ID::Iron:
 		return new BlockIron;
-		break;
 	case BLOCK_ID::Dirt:
 		return new BlockDirt;
 	case BLOCK_ID::Glass:
@@ -55,7 +50,8 @@ Block* World::MakeBlock(BLOCK_ID id)
 		return new BlockLeaves;
 	case BLOCK_ID::Water:
 		return new BlockWater;
-		break;
+	case BLOCK_ID::DryGrass:
+		return new BlockDryGrass;
 	}
 	return nullptr;
 }

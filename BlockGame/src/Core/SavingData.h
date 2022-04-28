@@ -3,6 +3,7 @@
 #include "Chunk.h"
 #include "../Blocks.h"
 #include "Structure.h"
+static bool Activated = false;
 class SavingData
 {
 public:
@@ -10,4 +11,6 @@ public:
 	static std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* LoadChunk(Vector2<int> Position);
 	static std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* LoadStructure(const char* path);
 	static void SaveStructure(std::string& name, Structure structure);
+	static void ActivateLoading(bool value);
+private:
 };

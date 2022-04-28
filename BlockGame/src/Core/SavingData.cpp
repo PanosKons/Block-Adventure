@@ -21,6 +21,8 @@ void SavingData::SaveChunk(Chunk* chunk)
 }
 std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* SavingData::LoadChunk(Vector2<int> Position)
 {
+	if (!Activated)
+		return nullptr;
 	std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>();
 	std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>();
 	std::ifstream fin;
@@ -57,4 +59,9 @@ void SavingData::SaveStructure(std::string& name, Structure structure)
 	fout.open("data/structures/" + name, std::ios::binary);
 	fout.write((const char*)(*structure.data).data(), (*structure.data).size() * sizeof(BLOCK_ID));
 	fout.close();
+}
+
+void SavingData::ActivateLoading(bool value)
+{
+	Activated = value;
 }
