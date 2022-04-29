@@ -8,4 +8,4 @@
 #include <list>
 #include <future>
 #include <cstdio> 
-#define BIG_NUMBER 1000000000
+#define BIG_NUMBER 0x1000000

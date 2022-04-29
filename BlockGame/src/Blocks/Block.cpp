@@ -52,7 +52,7 @@ void Block::Update()
 		GameManager::Overworld->GetBlock({ Position.x, Position.y - 1, Position.z })
 	};
 	if (blocks[0] != nullptr)
-		if (blocks[0]->Transparent)
+		if (blocks[0]->Transparent && blocks[0]->GetBlockId() != GetBlockId())
 		{
 			RenderedSides = RenderedSides | 2;
 		}
@@ -61,7 +61,7 @@ void Block::Update()
 			RenderedSides = RenderedSides & (255 - 2);
 		}
 	if (blocks[1] != nullptr)
-		if (blocks[1]->Transparent)
+		if (blocks[1]->Transparent && blocks[1]->GetBlockId() != GetBlockId())
 		{
 			RenderedSides = RenderedSides | 8;
 		}
@@ -70,7 +70,7 @@ void Block::Update()
 			RenderedSides = RenderedSides & (255 - 8);
 		}
 	if (blocks[2] != nullptr)
-		if (blocks[2]->Transparent)
+		if (blocks[2]->Transparent && blocks[2]->GetBlockId() != GetBlockId())
 		{
 			RenderedSides = RenderedSides | 4;
 		}
@@ -79,7 +79,7 @@ void Block::Update()
 			RenderedSides = RenderedSides & (255 - 4);
 		}
 	if (blocks[3] != nullptr)
-		if (blocks[3]->Transparent)
+		if (blocks[3]->Transparent && blocks[3]->GetBlockId() != GetBlockId())
 		{
 			RenderedSides = RenderedSides | 1;
 		}
@@ -88,7 +88,7 @@ void Block::Update()
 			RenderedSides = RenderedSides & (255 - 1);
 		}
 	if (blocks[4] != nullptr)
-		if (blocks[4]->Transparent)
+		if (blocks[4]->Transparent && blocks[4]->GetBlockId() != GetBlockId())
 		{
 			RenderedSides = RenderedSides | 32;
 		}
@@ -97,7 +97,7 @@ void Block::Update()
 			RenderedSides = RenderedSides & (255 - 32);
 		}
 	if (blocks[5] != nullptr)
-		if (blocks[5]->Transparent)
+		if (blocks[5]->Transparent && blocks[5]->GetBlockId() != GetBlockId())
 		{
 			RenderedSides = RenderedSides | 16;
 		}
