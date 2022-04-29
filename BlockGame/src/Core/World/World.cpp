@@ -15,6 +15,15 @@ int64_t ToLong(int x, int y)
 	(*p) = y;
 	return data;
 }
+Vector2<int> ToVector(int64_t value)
+{
+	Vector2<int> v;
+	int* p = (int*)&value;
+	v.x = *p;
+	p++;
+	v.y = *p;
+	return v;
+}
 void World::Save()
 {
 	for (auto& element : ChunkMap)
@@ -134,6 +143,16 @@ void World::LoadNewChunks(Vector2<int> position,int radius)
 		for (int y = startY; y <= EndY; y++)
 		{
 			LoadNewChunks({ x, y });
+		}
+	}
+	auto ChunkMapCopy = ChunkMap;
+	for (auto& [value, chunk] : ChunkMapCopy)
+	{
+		Vector2<int> pos = ToVector(value);
+		if (Math::Abs(pos.x - position.x) > radius || Math::Abs(pos.y - position.y) > radius)
+		{
+			delete chunk;
+			ChunkMap.erase(value);
 		}
 	}
 }

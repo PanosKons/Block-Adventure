@@ -113,7 +113,17 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 }
 Chunk::~Chunk()
 {
-	delete blocks;
+	SavingData::SaveChunk(this);
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 0; z < ChunkSize; z++)
+			{
+				delete (*blocks)[x][y][z];
+			}
+		}
+	}
 }
 Block* Chunk::GetBlock(Vector3<int> Position) const
 {
