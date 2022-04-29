@@ -3,13 +3,27 @@
 #include "GameManager.h"
 #include "Input.h"
 #include "Math/Ray.h"
-#include <functional>
-#include <iostream>
 #include "GlobalVariables.h"
+#include "SavingData.h"
+#include "Renderer.h"
 Player::Player()
-	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 8.5f,63.0f,8.5f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
+	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 65.0f,80.0f,65.0f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
 {
+	SavingData::LoadPlayer(this);
 	Input::SetCursorCallback([](GLFWwindow* window, double xpos, double ypos) {GameManager::player->CursorMoved(xpos, ypos); });
+	//Code to setup camera //identical to cursorMoved function
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	mainCamera.cameraFront = glm::normalize(front);
+
+	m_VertexBuffer = std::make_unique<VertexBuffer>();
+	m_IndexBuffer = std::make_unique<IndexBuffer>();
+}
+Player::~Player()
+{
+	SavingData::SavePlayer(this);
 }
 int Player::GetFirstAvaiableSlot(BLOCK_ID id)
 {
@@ -104,9 +118,12 @@ bool IsBlockSolid(Vector3<int> Position)
 }
 void Player::Update(float deltaTime)
 {
+	Block* facingblock = GetFacingBlock();
+	DrawPlayer(facingblock);
+	Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
 	if (isBreakingBlock)
 	{
-		if (GetFacingBlock() != breakingBlock || Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) isBreakingBlock = false;
+		if (facingblock != breakingBlock || Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) isBreakingBlock = false;
 		TimeToBreak -= deltaTime * 60;
 		if (TimeToBreak < 0)
 		{
@@ -215,7 +232,270 @@ void Player::Update(float deltaTime)
 	Vector2<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		GameManager::Overworld->LoadNewChunks(chunkpos,2);
+		GameManager::Overworld->LoadNewChunks(chunkpos,1);
 		ChunkPosition = chunkpos;
 	}
+}
+#define WIDTH 0.02f
+#define OP_WIDTH 1.0f - WIDTH
+void Player::DrawPlayer(Block* facingblock)
+{
+	m_VertexBuffer->Clear();
+	m_IndexBuffer->Clear();
+	if (facingblock == nullptr) return;
+	Vector3<int> FacingBlockPosition = facingblock->Position;
+	Vertex a;
+	a.texCords = { 0,0 };
+	a.texId = -1.0f;
+	a.color = { 0.0f,0.0f,0.0f,1.0f };
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.y += OP_WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += 0.02f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.x += OP_WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.y += OP_WIDTH;
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += OP_WIDTH;
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += 1.0f;
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.y += OP_WIDTH;
+	a.position.z += 1.0f;
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += 1.0f;
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.x -= OP_WIDTH;
+	a.position.z += 1.0f;
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.y += OP_WIDTH;
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.y += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z -= OP_WIDTH;
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.x += OP_WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += OP_WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.z += OP_WIDTH;
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.z += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.x -= 1.0f;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	a.position = Vector::FloatVector(FacingBlockPosition);
+	a.position.x += OP_WIDTH;
+	a.position.y += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x += WIDTH;
+	m_VertexBuffer->Add(a);
+	a.position.z += 1.0f;
+	m_VertexBuffer->Add(a);
+	a.position.x -= WIDTH;
+	m_VertexBuffer->Add(a);
+	m_IndexBuffer->AddRectangle();
+	m_VertexBuffer->Bind();
+	m_VertexBuffer->Allocate();
 }

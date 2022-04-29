@@ -64,3 +64,35 @@ void SavingData::ActivateLoading(bool value)
 {
 	Activated = value;
 }
+void SavingData::SavePlayer(Player* player)
+{
+	std::array<float, 5> data =
+	{
+		player->Position.x,
+		player->Position.y,
+		player->Position.z,
+		player->pitch,
+		player->yaw
+	};
+	std::ofstream fout;
+	fout.open("data/player.chunk");
+	fout.write((const char*)data.data(), data.size() * sizeof(float));
+	fout.close();
+}
+void SavingData::LoadPlayer(Player* player)
+{
+	if (!Activated)
+		return;
+	std::ifstream fin;
+	const std::string path = "data/player.chunk";
+	if(!std::filesystem::exists(path)) return;
+	fin.open(path, std::ios::binary | std::ios::in);
+	std::array<float,5> position = {0,0,0};
+	fin.read((char*)position.data(), position.size() * sizeof(float));
+	player->Position.x = position[0];
+	player->Position.y = position[1];
+	player->Position.z = position[2];
+	player->pitch = position[3];
+	player->yaw = position[4];
+	fin.close();
+}

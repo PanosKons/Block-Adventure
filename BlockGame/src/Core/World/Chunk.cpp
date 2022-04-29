@@ -46,7 +46,7 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 	{
 		for (int z = 0; z < ChunkSize; z++)
 		{
-			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * 16, z + Position.y * 16);
+			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * ChunkSize, z + Position.y * ChunkSize);
 		}
 	}
 	for (int x = 0; x < ChunkSize; x++)
@@ -124,6 +124,7 @@ Chunk::~Chunk()
 			}
 		}
 	}
+	delete blocks;
 }
 Block* Chunk::GetBlock(Vector3<int> Position) const
 {
@@ -281,6 +282,7 @@ void Chunk::UpdateAllBlocks()
 			}
 		}
 	}
+
 }
 void Chunk::UpdateBorderBlocks()
 {

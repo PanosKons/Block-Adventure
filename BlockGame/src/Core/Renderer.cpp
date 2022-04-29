@@ -49,7 +49,9 @@ namespace Renderer {
 		layout.Push<float>(2);
 		layout.Push<float>(1);
 		layout.Calculate();
+		glDepthFunc(GL_ALWAYS);
 		glDrawElements(GL_TRIANGLES, (GLsizei)(ib.GetData().size()), GL_UNSIGNED_INT, ib.GetData().data());
+		glDepthFunc(GL_LEQUAL);
 	}
 	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib, unsigned int count, unsigned int offset)
 	{
@@ -60,7 +62,9 @@ namespace Renderer {
 		layout.Push<float>(2);
 		layout.Push<float>(1);
 		layout.Calculate();
+		
 		glDrawElements(GL_TRIANGLES, (GLsizei)count, GL_UNSIGNED_INT, ib.GetData().data() + offset);
+		
 	}
 	void Run()
 	{
@@ -107,6 +111,7 @@ namespace Renderer {
 			return -1;
 
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);

@@ -7,6 +7,6 @@ constexpr unsigned int seed = 12;
 const siv::PerlinNoise perlin(seed);
 int Noise::GetYLevel(int x, int z)
 {
-	double a = perlin.accumulatedOctaveNoise2D_0_1(x / 48.0f, z / 48.0f, octaves);
-	return (int)(a * 64);
+	double a = perlin.accumulatedOctaveNoise2D_0_1(x / 256.0f, z / 256.0f, octaves);
+	return (int)(a * 96);
 }

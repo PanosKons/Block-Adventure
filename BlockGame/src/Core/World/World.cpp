@@ -85,21 +85,21 @@ World::World(int seed)
 {
 	Timer t;
 	GameManager::Overworld = this;
-	{
-		std::array<std::future<void>, spawnChunks * spawnChunks> futures;
-		for (int x = 0; x < spawnChunks; x++)
-		{
-			for (int y = 0; y < spawnChunks; y++)
-			{
-				futures[y + x * spawnChunks] = std::async(std::launch::async, LoadChunk, Vector2<int>(x, y), this, &ChunkMap);
-			}
-		}
-	}
+	//{
+	//	std::array<std::future<void>, spawnChunks * spawnChunks> futures;
+	//	for (int x = 0; x < spawnChunks; x++)
+	//	{
+	//		for (int y = 0; y < spawnChunks; y++)
+	//		{
+	//			futures[y + x * spawnChunks] = std::async(std::launch::async, LoadChunk, Vector2<int>(x, y), this, &ChunkMap);
+	//		}
+	//	}
+	//}
 
-	for (auto& element : ChunkMap)
-	{
-		element.second->UpdateAllBlocks();
-	}
+	//for (auto& element : ChunkMap)
+	//{
+	//	element.second->UpdateAllBlocks();
+	//}
 }
 Block* World::GetBlock(Vector3<int> pos)
 {

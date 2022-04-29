@@ -3,6 +3,7 @@
 #include "Chunk.h"
 #include "../Blocks.h"
 #include "Structure.h"
+#include "Player.h"
 static bool Activated = false;
 class SavingData
 {
@@ -12,5 +13,7 @@ public:
 	static std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* LoadStructure(const char* path);
 	static void SaveStructure(std::string& name, Structure structure);
 	static void ActivateLoading(bool value);
+	static void SavePlayer(Player* player);
+	static void LoadPlayer(Player* player);
 private:
 };
