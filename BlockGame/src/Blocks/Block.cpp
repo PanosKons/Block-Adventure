@@ -5,8 +5,6 @@
 #include <iostream>
 void Block::StateChanged()
 {
-	if (Position == Vector3{ 2,16,9 })
-		std::cout << "s";
 	std::array<Block*, 6> blocks =
 	{
 		GameManager::Overworld->GetBlock({ Position.x + 1, Position.y, Position.z }),

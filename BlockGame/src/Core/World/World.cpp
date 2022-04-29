@@ -83,7 +83,6 @@ void LoadChunk(Vector2<int> Position, World* world, std::unordered_map<int64_t, 
 }
 World::World(int seed)
 {
-	Timer t;
 	GameManager::Overworld = this;
 	//{
 	//	std::array<std::future<void>, spawnChunks * spawnChunks> futures;

@@ -56,9 +56,17 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 			for (int z = 0; z < ChunkSize; z++)
 			{
 				int level = HeightMap[x + z * ChunkSize];
-				if (y == level)
+				if (y > level && y <= 30)
+				{
+					(*blocks)[x][y][z] = new BlockWater();
+				}
+				else if (y == level)
 				{
 					if (y < 30)
+					{
+						(*blocks)[x][y][z] = new BlockDirt();
+					}
+					else if (y >= 30 && y <= 34)
 					{
 						(*blocks)[x][y][z] = new BlockGrass();
 					}
@@ -94,7 +102,7 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 		for (int z = 0; z < ChunkSize; z++)
 		{
 			auto y = HeightMap[x + z * ChunkSize];
-			if (rand() % 100 == 0 && y > 25)
+			if (rand() % 100 == 0 && y > 40)
 			{
 				SpawnStructure({ x,y + 1 ,z }, str);
 			}
@@ -141,10 +149,12 @@ void Chunk::DrawBlock(Block* block)
 	std::array<unsigned char, 6> arr = block->GetBlockProperties().textureSides;
 	Vertex a;
 	a.texId = 0.0f;
+	float alpha = 1.0f;
+	if (block->GetBlockId() == BLOCK_ID::Water) alpha = 0.4f;
 	if (block->RenderedSides & (unsigned char)1) {
 		float texcordsX = ((arr[0]) % 16) / 16.0f;
 		float texcordsY = ((arr[0]) / 16) / 16.0f;
-		a.color = { 0.9f,0.9f,0.9f,1.0f };
+		a.color = { 0.9f,0.9f,0.9f,alpha };
 		a.texCords = { texcordsX, texcordsY };
 		a.position = Vector::FloatVector(block->Position);
 		vertexBuffer->Add(a);
@@ -161,7 +171,7 @@ void Chunk::DrawBlock(Block* block)
 	if (block->RenderedSides & (unsigned char)2) {
 		float texcordsX = ((arr[1]) % 16) / 16.0f;
 		float texcordsY = ((arr[1]) / 16) / 16.0f;
-		a.color = { 0.85f,0.85f,0.85f,1.0f };
+		a.color = { 0.85f,0.85f,0.85f,alpha };
 		a.position = Vector::FloatVector(block->Position);
 		a.texCords = { texcordsX, texcordsY };
 		a.position.x += 1.0f;
@@ -179,7 +189,7 @@ void Chunk::DrawBlock(Block* block)
 	if (block->RenderedSides & (unsigned char)4) {
 		float texcordsX = ((arr[2]) % 16) / 16.0f;
 		float texcordsY = ((arr[2]) / 16) / 16.0f;
-		a.color = { 0.75f,0.75f,0.75f,1.0f };
+		a.color = { 0.75f,0.75f,0.75f,alpha };
 		a.position = Vector::FloatVector(block->Position);
 		a.texCords = { texcordsX, texcordsY };
 		a.position.z += 1.0f;
@@ -198,7 +208,7 @@ void Chunk::DrawBlock(Block* block)
 	if (block->RenderedSides & (unsigned char)8) {
 		float texcordsX = ((arr[3]) % 16) / 16.0f;
 		float texcordsY = ((arr[3]) / 16) / 16.0f;
-		a.color = { 0.8f,0.8f,0.8f,1.0f };
+		a.color = { 0.8f,0.8f,0.8f,alpha };
 		a.position = Vector::FloatVector(block->Position);
 		a.position.z += 1.0f;
 		a.texCords = { texcordsX, texcordsY };
@@ -216,7 +226,7 @@ void Chunk::DrawBlock(Block* block)
 	if (block->RenderedSides & (unsigned char)16) {
 		float texcordsX = ((arr[4]) % 16) / 16.0f;
 		float texcordsY = ((arr[4]) / 16) / 16.0f;
-		a.color = { 0.7f,0.7f,0.7f,1.0f };
+		a.color = { 0.7f,0.7f,0.7f,alpha };
 		a.position = Vector::FloatVector(block->Position);
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
@@ -233,7 +243,7 @@ void Chunk::DrawBlock(Block* block)
 	if (block->RenderedSides & (unsigned char)32) {
 		float texcordsX = ((arr[5]) % 16) / 16.0f;
 		float texcordsY = ((arr[5]) / 16) / 16.0f;
-		a.color = { 1.0f,1.0f,1.0f,1.0f };
+		a.color = { 1.0f,1.0f,1.0f,alpha };
 		a.position = Vector::FloatVector(block->Position);
 		a.position.y += 1.0f;
 		a.texCords = { texcordsX, texcordsY };

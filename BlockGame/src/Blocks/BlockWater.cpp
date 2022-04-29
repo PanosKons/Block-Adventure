@@ -6,9 +6,9 @@ BLOCK_ID BlockWater::GetBlockId()
 }
 BlockWater::BlockWater()
 {
-	//Transparent = true;
+	Transparent = true;
 }
 BlockProperties BlockWater::GetBlockProperties()
 {
-	return { 120,TOOL::Axe,0,{9,9,9,9,9,9} };
+	return { 20,TOOL::None,0,{9,9,9,9,9,9} };
 }

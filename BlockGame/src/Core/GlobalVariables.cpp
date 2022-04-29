@@ -5,3 +5,4 @@ int ScreenHeight;
 GLFWwindow* ApplicationWindow;
 int FPS;
 bool Playing = true;
+bool Started = false;

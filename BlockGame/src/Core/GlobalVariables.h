@@ -9,3 +9,4 @@ extern int ScreenHeight;
 extern GLFWwindow* ApplicationWindow;
 extern int FPS;
 extern bool Playing;
+extern bool Started;
