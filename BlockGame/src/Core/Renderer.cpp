@@ -148,7 +148,7 @@ namespace Renderer {
 			return -1;
 		}
 		glfwMakeContextCurrent(ApplicationWindow);
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 		glfwSetInputMode(ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return -1;

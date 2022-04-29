@@ -6,7 +6,7 @@
 #include "SavingData.h"
 int main()
 {
-	SavingData::ActivateLoading(false);
+	SavingData::ActivateLoading(true);
 	ScreenWidth = 1920;
 	ScreenHeight = 1080;
 	Renderer::CreateWindow("GAME");
