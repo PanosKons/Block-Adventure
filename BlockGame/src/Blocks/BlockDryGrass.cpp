@@ -17,6 +17,10 @@ void BlockDryGrass::Update()
 		}
 	}
 }
+void BlockDryGrass::OnClick()
+{
+	OnBreak(BLOCK_ID::Dirt);
+}
 BlockProperties BlockDryGrass::GetBlockProperties()
 {
 	return { 60,TOOL::Shovel,0,{11,11,11,11,2,10} };

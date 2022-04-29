@@ -149,6 +149,11 @@ void Player::Update(float deltaTime)
 			block->OnBreak(Inventory[ActiveSlot].id);
 			Inventory[ActiveSlot].count--;
 		}
+		else
+		{
+			IClickable* cb = dynamic_cast<IClickable*>(facingblock);
+			if (cb) cb->OnClick();
+		}
 		BlockPlaceDelay = 0.3f;
 	}
 	JumpCooldown -= deltaTime;
