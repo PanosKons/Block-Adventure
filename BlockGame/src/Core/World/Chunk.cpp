@@ -111,7 +111,6 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 		}
 	}
 }
-
 Chunk::~Chunk()
 {
 	delete blocks;
@@ -267,6 +266,29 @@ void Chunk::UpdateAllBlocks()
 		for (int y = 0; y < ChunkHeight; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
+			{
+				(*blocks)[x][y][z]->Update();
+			}
+		}
+	}
+}
+void Chunk::UpdateBorderBlocks()
+{
+	for (int x = 0; x < ChunkSize; x += ChunkSize - 1)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 0; z < ChunkSize; z++)
+			{
+				(*blocks)[x][y][z]->Update();
+			}
+		}
+	}
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 1; z < ChunkSize; z += ChunkSize - 2)
 			{
 				(*blocks)[x][y][z]->Update();
 			}

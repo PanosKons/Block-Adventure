@@ -12,6 +12,7 @@ class Chunk {
 public:
 	bool Changed = true;
 	void UpdateAllBlocks();
+	void UpdateBorderBlocks();
 	~Chunk();
 	Chunk(Vector2<int> Position, World* world);
 	World* world;

@@ -113,6 +113,14 @@ void World::LoadNewChunks(Vector2<int> position)
 	{
 		LoadChunk(Vector2<int>(position.x, position.y), this, &ChunkMap);
 		ChunkMap[ToLong(position.x, position.y)]->UpdateAllBlocks();
+		if (ChunkMap.find(ToLong(position.x + 1, position.y)) != ChunkMap.end())
+			ChunkMap[ToLong(position.x + 1, position.y)]->UpdateBorderBlocks();
+		if (ChunkMap.find(ToLong(position.x - 1, position.y)) != ChunkMap.end())
+			ChunkMap[ToLong(position.x - 1, position.y)]->UpdateBorderBlocks();
+		if (ChunkMap.find(ToLong(position.x, position.y + 1)) != ChunkMap.end())
+			ChunkMap[ToLong(position.x, position.y + 1)]->UpdateBorderBlocks();
+		if (ChunkMap.find(ToLong(position.x, position.y - 1)) != ChunkMap.end())
+			ChunkMap[ToLong(position.x, position.y - 1)]->UpdateBorderBlocks();
 	}
 }
 void World::LoadNewChunks(Vector2<int> position,int radius)
