@@ -41,24 +41,27 @@ std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* S
 			}
 	return blocks;
 }
-std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* SavingData::LoadStructure(const char* name)
+
+Structure* SavingData::LoadStructure(const char* name)
 {
-	std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* data = new std::array<BLOCK_ID, 32 * 32 * 32>();
+	Structure* structure = new Structure();
 	std::ifstream fin;
 	const std::string path = "data/structures/" + std::string(name);
 	if (!std::filesystem::exists(path)) return nullptr;
 	fin.open(path, std::ios::binary | std::ios::in);
-	fin.read((char*)(*data).data(), (*data).size() * sizeof(BLOCK_ID));
+	fin.read((char*)structure, sizeof(Structure));
 	fin.close();
-	return data;
+	return { structure };
 }
 void SavingData::SaveStructure(std::string& name, Structure structure)
 {
 	std::ofstream fout;
 	fout.open("data/structures/" + name, std::ios::binary);
-	fout.write((const char*)(*structure.data).data(), (*structure.data).size() * sizeof(BLOCK_ID));
+	std::cout << sizeof(Structure);
+	fout.write((const char*)&structure, sizeof(Structure));
 	fout.close();
 }
+
 void SavingData::ActivateLoading(bool value)
 {
 	Activated = value;

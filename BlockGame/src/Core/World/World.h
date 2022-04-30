@@ -12,8 +12,9 @@ public:
 	Chunk* GetChunk(Vector3<int> AbsolutePosition) const;
 	static Block* MakeBlock(BLOCK_ID id);
 	void Save();
-	void LoadNewChunks(Vector2<int> ChunkPosition);
-	void LoadNewChunks(Vector2<int> ChunkPosition,int radius);
+	void LoadNewChunk(Vector2<int> ChunkPosition);
+	void LoadPlayerChunks(Vector2<int> ChunkPosition,int RenderDistance);
+	void UnLoadPlayerChunks(Vector2<int> ChunkPosition, int RenderDistance);
 private:
 	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };

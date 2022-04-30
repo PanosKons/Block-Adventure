@@ -15,7 +15,7 @@ public:
 	void UpdateAllBlocks();
 	void UpdateBorderBlocks();
 	Block* GetBlock(Vector3<int> RelativePosition) const;
-	void SpawnStructure(Vector3<int> Position, Structure str);
+	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage = true);
 	void Draw();
 	bool Changed = true;
 	VertexBuffer* GetVertexBuffer() const;

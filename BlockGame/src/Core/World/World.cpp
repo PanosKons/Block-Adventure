@@ -73,13 +73,6 @@ Block* World::MakeBlock(BLOCK_ID id) //Has nothing to do with world
 	}
 	return nullptr;
 }
-void LoadChunk(Vector2<int> Position, World* world, std::unordered_map<int64_t, Chunk*>* ChunkMap)
-{
-	static std::mutex s_ChunkMutex;
-	Chunk* chunk = new Chunk({ Position.x,Position.y }, world);
-	std::lock_guard<std::mutex> lock(s_ChunkMutex);
-	ChunkMap->emplace(ToLong(Position.x,Position.y), chunk);
-}
 World::World(int seed)
 {
 	GameManager::Overworld = this;
@@ -103,40 +96,44 @@ Chunk* World::GetChunk(Vector3<int> Position) const
 		return it->second;
 	return nullptr;
 }
-void World::LoadNewChunks(Vector2<int> position)
+void World::LoadNewChunk(Vector2<int> ChunkPosition)
 {
-	if (ChunkMap.find(ToLong(position.x, position.y)) == ChunkMap.end())
+	if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y)) == ChunkMap.end())
 	{
-		LoadChunk(Vector2<int>(position.x, position.y), this, &ChunkMap);
-		ChunkMap[ToLong(position.x, position.y)]->UpdateAllBlocks();
-		if (ChunkMap.find(ToLong(position.x + 1, position.y)) != ChunkMap.end())
-			ChunkMap[ToLong(position.x + 1, position.y)]->UpdateBorderBlocks();
-		if (ChunkMap.find(ToLong(position.x - 1, position.y)) != ChunkMap.end())
-			ChunkMap[ToLong(position.x - 1, position.y)]->UpdateBorderBlocks();
-		if (ChunkMap.find(ToLong(position.x, position.y + 1)) != ChunkMap.end())
-			ChunkMap[ToLong(position.x, position.y + 1)]->UpdateBorderBlocks();
-		if (ChunkMap.find(ToLong(position.x, position.y - 1)) != ChunkMap.end())
-			ChunkMap[ToLong(position.x, position.y - 1)]->UpdateBorderBlocks();
+		Chunk* chunk = new Chunk({ ChunkPosition.x,ChunkPosition.y }, this);
+		ChunkMap.emplace(ToLong(ChunkPosition.x, ChunkPosition.y), chunk);
+		ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y)]->UpdateAllBlocks();
+		if (ChunkMap.find(ToLong(ChunkPosition.x + 1, ChunkPosition.y)) != ChunkMap.end())
+			ChunkMap[ToLong(ChunkPosition.x + 1, ChunkPosition.y)]->UpdateBorderBlocks();
+		if (ChunkMap.find(ToLong(ChunkPosition.x - 1, ChunkPosition.y)) != ChunkMap.end())
+			ChunkMap[ToLong(ChunkPosition.x - 1, ChunkPosition.y)]->UpdateBorderBlocks();
+		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y + 1)) != ChunkMap.end())
+			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y + 1)]->UpdateBorderBlocks();
+		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y - 1)) != ChunkMap.end())
+			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y - 1)]->UpdateBorderBlocks();
 	}
 }
-void World::LoadNewChunks(Vector2<int> position,int radius)
+void World::LoadPlayerChunks(Vector2<int> ChunkPosition,int RenderDistance)
 {
- 	int startX = position.x - radius;
-	int startY = position.y - radius;
-	int EndX = position.x + radius;
-	int EndY = position.y + radius;
+ 	int startX = ChunkPosition.x - RenderDistance;
+	int startY = ChunkPosition.y - RenderDistance;
+	int EndX = ChunkPosition.x + RenderDistance;
+	int EndY = ChunkPosition.y + RenderDistance;
 	for (int x = startX; x <= EndX; x++)
 	{
 		for (int y = startY; y <= EndY; y++)
 		{
-			LoadNewChunks({ x, y });
+			LoadNewChunk({ x, y });
 		}
 	}
+}
+void World::UnLoadPlayerChunks(Vector2<int> ChunkPosition, int RenderDistance)
+{
 	auto ChunkMapCopy = ChunkMap;
 	for (auto& [value, chunk] : ChunkMapCopy)
 	{
 		Vector2<int> pos = ToVector(value);
-		if (Math::Abs(pos.x - position.x) > radius || Math::Abs(pos.y - position.y) > radius)
+		if (Math::Abs(pos.x - ChunkPosition.x) > RenderDistance || Math::Abs(pos.y - ChunkPosition.y) > RenderDistance)
 		{
 			delete chunk;
 			ChunkMap.erase(value);

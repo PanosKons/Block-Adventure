@@ -5,27 +5,33 @@
 #include "Math/Noise.h"
 #include "SavingData.h"
 #include "GlobalVariables.h"
-void Chunk::SpawnStructure(Vector3<int> Positionn, Structure str)
+void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage)
 {
-	Positionn -= str.Center;
-	if (Positionn.x < 0 || Positionn.y < 0 || Positionn.z < 0) return;
-	auto a = str.data;
+	Structure* structure = SavingData::LoadStructure(name.c_str());
 	for (int x = 0; x < StructureSize; x++)
 	{
 		for (int y = 0; y < StructureSize; y++)
 		{
 			for (int z = 0; z < StructureSize; z++)
 			{
-				if ((*a)[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
-				if (Positionn.x + x < ChunkSize && Positionn.y + y < ChunkHeight && Positionn.z + z < ChunkSize) {
-					delete (*blocks)[Positionn.x + x][Positionn.y + y][Positionn.z + z];
-					(*blocks)[Positionn.x + x][Positionn.y + y][Positionn.z + z] = world->MakeBlock((*a)[x + y * StructureSize + z * StructureSize * StructureSize]);
+				if (structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
+				if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkHeight && RelativePosition.z + z < ChunkSize)
+				{
+					delete (*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z];
+					(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z] = world->MakeBlock(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
+					if (!GenerationStage)
+					{
+						(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z]->Position = { RelativePosition.x + x,RelativePosition.y + y,RelativePosition.z + z };
+					}
 				}
 			}
 		}
 	}
+	if (!GenerationStage)
+	{
+		UpdateAllBlocks();
+	}
 }
-static Structure str({ 1,0,1 }, "build");
 Chunk::Chunk(Vector2<int> Position, World* world)
 	:Position(Position), world(world)
 {
@@ -104,7 +110,7 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 			auto y = HeightMap[x + z * ChunkSize];
 			if (rand() % 100 == 0 && y > 40)
 			{
-				SpawnStructure({ x,y + 1 ,z }, str);
+				SpawnStructure({ x,y + 1 ,z }, "tree");
 			}
 		}
 	}
@@ -134,9 +140,72 @@ Chunk::~Chunk()
 	}
 	delete blocks;
 }
+void Chunk::UpdateAllBlocks()
+{
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 0; z < ChunkSize; z++)
+			{
+				(*blocks)[x][y][z]->Update();
+			}
+		}
+	}
+
+}
+void Chunk::UpdateBorderBlocks()
+{
+	for (int x = 0; x < ChunkSize; x += ChunkSize - 1)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 0; z < ChunkSize; z++)
+			{
+				(*blocks)[x][y][z]->Update();
+			}
+		}
+	}
+	for (int x = 0; x < ChunkSize; x++)
+	{
+		for (int y = 0; y < ChunkHeight; y++)
+		{
+			for (int z = 1; z < ChunkSize; z += ChunkSize - 2)
+			{
+				(*blocks)[x][y][z]->Update();
+			}
+		}
+	}
+}
+
 Block* Chunk::GetBlock(Vector3<int> Position) const
 {
 	return (*blocks)[Position.x][Position.y][Position.z];
+}
+Vector2<int> Chunk::GetPosition() const
+{
+	return Position;
+}
+std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* Chunk::GetBlocks() const
+{
+	return blocks;
+}
+
+VertexBuffer* Chunk::GetVertexBuffer() const
+{
+	return m_VertexBuffer.get();
+}
+VertexBuffer* Chunk::GetVertexBufferTransparent() const
+{
+	return m_VertexBufferTransparent.get();
+}
+IndexBuffer* Chunk::GetIndexBuffer() const
+{
+	return m_IndexBuffer.get();
+}
+IndexBuffer* Chunk::GetIndexBufferTransparent() const
+{
+	return m_IndexBufferTransparent.get();
 }
 #define ONEOVER16 0.0625f
 void Chunk::DrawBlock(Block* block)
@@ -279,65 +348,4 @@ void Chunk::Draw() {
 	m_VertexBuffer->Allocate();
 	m_VertexBufferTransparent->Bind();
 	m_VertexBufferTransparent->Allocate();
-}
-VertexBuffer* Chunk::GetVertexBuffer() const
-{
-	return m_VertexBuffer.get();
-}
-VertexBuffer* Chunk::GetVertexBufferTransparent() const
-{
-	return m_VertexBufferTransparent.get();
-}
-IndexBuffer* Chunk::GetIndexBuffer() const
-{
-	return m_IndexBuffer.get();
-}
-IndexBuffer* Chunk::GetIndexBufferTransparent() const
-{
-	return m_IndexBufferTransparent.get();
-}
-Vector2<int> Chunk::GetPosition() const
-{
-	return Position;
-}
-std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* Chunk::GetBlocks() const
-{
-	return blocks;
-}
-void Chunk::UpdateAllBlocks()
-{
-	for (int x = 0; x < ChunkSize; x++)
-	{
-		for (int y = 0; y < ChunkHeight; y++)
-		{
-			for (int z = 0; z < ChunkSize; z++)
-			{
-				(*blocks)[x][y][z]->Update();
-			}
-		}
-	}
-
-}
-void Chunk::UpdateBorderBlocks()
-{
-	for (int x = 0; x < ChunkSize; x += ChunkSize - 1)
-	{
-		for (int y = 0; y < ChunkHeight; y++)
-		{
-			for (int z = 0; z < ChunkSize; z++)
-			{
-				(*blocks)[x][y][z]->Update();
-			}
-		}
-	}
-	for (int x = 0; x < ChunkSize; x++)
-	{
-		for (int y = 0; y < ChunkHeight; y++)
-		{
-			for (int z = 1; z < ChunkSize; z += ChunkSize - 2)
-			{
-				(*blocks)[x][y][z]->Update();
-			}
-		}
-	}
 }

@@ -187,6 +187,10 @@ void Player::Update(float deltaTime)
 		speed = 6.0f;
 		if (godmode) speed = 28.0f;
 	}
+	else if (Input::GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && Playing)
+	{
+		speed = 2.0f;
+	}
 	else
 	{
 		speed = 4.0f;
@@ -246,7 +250,8 @@ void Player::Update(float deltaTime)
 	Vector2<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		GameManager::Overworld->LoadNewChunks(chunkpos,3);
+		GameManager::Overworld->LoadPlayerChunks(chunkpos,2);
+		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 2);
 		ChunkPosition = chunkpos;
 	}
 }

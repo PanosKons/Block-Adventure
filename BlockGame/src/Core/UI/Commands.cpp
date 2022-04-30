@@ -30,7 +30,7 @@ void Commands::ExecuteCommand(const std::string& command)
 		if (tokens.size() == 3)
 		{
 			Vector2<int> Position = { std::stoi(tokens[1]), std::stoi(tokens[2]) };
-			GameManager::Overworld->LoadNewChunks(Position);
+			GameManager::Overworld->LoadNewChunk(Position);
 		}
 	}
 	if (tokens[0] == "/give")
@@ -51,25 +51,24 @@ void Commands::ExecuteCommand(const std::string& command)
 				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
 				Vector3<int> Size = { std::stoi(tokens[5]),std::stoi(tokens[6]),std::stoi(tokens[7]) }; // Relative
 				Vector3<int> Center = { std::stoi(tokens[8]),std::stoi(tokens[9]),std::stoi(tokens[10]) }; // Relative
-				Structure str(Center);
-				std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* data = new std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>();
+				Structure str;
 				for (int x = 0; x < Size.x; x++)
 				{
 					for (int y = 0; y < Size.y; y++)
 					{
 						for (int z = 0; z < Size.z; z++)
 						{
-							(*data)[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z })->GetBlockId();
+							str.data[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z })->GetBlockId();
 						}
 					}
 				}
-				str.data = data;
+				str.Center = Center;
 				SavingData::SaveStructure(tokens[11], str);
 			}
 			else if (tokens[1] == "load")
 			{
 				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
-				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkHeight , Position.z % ChunkSize}, {{0,0,0},tokens[5].c_str()});
+				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkHeight , Position.z % ChunkSize}, tokens[5].c_str(),false);
 			}
 		}
 	}
