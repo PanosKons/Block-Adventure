@@ -118,6 +118,10 @@ bool IsBlockSolid(Vector3<int> Position)
 }
 void Player::Update(float deltaTime)
 {
+	if (Input::GetKeyState(GLFW_KEY_G) == GLFW_PRESS && Playing)
+	{
+		godmode = !godmode;
+	}
 	Block* facingblock = GetFacingBlock();
 	DrawPlayer(facingblock);
 	Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
@@ -164,12 +168,16 @@ void Player::Update(float deltaTime)
 	if (!grounded)
 	{
 		Velocity.y -= 9.81f * deltaTime;
+		if (godmode && Velocity.y < 0)
+		{
+			Velocity.y = 0;
+		}
 	}
 	else
 	{
 		if (Velocity.y < 0) Velocity.y = 0;
 	}
-	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && grounded && Playing && JumpCooldown <= 0)
+	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && (grounded || godmode) && Playing && JumpCooldown <= 0)
 	{
 		Velocity.y = 6.5f;
 		JumpCooldown += 0.4f;
@@ -177,6 +185,7 @@ void Player::Update(float deltaTime)
 	if (Input::GetKeyState(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && Playing)
 	{
 		speed = 6.0f;
+		if (godmode) speed = 28.0f;
 	}
 	else
 	{

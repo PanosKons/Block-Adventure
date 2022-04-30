@@ -39,6 +39,7 @@ public:
 	std::array<ItemStack, 9> Inventory;
 	char ActiveSlot;
 	bool grounded;
+	bool godmode = false;
 	void CursorMoved(double xpos, double ypos);
 	//Cached data
 	Vector2<int> ChunkPosition = { 0,0 };
