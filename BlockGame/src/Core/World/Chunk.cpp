@@ -53,11 +53,13 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 	blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>();
 	srand(1);
 	std::array<int, ChunkSize* ChunkSize> HeightMap;
+	std::array<int, ChunkSize* ChunkSize> BiomeMap;
 	for (int x = 0; x < ChunkSize; x++)
 	{
 		for (int z = 0; z < ChunkSize; z++)
 		{
 			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * ChunkSize, z + Position.y * ChunkSize);
+			BiomeMap[x + z * ChunkSize] = Noise::GetBiomeTemperature(x + Position.x * ChunkSize, z + Position.y * ChunkSize);
 		}
 	}
 	for (int x = 0; x < ChunkSize; x++)
@@ -77,7 +79,7 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 					{
 						(*blocks)[x][y][z] = new BlockDirt();
 					}
-					else if (y >= 30 && y <= 34)
+					else if (BiomeMap[x + z * ChunkSize] == 0)
 					{
 						(*blocks)[x][y][z] = new BlockGrass();
 					}
