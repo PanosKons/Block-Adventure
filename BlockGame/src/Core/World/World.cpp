@@ -46,7 +46,7 @@ void World::Render()
 		Renderer::DrawChunkTransparent(element.second);
 	}
 }
-Block* World::MakeBlock(BLOCK_ID id)
+Block* World::MakeBlock(BLOCK_ID id) //Has nothing to do with world
 {
 	switch (id)
 	{
@@ -84,20 +84,24 @@ World::World(int seed)
 {
 	GameManager::Overworld = this;
 }
-Block* World::GetBlock(Vector3<int> pos)
+Block* World::GetBlock(Vector3<int> pos) const
 {
 	if (pos.y < 0 || pos.y >= ChunkHeight) return nullptr;
 	int x = Math::Floor(pos.x / (float)ChunkSize);
 	int z = Math::Floor(pos.z / (float)ChunkSize);
-	if (ChunkMap.find(ToLong(x,z)) != ChunkMap.end())
-		return ChunkMap[ToLong(x, z)]->GetBlock({ (pos.x + BIG_NUMBER) % ChunkSize, pos.y, (pos.z + BIG_NUMBER) % ChunkSize });
+	auto it = ChunkMap.find(ToLong(x, z));
+	if (it != ChunkMap.end())
+		return it->second->GetBlock({ (pos.x + BIG_NUMBER) % ChunkSize, pos.y, (pos.z + BIG_NUMBER) % ChunkSize });
 	return nullptr;
 }
-Chunk* World::GetChunk(Vector3<int> Position)
+Chunk* World::GetChunk(Vector3<int> Position) const
 {
 	int x = Position.x / ChunkSize;
 	int z = Position.z / ChunkSize;
-	return ChunkMap[ToLong(x, z)];
+	auto it = ChunkMap.find(ToLong(x, z));
+	if(it != ChunkMap.end())
+		return it->second;
+	return nullptr;
 }
 void World::LoadNewChunks(Vector2<int> position)
 {

@@ -9,13 +9,12 @@
 void SavingData::SaveChunk(Chunk* chunk)
 {
 	std::ofstream fout;
-	fout.open("data/chunks/" + StringConvertions::ToString(chunk->Position.x) + "," + StringConvertions::ToString(chunk->Position.y) + ".chunk", std::ios::binary);
+	fout.open("data/chunks/" + StringConvertions::ToString(chunk->GetPosition().x) + "," + StringConvertions::ToString(chunk->GetPosition().y) + ".chunk", std::ios::binary);
 	std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkHeight* ChunkSize>();
-	auto& a = chunk->blocks;
 	for (int x = 0; x < ChunkSize; x++)
 		for (int y = 0; y < ChunkHeight; y++)
 			for (int z = 0; z < ChunkSize; z++)
-				(*bytes)[z + y * ChunkSize + x * ChunkHeight * ChunkSize] = (unsigned short)(*a)[x][y][z]->GetBlockId();
+				(*bytes)[z + y * ChunkSize + x * ChunkHeight * ChunkSize] = (unsigned short)(*chunk->GetBlocks())[x][y][z]->GetBlockId();
 	fout.write((const char*)(*bytes).data(), (*bytes).size() * sizeof(unsigned short));
 	fout.close();
 }

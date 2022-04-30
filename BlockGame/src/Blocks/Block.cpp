@@ -25,7 +25,7 @@ void Block::StateChanged()
 }
 void Block::OnBreak(BLOCK_ID id)
 {
-	auto a = GameManager::Overworld->GetChunk(this->Position)->blocks;
+	auto a = GameManager::Overworld->GetChunk(this->Position)->GetBlocks();
 	auto b = &(*a)[(Position.x + BIG_NUMBER) % ChunkSize][Position.y][(Position.z + BIG_NUMBER) % ChunkSize];
 	(*b) = GameManager::Overworld->MakeBlock(id);
 	(*b)->Position = Position;

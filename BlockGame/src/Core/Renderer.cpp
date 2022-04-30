@@ -20,25 +20,25 @@ namespace Renderer {
 	static glm::mat4 proj;
 	void DrawChunk(Chunk* chunk)
 	{
-		chunk->m_VertexBuffer->Bind();
+		chunk->GetVertexBuffer()->Bind();
 		VertexBufferLayout layout;
 		layout.Push<float>(3);
 		layout.Push<float>(4);
 		layout.Push<float>(2);
 		layout.Push<float>(1);
 		layout.Calculate();
-		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->m_IndexBuffer->GetData().size()), GL_UNSIGNED_INT, chunk->m_IndexBuffer->GetData().data());
+		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->GetIndexBuffer()->GetData().size()), GL_UNSIGNED_INT, chunk->GetIndexBuffer()->GetData().data());
 	}
 	void DrawChunkTransparent(Chunk* chunk)
 	{
-		chunk->m_VertexBufferTransparent->Bind();
+		chunk->GetVertexBufferTransparent()->Bind();
 		VertexBufferLayout layout;
 		layout.Push<float>(3);
 		layout.Push<float>(4);
 		layout.Push<float>(2);
 		layout.Push<float>(1);
 		layout.Calculate();
-		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->m_IndexBufferTransparent->GetData().size()), GL_UNSIGNED_INT, chunk->m_IndexBufferTransparent->GetData().data());
+		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->GetIndexBufferTransparent()->GetData().size()), GL_UNSIGNED_INT, chunk->GetIndexBufferTransparent()->GetData().data());
 	}
 	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib)
 	{

@@ -280,6 +280,30 @@ void Chunk::Draw() {
 	m_VertexBufferTransparent->Bind();
 	m_VertexBufferTransparent->Allocate();
 }
+VertexBuffer* Chunk::GetVertexBuffer() const
+{
+	return m_VertexBuffer.get();
+}
+VertexBuffer* Chunk::GetVertexBufferTransparent() const
+{
+	return m_VertexBufferTransparent.get();
+}
+IndexBuffer* Chunk::GetIndexBuffer() const
+{
+	return m_IndexBuffer.get();
+}
+IndexBuffer* Chunk::GetIndexBufferTransparent() const
+{
+	return m_IndexBufferTransparent.get();
+}
+Vector2<int> Chunk::GetPosition() const
+{
+	return Position;
+}
+std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* Chunk::GetBlocks() const
+{
+	return blocks;
+}
 void Chunk::UpdateAllBlocks()
 {
 	for (int x = 0; x < ChunkSize; x++)

@@ -10,22 +10,29 @@ constexpr int ChunkSize = 32;
 constexpr int ChunkHeight = 128;
 class Chunk {
 public:
-	bool Changed = true;
+	Chunk(Vector2<int> ChunkPosition, World* world);
+	~Chunk();
 	void UpdateAllBlocks();
 	void UpdateBorderBlocks();
-	~Chunk();
-	Chunk(Vector2<int> Position, World* world);
+	Block* GetBlock(Vector3<int> RelativePosition) const;
+	void SpawnStructure(Vector3<int> Position, Structure str);
+	void Draw();
+	bool Changed = true;
+	VertexBuffer* GetVertexBuffer() const;
+	VertexBuffer* GetVertexBufferTransparent() const;
+	IndexBuffer* GetIndexBuffer() const;
+	IndexBuffer* GetIndexBufferTransparent() const;
+	Vector2<int> GetPosition() const;
+	std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* GetBlocks() const;
+private:
 	World* world;
 	Vector2<int> Position;
-	Block* GetBlock(Vector3<int> Position) const;
-	void Draw();
 	std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* blocks;
-	//Renderer data
+
 	std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	std::unique_ptr<VertexBuffer> m_VertexBuffer;
 	std::unique_ptr<IndexBuffer> m_IndexBufferTransparent;
 	std::unique_ptr<VertexBuffer> m_VertexBufferTransparent;
-	void SpawnStructure(Vector3<int> Position, Structure str);
-private:
+
 	void DrawBlock(Block* block);
 };

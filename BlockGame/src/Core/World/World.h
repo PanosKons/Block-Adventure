@@ -8,12 +8,12 @@ class World
 public:
 	World(int seed);
 	void Render();
-	Block* GetBlock(Vector3<int> pos);
-	Chunk* GetChunk(Vector3<int> Position);
+	Block* GetBlock(Vector3<int> AbsolutePosition) const;
+	Chunk* GetChunk(Vector3<int> AbsolutePosition) const;
 	static Block* MakeBlock(BLOCK_ID id);
 	void Save();
-	void LoadNewChunks(Vector2<int> position);
-	void LoadNewChunks(Vector2<int> position,int radius);
+	void LoadNewChunks(Vector2<int> ChunkPosition);
+	void LoadNewChunks(Vector2<int> ChunkPosition,int radius);
 private:
 	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };
