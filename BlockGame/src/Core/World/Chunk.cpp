@@ -81,11 +81,19 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 					}
 					else if (BiomeMap[x + z * ChunkSize] == 0)
 					{
-						(*blocks)[x][y][z] = new BlockGrass();
+						(*blocks)[x][y][z] = new BlockCobblestone();
+					}
+					else if (BiomeMap[x + z * ChunkSize] == 1)
+					{
+						(*blocks)[x][y][z] = new BlockDirt();
+					}
+					else if (BiomeMap[x + z * ChunkSize] == 2)
+					{
+						(*blocks)[x][y][z] = new BlockDryGrass();
 					}
 					else
 					{
-						(*blocks)[x][y][z] = new BlockDryGrass();
+						(*blocks)[x][y][z] = new BlockGrass();
 					}
 				}
 				else if (y + 1 == level)

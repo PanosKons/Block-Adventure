@@ -7,7 +7,7 @@
 #include "SavingData.h"
 #include "Renderer.h"
 Player::Player()
-	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 65.0f,80.0f,65.0f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
+	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 1065.0f,80.0f,1065.0f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
 {
 	SavingData::LoadPlayer(this);
 	Input::SetCursorCallback([](GLFWwindow* window, double xpos, double ypos) {GameManager::player->CursorMoved(xpos, ypos); });
