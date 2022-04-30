@@ -8,29 +8,34 @@
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage)
 {
 	Structure* structure = SavingData::LoadStructure(name.c_str());
-	for (int x = 0; x < StructureSize; x++)
-	{
-		for (int y = 0; y < StructureSize; y++)
+	if(GenerationStage)
+		for (int x = 0; x < StructureSize; x++)
 		{
-			for (int z = 0; z < StructureSize; z++)
+			for (int y = 0; y < StructureSize; y++)
 			{
-				if (structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
-				if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkHeight && RelativePosition.z + z < ChunkSize)
+				for (int z = 0; z < StructureSize; z++)
 				{
+					if (structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
+						if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkHeight && RelativePosition.z + z < ChunkSize)
+					{
 					delete (*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z];
 					(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z] = world->MakeBlock(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
-					if (!GenerationStage)
-					{
-						(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z]->Position = { RelativePosition.x + x,RelativePosition.y + y,RelativePosition.z + z };
 					}
 				}
 			}
+	}
+	else
+		for (int x = 0; x < StructureSize; x++)
+		{
+			for (int y = 0; y < StructureSize; y++)
+			{
+				for (int z = 0; z < StructureSize; z++)
+				{
+					if(structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
+					world->GetBlock({ RelativePosition.x + ChunkSize * Position.x + x,RelativePosition.y + y,RelativePosition.z + z + ChunkSize * Position.y })->OnBreak(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
+				}
+			}
 		}
-	}
-	if (!GenerationStage)
-	{
-		UpdateAllBlocks();
-	}
 }
 Chunk::Chunk(Vector2<int> Position, World* world)
 	:Position(Position), world(world)
