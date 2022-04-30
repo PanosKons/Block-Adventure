@@ -58,6 +58,10 @@ public:
 		y += other.y;
 		z += other.z;
 	}
+	Vector3 operator/(int value)
+	{
+		return { x / value,y / value,z / value };
+	}
 	void operator-=(Vector3<T> other)
 	{
 		x -= other.x;

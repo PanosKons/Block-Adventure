@@ -25,7 +25,7 @@ void Chunk::SpawnStructure(Vector3<int> Positionn, Structure str)
 		}
 	}
 }
-static Structure str({ 1,0,1 }, "tree");
+static Structure str({ 1,0,1 }, "build");
 Chunk::Chunk(Vector2<int> Position, World* world)
 	:Position(Position), world(world)
 {

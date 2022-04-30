@@ -44,25 +44,33 @@ void Commands::ExecuteCommand(const std::string& command)
 	}
 	if (tokens[0] == "/structure")
 	{
-		if (tokens.size() == 11)
+		if (tokens.size() == 12 || tokens.size() == 6)
 		{
-			Vector3<int> Position = { std::stoi(tokens[1]),std::stoi(tokens[2]),std::stoi(tokens[3]) };
-			Vector3<int> Size = { std::stoi(tokens[4]),std::stoi(tokens[5]),std::stoi(tokens[6]) };
-			Vector3<int> Center = { std::stoi(tokens[7]),std::stoi(tokens[8]),std::stoi(tokens[9]) };
-			Structure str(Center);
-			std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* data = new std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>();
-			for (int x = 0; x < Size.x; x++)
+			if (tokens[1] == "save")
 			{
-				for (int y = 0; y < Size.y; y++)
+				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
+				Vector3<int> Size = { std::stoi(tokens[5]),std::stoi(tokens[6]),std::stoi(tokens[7]) }; // Relative
+				Vector3<int> Center = { std::stoi(tokens[8]),std::stoi(tokens[9]),std::stoi(tokens[10]) }; // Relative
+				Structure str(Center);
+				std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>* data = new std::array<BLOCK_ID, StructureSize* StructureSize* StructureSize>();
+				for (int x = 0; x < Size.x; x++)
 				{
-					for (int z = 0; z < Size.z; z++)
+					for (int y = 0; y < Size.y; y++)
 					{
-						(*data)[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z })->GetBlockId();
+						for (int z = 0; z < Size.z; z++)
+						{
+							(*data)[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z })->GetBlockId();
+						}
 					}
 				}
+				str.data = data;
+				SavingData::SaveStructure(tokens[11], str);
 			}
-			str.data = data;
-			SavingData::SaveStructure(tokens[10], str);
+			else if (tokens[1] == "load")
+			{
+				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
+				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkHeight , Position.z % ChunkSize}, {{0,0,0},tokens[5].c_str()});
+			}
 		}
 	}
 	if (tokens[0] == "/tp")

@@ -25,13 +25,13 @@ void Block::StateChanged()
 }
 void Block::OnBreak(BLOCK_ID id)
 {
-	auto a = GameManager::Overworld->GetChunk(this)->blocks;
+	auto a = GameManager::Overworld->GetChunk(this->Position)->blocks;
 	auto b = &(*a)[(Position.x + BIG_NUMBER) % ChunkSize][Position.y][(Position.z + BIG_NUMBER) % ChunkSize];
 	(*b) = GameManager::Overworld->MakeBlock(id);
 	(*b)->Position = Position;
 	(*b)->Update();
 	StateChanged();
-	GameManager::Overworld->GetChunk(this)->Changed = true;
+	GameManager::Overworld->GetChunk(this->Position)->Changed = true;
 	delete this;
 }
 Block::Block()
@@ -105,5 +105,5 @@ void Block::Update()
 		}
 
 	if (oldSides != RenderedSides)
-		GameManager::Overworld->GetChunk(this)->Changed = true;
+		GameManager::Overworld->GetChunk(this->Position)->Changed = true;
 }

@@ -9,7 +9,7 @@ public:
 	World(int seed);
 	void Render();
 	Block* GetBlock(Vector3<int> pos);
-	Chunk* GetChunk(Block* block);
+	Chunk* GetChunk(Vector3<int> Position);
 	static Block* MakeBlock(BLOCK_ID id);
 	void Save();
 	void LoadNewChunks(Vector2<int> position);

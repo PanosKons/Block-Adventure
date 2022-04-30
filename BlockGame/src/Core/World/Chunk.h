@@ -6,7 +6,7 @@
 #include "Rendering/IndexBuffer.h"
 #include "../Blocks.h"
 class World;
-constexpr int ChunkSize = 16;
+constexpr int ChunkSize = 32;
 constexpr int ChunkHeight = 128;
 class Chunk {
 public:
@@ -25,7 +25,7 @@ public:
 	std::unique_ptr<VertexBuffer> m_VertexBuffer;
 	std::unique_ptr<IndexBuffer> m_IndexBufferTransparent;
 	std::unique_ptr<VertexBuffer> m_VertexBufferTransparent;
-private:
 	void SpawnStructure(Vector3<int> Position, Structure str);
+private:
 	void DrawBlock(Block* block);
 };

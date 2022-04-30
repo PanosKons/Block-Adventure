@@ -93,10 +93,10 @@ Block* World::GetBlock(Vector3<int> pos)
 		return ChunkMap[ToLong(x, z)]->GetBlock({ (pos.x + BIG_NUMBER) % ChunkSize, pos.y, (pos.z + BIG_NUMBER) % ChunkSize });
 	return nullptr;
 }
-Chunk* World::GetChunk(Block* block)
+Chunk* World::GetChunk(Vector3<int> Position)
 {
-	int x = block->Position.x / ChunkSize;
-	int z = block->Position.z / ChunkSize;
+	int x = Position.x / ChunkSize;
+	int z = Position.z / ChunkSize;
 	return ChunkMap[ToLong(x, z)];
 }
 void World::LoadNewChunks(Vector2<int> position)
