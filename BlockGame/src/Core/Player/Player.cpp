@@ -25,11 +25,11 @@ Player::~Player()
 {
 	SavingData::SavePlayer(this);
 }
-int Player::GetFirstAvaiableSlot(BLOCK_ID id)
+int Player::GetFirstAvaiableSlot(int id,TYPE type)
 {
 	for (unsigned int i = 0; i < Inventory.size(); i++)
 	{
-		if (Inventory[i].id == id) return i;
+		if (Inventory[i].id == id && Inventory[i].type == type) return i;
 	}
 	for (unsigned int i = 0; i < Inventory.size(); i++)
 	{
@@ -128,11 +128,22 @@ void Player::Update(float deltaTime)
 	if (isBreakingBlock)
 	{
 		if (facingblock != breakingBlock || Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) isBreakingBlock = false;
-		TimeToBreak -= deltaTime * 60;
+		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM)
+		{
+			if (breakingBlock->GetBlockProperties().tool == TOOL::Pickaxe)
+			{
+				TimeToBreak -= deltaTime * 60 * 4;
+			}
+		}
+		else
+		{
+			TimeToBreak -= deltaTime * 60;
+		}
 		if (TimeToBreak < 0)
 		{
-			int index = GetFirstAvaiableSlot(breakingBlock->GetBlockId());
-			Inventory[index].id = breakingBlock->GetBlockId();
+			int index = GetFirstAvaiableSlot((int)breakingBlock->GetBlockId(),TYPE::BLOCK);
+			Inventory[index].id = (int)breakingBlock->GetBlockId();
+			Inventory[index].type = TYPE::BLOCK;
 			Inventory[index].count++;
 			breakingBlock->OnBreak(BLOCK_ID::Air);
 			isBreakingBlock = false;
@@ -148,9 +159,9 @@ void Player::Update(float deltaTime)
 		Block* block = GetBlockToPlace();
 		if (block == nullptr) return;
 		if (block->Position.x == (int)mainCamera.cameraPos.x && (block->Position.y == (int)mainCamera.cameraPos.y || block->Position.y == (int)mainCamera.cameraPos.y - 1) && block->Position.z == (int)mainCamera.cameraPos.z) return;
-		if (Inventory[ActiveSlot].count > 0)
+		if (Inventory[ActiveSlot].count > 0 && Inventory[ActiveSlot].type == TYPE::BLOCK)
 		{
-			block->OnBreak(Inventory[ActiveSlot].id);
+			block->OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
 			Inventory[ActiveSlot].count--;
 		}
 		else

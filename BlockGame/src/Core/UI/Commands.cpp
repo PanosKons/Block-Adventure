@@ -4,6 +4,7 @@
 #include "Math/EngineMath.h"
 #include "Structure.h"
 #include "SavingData.h"
+#include "ItemStack.h"
 static std::unordered_map<std::string, BLOCK_ID> blockIds = //Pair each block with string
 {
 	{"air",BLOCK_ID::Air },
@@ -14,7 +15,15 @@ static std::unordered_map<std::string, BLOCK_ID> blockIds = //Pair each block wi
 	{"glass",BLOCK_ID::Glass },
 	{"leaves",BLOCK_ID::Leaves },
 	{"water",BLOCK_ID::Water },
+	{"dry_grass",BLOCK_ID::DryGrass },
 	{"iron",BLOCK_ID::Iron }
+};
+static std::unordered_map<std::string, ITEM_ID> itemIds = //Pair each item with string
+{
+	{"dry_grass_blade",ITEM_ID::DryGrassBlade },
+	{"stick",ITEM_ID::Stick },
+	{"pickaxe",ITEM_ID::Pickaxe },
+
 };
 void Commands::ExecuteCommand(const std::string& command)
 {
@@ -35,11 +44,22 @@ void Commands::ExecuteCommand(const std::string& command)
 	}
 	if (tokens[0] == "/give")
 	{
-		if (tokens.size() == 3)
+		if (tokens.size() == 4)
 		{
-			ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot(blockIds[tokens[1]])];
-			stack.id = blockIds[tokens[1]];
-			stack.count += std::stoi(tokens[2]);
+			if (tokens[1] == "block")
+			{
+				ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)blockIds[tokens[2]],TYPE::BLOCK)];
+				stack.id = (int)blockIds[tokens[2]];
+				stack.count += std::stoi(tokens[3]);
+				stack.type = TYPE::BLOCK;
+			}
+			else if (tokens[1] == "item")
+			{
+				ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)itemIds[tokens[2]], TYPE::ITEM)];
+				stack.id = (int)itemIds[tokens[2]];
+				stack.count += std::stoi(tokens[3]);
+				stack.type = TYPE::ITEM;
+			}
 		}
 	}
 	if (tokens[0] == "/structure")

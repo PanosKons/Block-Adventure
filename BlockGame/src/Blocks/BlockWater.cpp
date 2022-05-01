@@ -10,5 +10,5 @@ BlockWater::BlockWater()
 }
 BlockProperties BlockWater::GetBlockProperties()
 {
-	return { 20,TOOL::None,0,{9,9,9,9,9,9} };
+	return { 20,TOOL::None,0,{14,14,14,14,14,14} };
 }

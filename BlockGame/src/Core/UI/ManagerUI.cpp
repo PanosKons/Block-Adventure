@@ -132,7 +132,7 @@ void ManagerUI::UpdateUI()
 	{
 		if (GameManager::player->Inventory[i].count != 0)
 		{
-			unsigned char a = GetTexture((int)GameManager::player->Inventory[i].id)[0];
+			unsigned char a = GetTexture(GameManager::player->Inventory[i].id, GameManager::player->Inventory[i].type)[0];
 			PrintSquare({ SlotPosition.x + 8, SlotPosition.y + 8,SlotPosition.z }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f);
 		}
 		SlotPosition.x += SlotWidth;
@@ -140,7 +140,7 @@ void ManagerUI::UpdateUI()
 	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.1f };
 	for (int i = 0; i < 9; i++)
 	{
-		if (GameManager::player->Inventory[i].count != 0)
+		if (GameManager::player->Inventory[i].count > 1)
 			PrintString(StringConvertions::ToString(GameManager::player->Inventory[i].count), SlotPosition);
 		SlotPosition.x += SlotWidth;
 	}
@@ -206,7 +206,7 @@ void ToggleStates(int key, int action)
 		lastCommand = chatbox;
 		chatbox = "";
 	}
-	if (key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS && !Playing)
+	if (key == GLFW_KEY_BACKSPACE && !Playing)
 	{
 		if (!chatbox.empty())
 			chatbox.pop_back();

@@ -23,5 +23,5 @@ void BlockDryGrass::OnClick()
 }
 BlockProperties BlockDryGrass::GetBlockProperties()
 {
-	return { 60,TOOL::Shovel,0,{11,11,11,11,2,10} };
+	return { 60,TOOL::Shovel,0,{12,12,12,12,2,10} };
 }

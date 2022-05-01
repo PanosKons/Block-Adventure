@@ -20,7 +20,7 @@ public:
 	void MarkBlockToBreak();
 	void Update(float deltaTime);
 	void DrawPlayer(Block* facingblock);
-	int GetFirstAvaiableSlot(BLOCK_ID id);
+	int GetFirstAvaiableSlot(int id, TYPE type);
 	float yaw = -118.0f;
 	float pitch = -43.0f;
 	float lastX = 0.0f;

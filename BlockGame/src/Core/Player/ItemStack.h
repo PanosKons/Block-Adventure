@@ -1,10 +1,18 @@
 #pragma once
-#include "../Blocks/Block.h"
+enum class ITEM_ID
+{
+	DryGrassBlade, Stick, Pickaxe
+};
+enum class TYPE
+{
+	BLOCK, ITEM
+};
 class ItemStack
 {
 public:
-	BLOCK_ID id;
+	TYPE type;
+	int id;
 	unsigned int count;
-	ItemStack(BLOCK_ID id, unsigned int count);
+	ItemStack(int id, unsigned int count, TYPE type);
 	ItemStack();
 };

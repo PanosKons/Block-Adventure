@@ -1,6 +1,6 @@
 #include <Engine.h>
 #include "ItemStack.h"
-ItemStack::ItemStack(BLOCK_ID id, unsigned int count)
-	:id(id), count(count) {}
+ItemStack::ItemStack(int id, unsigned int count, TYPE type)
+	:id(id), count(count),type(type) {}
 ItemStack::ItemStack()
-	: id((BLOCK_ID)0), count(0) {}
+	: id(0), count(0),type(TYPE::ITEM) {}
