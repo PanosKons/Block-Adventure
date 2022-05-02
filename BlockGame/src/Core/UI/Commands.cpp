@@ -36,9 +36,9 @@ void Commands::ExecuteCommand(const std::string& command)
 	}
 	if (tokens[0] == "/chunkload")
 	{
-		if (tokens.size() == 3)
+		if (tokens.size() == 4)
 		{
-			Vector2<int> Position = { std::stoi(tokens[1]), std::stoi(tokens[2]) };
+			Vector3<int> Position = { std::stoi(tokens[1]), std::stoi(tokens[2]),std::stoi(tokens[3]) };
 			GameManager::Overworld->LoadNewChunk(Position);
 		}
 	}
@@ -88,7 +88,7 @@ void Commands::ExecuteCommand(const std::string& command)
 			else if (tokens[1] == "load")
 			{
 				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
-				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkHeight , Position.z % ChunkSize}, tokens[5].c_str(),false);
+				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkSize , Position.z % ChunkSize}, tokens[5].c_str(),false);
 			}
 		}
 	}

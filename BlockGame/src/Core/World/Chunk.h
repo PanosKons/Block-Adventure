@@ -7,10 +7,9 @@
 #include "../Blocks.h"
 class World;
 constexpr int ChunkSize = 32;
-constexpr int ChunkHeight = 128;
 class Chunk {
 public:
-	Chunk(Vector2<int> ChunkPosition, World* world);
+	Chunk(Vector3<int> ChunkPosition, World* world);
 	~Chunk();
 	void UpdateAllBlocks();
 	void UpdateBorderBlocks();
@@ -22,12 +21,12 @@ public:
 	VertexBuffer* GetVertexBufferTransparent() const;
 	IndexBuffer* GetIndexBuffer() const;
 	IndexBuffer* GetIndexBufferTransparent() const;
-	Vector2<int> GetPosition() const;
-	std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* GetBlocks() const;
+	Vector3<int> GetPosition() const;
+	std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* GetBlocks() const;
 private:
 	World* world;
-	Vector2<int> Position;
-	std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* blocks;
+	Vector3<int> Position;
+	std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* blocks;
 
 	std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	std::unique_ptr<VertexBuffer> m_VertexBuffer;

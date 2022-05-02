@@ -62,6 +62,11 @@ public:
 	{
 		return { x / value,y / value,z / value };
 	}
+	bool operator!=(Vector3 other)
+	{
+		if (x == other.x && y == other.y && z == other.z) return false;
+		return true;
+	}
 	void operator-=(Vector3<T> other)
 	{
 		x -= other.x;

@@ -132,7 +132,7 @@ void Player::Update(float deltaTime)
 		{
 			if (breakingBlock->GetBlockProperties().tool == TOOL::Pickaxe)
 			{
-				TimeToBreak -= deltaTime * 60 * 4;
+				TimeToBreak -= deltaTime * 60 * 12;
 			}
 		}
 		else
@@ -258,11 +258,13 @@ void Player::Update(float deltaTime)
 	if (YCollisionPos && Velocity.y > 0) Velocity.y = 0;
 	Position += Velocity * deltaTime;
 	mainCamera.cameraPos = glm::vec3(Position.x, Position.y + 1.8f, Position.z);
-	Vector2<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.z) / ChunkSize };
+	Vector3<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.y) / ChunkSize,((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		GameManager::Overworld->LoadPlayerChunks(chunkpos,2);
-		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 2);
+		grounded = true;
+		GameManager::Overworld->LoadPlayerChunks(chunkpos,1);
+		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 1);
+		grounded = false;
 		ChunkPosition = chunkpos;
 	}
 }

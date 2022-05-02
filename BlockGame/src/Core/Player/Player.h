@@ -42,7 +42,7 @@ public:
 	bool godmode = false;
 	void CursorMoved(double xpos, double ypos);
 	//Cached data
-	Vector2<int> ChunkPosition = { 0,0 };
+	Vector3<int> ChunkPosition = { 0,0,0 };
 
 	Vector3<float> Position;
 

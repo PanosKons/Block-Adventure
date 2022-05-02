@@ -16,7 +16,7 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bo
 				for (int z = 0; z < StructureSize; z++)
 				{
 					if (structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
-						if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkHeight && RelativePosition.z + z < ChunkSize)
+						if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkSize && RelativePosition.z + z < ChunkSize)
 					{
 					delete (*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z];
 					(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z] = world->MakeBlock(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
@@ -32,12 +32,12 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bo
 				for (int z = 0; z < StructureSize; z++)
 				{
 					if(structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
-					world->GetBlock({ RelativePosition.x + ChunkSize * Position.x + x,RelativePosition.y + y,RelativePosition.z + z + ChunkSize * Position.y })->OnBreak(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
+					world->GetBlock({ RelativePosition.x + ChunkSize * Position.x + x,RelativePosition.y + Position.y* ChunkSize + y,RelativePosition.z + z + ChunkSize * Position.z })->OnBreak(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
 				}
 			}
 		}
 }
-Chunk::Chunk(Vector2<int> Position, World* world)
+Chunk::Chunk(Vector3<int> Position, World* world)
 	:Position(Position), world(world)
 {
 	m_VertexBuffer = std::make_unique<VertexBuffer>();
@@ -50,7 +50,7 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 		blocks = a;
 		return;
 	}
-	blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>();
+	blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>();
 	srand(1);
 	std::array<int, ChunkSize* ChunkSize> HeightMap;
 	std::array<int, ChunkSize* ChunkSize> BiomeMap;
@@ -58,24 +58,25 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 	{
 		for (int z = 0; z < ChunkSize; z++)
 		{
-			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * ChunkSize, z + Position.y * ChunkSize);
-			BiomeMap[x + z * ChunkSize] = Noise::GetBiomeTemperature(x + Position.x * ChunkSize, z + Position.y * ChunkSize);
+			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * ChunkSize, z + Position.z * ChunkSize);
+			BiomeMap[x + z * ChunkSize] = Noise::GetBiomeTemperature(x + Position.x * ChunkSize, z + Position.z * ChunkSize);
 		}
 	}
 	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
+				int ylevel = y + ChunkSize * Position.y;
 				int level = HeightMap[x + z * ChunkSize];
-				if (y > level && y <= 30)
+				if (ylevel > level && ylevel <= 30)
 				{
 					(*blocks)[x][y][z] = new BlockWater();
 				}
-				else if (y == level)
+				else if (ylevel == level)
 				{
-					if (y < 30)
+					if (ylevel < 30)
 					{
 						(*blocks)[x][y][z] = new BlockDirt();
 					}
@@ -96,15 +97,15 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 						(*blocks)[x][y][z] = new BlockGrass();
 					}
 				}
-				else if (y + 1 == level)
+				else if (ylevel + 1 == level)
 				{
 					(*blocks)[x][y][z] = new BlockDirt();
 				}
-				else if (y + 2 == level)
+				else if (ylevel + 2 == level)
 				{
 					(*blocks)[x][y][z] = new BlockDirt();
 				}
-				else if (y < level)
+				else if (ylevel < level)
 				{
 					if(rand() % 50 == 0)
 						(*blocks)[x][y][z] = new BlockIron();
@@ -131,11 +132,11 @@ Chunk::Chunk(Vector2<int> Position, World* world)
 	}
 	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				(*blocks)[x][y][z]->Position = { x + ChunkSize * Position.x,y,z + ChunkSize * Position.y };
+				(*blocks)[x][y][z]->Position = { x + ChunkSize * Position.x,y + ChunkSize * Position.y,z + ChunkSize * Position.z };
 			}
 		}
 	}
@@ -145,7 +146,7 @@ Chunk::~Chunk()
 	SavingData::SaveChunk(this);
 	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
@@ -159,7 +160,7 @@ void Chunk::UpdateAllBlocks()
 {
 	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
@@ -173,7 +174,7 @@ void Chunk::UpdateBorderBlocks()
 {
 	for (int x = 0; x < ChunkSize; x += ChunkSize - 1)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
@@ -183,9 +184,19 @@ void Chunk::UpdateBorderBlocks()
 	}
 	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 1; z < ChunkSize; z += ChunkSize - 2)
+			{
+				(*blocks)[x][y][z]->Update();
+			}
+		}
+	}
+	for (int x = 1; x < ChunkSize - 1; x++)
+	{
+		for (int y = 0; y < ChunkSize; y += ChunkSize - 1)
+		{
+			for (int z = 1; z < ChunkSize - 1; z++)
 			{
 				(*blocks)[x][y][z]->Update();
 			}
@@ -197,11 +208,11 @@ Block* Chunk::GetBlock(Vector3<int> Position) const
 {
 	return (*blocks)[Position.x][Position.y][Position.z];
 }
-Vector2<int> Chunk::GetPosition() const
+Vector3<int> Chunk::GetPosition() const
 {
 	return Position;
 }
-std::array<std::array<std::array<Block*, ChunkSize>, ChunkHeight>, ChunkSize>* Chunk::GetBlocks() const
+std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* Chunk::GetBlocks() const
 {
 	return blocks;
 }
@@ -351,7 +362,7 @@ void Chunk::Draw() {
 	m_IndexBufferTransparent->Clear();
 	for (int x = 0; x < ChunkSize; x++)
 	{
-		for (int y = 0; y < ChunkHeight; y++)
+		for (int y = 0; y < ChunkSize; y++)
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
