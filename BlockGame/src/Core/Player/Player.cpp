@@ -6,6 +6,7 @@
 #include "GlobalVariables.h"
 #include "SavingData.h"
 #include "Renderer.h"
+#include "Timer.h"
 Player::Player()
 	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 1065.0f,80.0f,1065.0f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
 {
@@ -261,10 +262,10 @@ void Player::Update(float deltaTime)
 	Vector3<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.y) / ChunkSize,((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		grounded = true;
-		GameManager::Overworld->LoadPlayerChunks(chunkpos,1);
-		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 1);
-		grounded = false;
+		Timer t;
+		GameManager::Overworld->LoadPlayerChunks(chunkpos,3);
+		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 3);
+		GameManager::Overworld->SubmitChunkChanges();
 		ChunkPosition = chunkpos;
 	}
 }

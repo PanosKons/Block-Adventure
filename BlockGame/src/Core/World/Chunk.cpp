@@ -7,7 +7,7 @@
 #include "GlobalVariables.h"
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage)
 {
-	Structure* structure = SavingData::LoadStructure(name.c_str());
+	static Structure* structure = SavingData::LoadStructure(name.c_str());
 	if(GenerationStage)
 		for (int x = 0; x < StructureSize; x++)
 		{

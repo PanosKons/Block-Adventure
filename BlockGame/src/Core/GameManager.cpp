@@ -3,6 +3,7 @@
 #include "GlobalVariables.h"
 #include <iostream>
 #include "ManagerUI.h"
+#include "Timer.h"
 static float second;
 static int FrameCount = 0;
 void GameManager::Update(float deltaTime)

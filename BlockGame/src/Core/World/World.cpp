@@ -101,25 +101,37 @@ Chunk* World::GetChunk(Vector3<int> Position) const
 		return it->second;
 	return nullptr;
 }
+
 void World::LoadNewChunk(Vector3<int> ChunkPosition)
 {
 	if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z)) == ChunkMap.end())
 	{
 		Chunk* chunk = new Chunk({ ChunkPosition.x,ChunkPosition.y, ChunkPosition.z }, this);
 		ChunkMap.emplace(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z), chunk);
-		ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z)]->UpdateAllBlocks();
 		if (ChunkMap.find(ToLong(ChunkPosition.x + 1, ChunkPosition.y, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x + 1, ChunkPosition.y, ChunkPosition.z)]->UpdateBorderBlocks();
+			ChunkMap[ToLong(ChunkPosition.x + 1, ChunkPosition.y, ChunkPosition.z)]->ShouldUpdateBorders = true;
 		if (ChunkMap.find(ToLong(ChunkPosition.x - 1, ChunkPosition.y, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x - 1, ChunkPosition.y, ChunkPosition.z)]->UpdateBorderBlocks();
+			ChunkMap[ToLong(ChunkPosition.x - 1, ChunkPosition.y, ChunkPosition.z)]->ShouldUpdateBorders = true;
 		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y + 1, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y + 1, ChunkPosition.z)]->UpdateBorderBlocks();
+			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y + 1, ChunkPosition.z)]->ShouldUpdateBorders = true;
 		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y - 1, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y - 1, ChunkPosition.z)]->UpdateBorderBlocks();
+			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y - 1, ChunkPosition.z)]->ShouldUpdateBorders = true;
 		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z + 1)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z + 1)]->UpdateBorderBlocks();
+			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z + 1)]->ShouldUpdateBorders = true;
 		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z - 1)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z - 1)]->UpdateBorderBlocks();
+			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z - 1)]->ShouldUpdateBorders = true;
+	}
+}
+void World::SubmitChunkChanges()
+{
+	for (auto[id, chunk] : ChunkMap)
+	{
+		if (chunk->ShouldUpdate)
+			chunk->UpdateAllBlocks();
+		else if (chunk->ShouldUpdateBorders)
+			chunk->UpdateBorderBlocks();
+		chunk->ShouldUpdate = false;
+		chunk->ShouldUpdateBorders = false;
 	}
 }
 void World::LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance)

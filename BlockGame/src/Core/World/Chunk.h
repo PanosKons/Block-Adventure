@@ -11,12 +11,14 @@ class Chunk {
 public:
 	Chunk(Vector3<int> ChunkPosition, World* world);
 	~Chunk();
-	void UpdateAllBlocks();
-	void UpdateBorderBlocks();
 	Block* GetBlock(Vector3<int> RelativePosition) const;
 	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage = true);
 	void Draw();
+	void UpdateAllBlocks();
+	void UpdateBorderBlocks();
 	bool Changed = true;
+	bool ShouldUpdate = true;
+	bool ShouldUpdateBorders = true;
 	VertexBuffer* GetVertexBuffer() const;
 	VertexBuffer* GetVertexBufferTransparent() const;
 	IndexBuffer* GetIndexBuffer() const;
