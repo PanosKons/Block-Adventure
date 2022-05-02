@@ -12,7 +12,6 @@ public:
 	Chunk* GetChunk(Vector3<int> AbsolutePosition) const;
 	static Block* MakeBlock(BLOCK_ID id);
 	void Save();
-	void LoadNewChunk(Vector3<int> ChunkPosition);
 	void LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance);
 	void UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance);
 	void SubmitChunkChanges();

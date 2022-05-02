@@ -101,27 +101,6 @@ Chunk* World::GetChunk(Vector3<int> Position) const
 		return it->second;
 	return nullptr;
 }
-
-void World::LoadNewChunk(Vector3<int> ChunkPosition)
-{
-	if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z)) == ChunkMap.end())
-	{
-		Chunk* chunk = new Chunk({ ChunkPosition.x,ChunkPosition.y, ChunkPosition.z }, this);
-		ChunkMap.emplace(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z), chunk);
-		if (ChunkMap.find(ToLong(ChunkPosition.x + 1, ChunkPosition.y, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x + 1, ChunkPosition.y, ChunkPosition.z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(ChunkPosition.x - 1, ChunkPosition.y, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x - 1, ChunkPosition.y, ChunkPosition.z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y + 1, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y + 1, ChunkPosition.z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y - 1, ChunkPosition.z)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y - 1, ChunkPosition.z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z + 1)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z + 1)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z - 1)) != ChunkMap.end())
-			ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z - 1)]->ShouldUpdateBorders = true;
-	}
-}
 void World::SubmitChunkChanges()
 {
 	for (auto[id, chunk] : ChunkMap)
@@ -134,6 +113,10 @@ void World::SubmitChunkChanges()
 		chunk->ShouldUpdateBorders = false;
 	}
 }
+Chunk* LoadChunkAsync(Vector3<int> ChunkPosition, World* world)
+{
+	return new Chunk({ ChunkPosition.x,ChunkPosition.y, ChunkPosition.z }, world);
+}
 void World::LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance)
 {
  	int startX = ChunkPosition.x - RenderDistance;
@@ -142,15 +125,37 @@ void World::LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance)
 	int EndX = ChunkPosition.x + RenderDistance;
 	int EndY = ChunkPosition.y + RenderDistance;
 	int EndZ = ChunkPosition.z + RenderDistance;
+	std::vector<std::future<Chunk*>> futures;
 	for (int x = startX; x <= EndX; x++)
 	{
 		for (int y = startY; y <= EndY; y++)
 		{
 			for (int z = startZ; z <= EndZ; z++)
 			{
-				LoadNewChunk({ x, y, z });
+				if (ChunkMap.find(ToLong(x, y, z)) == ChunkMap.end())
+				{
+					Vector3<int> v = { x,y,z };
+					futures.push_back(std::async(std::launch::async, LoadChunkAsync, v, this));
+				}
 			}
 		}
+	}
+	for (int i = 0; i < futures.size(); i++)
+	{
+		Chunk* chunk = futures[i].get();
+		ChunkMap.emplace(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z), chunk);
+		if (ChunkMap.find(ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
+			ChunkMap[ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+		if (ChunkMap.find(ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
+			ChunkMap[ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)) != ChunkMap.end())
+			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)) != ChunkMap.end())
+			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)) != ChunkMap.end())
+			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)]->ShouldUpdateBorders = true;
+		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)) != ChunkMap.end())
+			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)]->ShouldUpdateBorders = true;
 	}
 }
 void World::UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance)

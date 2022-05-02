@@ -34,14 +34,6 @@ void Commands::ExecuteCommand(const std::string& command)
 		ss >> token;
 		tokens.push_back(token);
 	}
-	if (tokens[0] == "/chunkload")
-	{
-		if (tokens.size() == 4)
-		{
-			Vector3<int> Position = { std::stoi(tokens[1]), std::stoi(tokens[2]),std::stoi(tokens[3]) };
-			GameManager::Overworld->LoadNewChunk(Position);
-		}
-	}
 	if (tokens[0] == "/give")
 	{
 		if (tokens.size() == 4)
