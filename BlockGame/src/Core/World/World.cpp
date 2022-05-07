@@ -166,9 +166,9 @@ void World::UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance)
 		Vector3<int> pos = ToVector(value);
 		if (Math::Abs(pos.x - ChunkPosition.x) > RenderDistance || Math::Abs(pos.y - ChunkPosition.y) > RenderDistance || Math::Abs(pos.z - ChunkPosition.z) > RenderDistance)
 		{
+			ChunkMap.erase(value);
 			std::thread thread([=](Chunk* chunk) {delete chunk; }, chunk);
 			thread.detach();
-			ChunkMap.erase(value);
 		}
 	}
 }

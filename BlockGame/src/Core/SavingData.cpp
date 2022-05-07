@@ -23,11 +23,11 @@ std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* Sav
 {
 	if (!Activated)
 		return nullptr;
+	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + StringConvertions::ToString(Position.z) + ".chunk";
+	if (!std::filesystem::exists(path)) return nullptr;
 	std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>();
 	std::array<unsigned short, ChunkSize* ChunkSize* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkSize* ChunkSize>();
 	std::ifstream fin;
-	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + StringConvertions::ToString(Position.z) + ".chunk";
-	if (!std::filesystem::exists(path)) return nullptr;
 	fin.open(path, std::ios::binary | std::ios::in);
 	fin.read((char*)(*bytes).data(), (*bytes).size() * sizeof(unsigned short));
 	fin.close();
