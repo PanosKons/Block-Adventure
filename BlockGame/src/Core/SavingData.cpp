@@ -17,6 +17,7 @@ void SavingData::SaveChunk(Chunk* chunk)
 				(*bytes)[z + y * ChunkSize + x * ChunkSize * ChunkSize] = (unsigned short)(*chunk->GetBlocks())[x][y][z]->GetBlockId();
 	fout.write((const char*)(*bytes).data(), (*bytes).size() * sizeof(unsigned short));
 	fout.close();
+	delete bytes;
 }
 std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* SavingData::LoadChunk(Vector3<int> Position)
 {
@@ -37,6 +38,7 @@ std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* Sav
 				(*blocks)[x][y][z] = World::MakeBlock((BLOCK_ID)(*bytes)[z + y * ChunkSize + x * ChunkSize * ChunkSize]);
 				(*blocks)[x][y][z]->Position = { x + ChunkSize * Position.x,y + ChunkSize * Position.y,z + ChunkSize * Position.z };
 			}
+	delete bytes;
 	return blocks;
 }
 
