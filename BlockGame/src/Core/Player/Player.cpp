@@ -140,7 +140,7 @@ bool CheckCollision(Vector3<double> Position ,Vector3<double> Hitbox)
 }
 void Player::Update(float deltaTime)
 {
-
+	deltaTime = Math::Min(deltaTime, 0.05f);
 	Block* facingblock = GetFacingBlock();
 	DrawPlayer(facingblock);
 	Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
@@ -285,8 +285,8 @@ void Player::Update(float deltaTime)
 	Vector3<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.y) / ChunkSize,((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		GameManager::Overworld->LoadPlayerChunks(chunkpos, 2);
-		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 2);
+		GameManager::Overworld->LoadPlayerChunks(chunkpos, 1);
+		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 1);
 		GameManager::Overworld->SubmitChunkChanges();
 		ChunkPosition = chunkpos;
 	}
