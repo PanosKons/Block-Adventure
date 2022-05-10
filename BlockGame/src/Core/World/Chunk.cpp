@@ -156,7 +156,7 @@ Chunk::~Chunk()
 	}
 	delete blocks;
 }
-void Chunk::UpdateAllBlocks()
+void UpdateAllBlocksAsync(std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* blocks)
 {
 	for (int x = 0; x < ChunkSize; x++)
 	{
@@ -168,9 +168,8 @@ void Chunk::UpdateAllBlocks()
 			}
 		}
 	}
-
 }
-void Chunk::UpdateBorderBlocks()
+void UpdateBorderBlocksAsync(std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* blocks)
 {
 	for (int x = 0; x < ChunkSize; x += ChunkSize - 1)
 	{
@@ -202,6 +201,16 @@ void Chunk::UpdateBorderBlocks()
 			}
 		}
 	}
+}
+void Chunk::UpdateAllBlocks()
+{
+	std::thread worker(UpdateAllBlocksAsync,blocks);
+	worker.detach();
+}
+void Chunk::UpdateBorderBlocks()
+{
+	std::thread worker(UpdateBorderBlocksAsync, blocks);
+	worker.detach();
 }
 
 Block* Chunk::GetBlock(Vector3<int> Position) const

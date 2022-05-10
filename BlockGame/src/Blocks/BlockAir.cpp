@@ -5,7 +5,6 @@ BLOCK_ID BlockAir::GetBlockId()
 {
 	return BLOCK_ID::Air;
 }
-void BlockAir::Update() {}
 BlockAir::BlockAir()
 {
 	RenderedSides = 0;

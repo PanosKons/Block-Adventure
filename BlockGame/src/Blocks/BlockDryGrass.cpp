@@ -8,14 +8,14 @@ BLOCK_ID BlockDryGrass::GetBlockId()
 void BlockDryGrass::Update()
 {
 	Block::Update();
-	Block* block = GameManager::Overworld->GetBlock({ Position.x, Position.y + 1, Position.z });
-	if (block != nullptr)
-	{
-		if (!block->Transparent)
-		{
-			OnBreak(BLOCK_ID::Dirt);
-		}
-	}
+	//Block* block = GameManager::Overworld->GetBlock({ Position.x, Position.y + 1, Position.z });
+	//if (block != nullptr)
+	//{
+	//	if (!block->Transparent)
+	//	{
+	//		OnBreak(BLOCK_ID::Dirt);
+	//	}
+	//}
 }
 void BlockDryGrass::OnClick()
 {
