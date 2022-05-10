@@ -155,8 +155,6 @@ void ManagerUI::UpdateUI()
 		PrintString("Position:" + StringConvertions::ToString((int)GameManager::player->Position.x) + "," + StringConvertions::ToString((int)GameManager::player->Position.y) + "," + StringConvertions::ToString((int)GameManager::player->Position.z), TextPosition);
 		TextPosition.y -= charHeightOffset;
 		PrintString("ChunkPosition:" + StringConvertions::ToString((int)GameManager::player->ChunkPosition.x) + "," + StringConvertions::ToString((int)GameManager::player->ChunkPosition.y), TextPosition);
-		TextPosition.y -= charHeightOffset;
-		PrintString("Grounded:" + ToString(GameManager::player->grounded), TextPosition);
 		Block* bl = GameManager::player->GetFacingBlock();
 		if (bl != nullptr) {
 			TextPosition.y -= charHeightOffset;

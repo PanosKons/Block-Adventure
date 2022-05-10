@@ -1,22 +1,6 @@
 #include <Engine.h>
 #include "EngineMath.h"
 #include <math.h>
-float Math::Max(float a, float b)
-{
-	return a < b ? b : a;
-}
-float Math::Min(float a, float b)
-{
-	return a > b ? b : a;
-}
-int Math::Max(int a, int b)
-{
-	return a < b ? b : a;
-}
-int Math::Min(int a, int b)
-{
-	return a > b ? b : a;
-}
 int Math::Floor(float a)
 {
 	return (int)floor(a);

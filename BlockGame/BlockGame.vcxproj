@@ -86,6 +86,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Physics.cpp" />
+    <ClCompile Include="src\Core\Player\Entity.cpp" />
     <ClCompile Include="src\Blocks\BlockDryGrass.cpp" />
     <ClCompile Include="src\Blocks\Block.cpp" />
     <ClCompile Include="src\Blocks\BlockAir.cpp" />
@@ -114,6 +116,8 @@
     <ClCompile Include="src\Core\World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Physics.h" />
+    <ClInclude Include="src\Core\Player\Entity.h" />
     <ClInclude Include="src\Blocks\BlockDryGrass.h" />
     <ClInclude Include="src\Blocks.h" />
     <ClInclude Include="src\Blocks\Block.h" />

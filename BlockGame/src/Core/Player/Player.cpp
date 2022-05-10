@@ -7,8 +7,9 @@
 #include "SavingData.h"
 #include "Renderer.h"
 #include "Timer.h"
+#include "Math/EngineMath.h"
 Player::Player()
-	:ActiveSlot(0), Inventory(), mainCamera(), grounded(false), Velocity(0), Position({ 1065.0f,80.0f,1065.0f }), Hitbox({ Position.x - 0.3f, Position.y ,Position.z - 0.3f }, { 0.7f,2,0.7f })
+	:ActiveSlot(0), Inventory(), mainCamera(), Velocity(0), Position({ 1065.0,80.0,1065.0 }), Hitbox({ 0.6, 1.8 ,0.6 })
 {
 	SavingData::LoadPlayer(this);
 	Input::SetCursorCallback([](GLFWwindow* window, double xpos, double ypos) {GameManager::player->CursorMoved(xpos, ypos); });
@@ -109,20 +110,37 @@ void Player::CursorMoved(double xpos, double ypos)
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	mainCamera.cameraFront = glm::normalize(front);
 }
-static int value = 0;
 bool IsBlockSolid(Vector3<int> Position)
 {
-	Block* block = GameManager::Overworld->GetBlock(Position);
+	Block* block = GameManager::Overworld->GetBlock({ Position.x,Position.y,Position.z });
 	if (block != nullptr)
 		return block->GetBlockId() != BLOCK_ID::Air;
 	return true;
 }
+bool CheckCollision(Vector3<double> Position ,Vector3<double> Hitbox)
+{
+	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
+	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
+	bool Collision = false;
+	for (int x = Point1.x; x <= Point2.x; x++)
+	{
+		for (int y = Point1.y; y <= Point2.y; y++)
+		{
+			for (int z = Point1.z; z <= Point2.z; z++)
+			{
+				if (IsBlockSolid({ x,y,z }))
+				{
+					Collision = true;
+					break;
+				}
+			}
+		}
+	}
+	return Collision;
+}
 void Player::Update(float deltaTime)
 {
-	if (Input::GetKeyState(GLFW_KEY_G) == GLFW_PRESS && Playing)
-	{
-		godmode = !godmode;
-	}
+
 	Block* facingblock = GetFacingBlock();
 	DrawPlayer(facingblock);
 	Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
@@ -142,7 +160,7 @@ void Player::Update(float deltaTime)
 		}
 		if (TimeToBreak < 0)
 		{
-			int index = GetFirstAvaiableSlot((int)breakingBlock->GetBlockId(),TYPE::BLOCK);
+			int index = GetFirstAvaiableSlot((int)breakingBlock->GetBlockId(), TYPE::BLOCK);
 			Inventory[index].id = (int)breakingBlock->GetBlockId();
 			Inventory[index].type = TYPE::BLOCK;
 			Inventory[index].count++;
@@ -172,36 +190,30 @@ void Player::Update(float deltaTime)
 		}
 		BlockPlaceDelay = 0.3f;
 	}
-	JumpCooldown -= deltaTime;
-	grounded = IsBlockSolid({ (int)(Position.x - 0.27f), (int)Position.y, (int)(Position.z - 0.27f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.27f), (int)Position.y, (int)(Position.z - 0.27f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.27f), (int)Position.y, (int)(Position.z + 0.27f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.27f), (int)Position.y, (int)(Position.z + 0.27f) });
-	if (!grounded)
+	if (Input::GetKeyState(GLFW_KEY_G) == GLFW_PRESS && Playing)
 	{
-		Velocity.y -= 9.81f * deltaTime;
-		if (godmode && Velocity.y < 0)
-		{
-			Velocity.y = 0;
-		}
+		godmode = !godmode;
+	}
+
+
+	JumpCooldown -= deltaTime;
+
+	if (!godmode)
+	{
+		Velocity.y -= 32.0f * deltaTime;
 	}
 	else
 	{
 		if (Velocity.y < 0) Velocity.y = 0;
 	}
-	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && (grounded || godmode) && Playing && JumpCooldown <= 0)
+	if (Input::GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && Playing)
 	{
-		Velocity.y = 6.5f;
-		JumpCooldown += 0.4f;
+		speed = 2.0f;
 	}
-	if (Input::GetKeyState(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && Playing)
+	else if (Input::GetKeyState(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && Playing)
 	{
 		speed = 6.0f;
 		if (godmode) speed = 28.0f;
-	}
-	else if (Input::GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && Playing)
-	{
-		speed = 2.0f;
 	}
 	else
 	{
@@ -232,49 +244,35 @@ void Player::Update(float deltaTime)
 		Velocity.x = 0;
 		Velocity.z = 0;
 	}
-	bool XCollisionMinus = IsBlockSolid({ (int)(Position.x - 0.31f), (int)(Position.y + 0.2f), (int)(Position.z - 0.28f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.31f), (int)(Position.y + 0.2f), (int)(Position.z + 0.28f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.31f), (int)(Position.y + 1.1f), (int)(Position.z - 0.28f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.31f), (int)(Position.y + 1.1f), (int)(Position.z + 0.28f) });
-	bool XCollisionPos = IsBlockSolid({ (int)(Position.x + 0.31f), (int)(Position.y + 0.2f), (int)(Position.z - 0.28f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.31f), (int)(Position.y + 0.2f), (int)(Position.z + 0.28f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.31f), (int)(Position.y + 1.1f), (int)(Position.z - 0.28f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.31f), (int)(Position.y + 1.1f), (int)(Position.z + 0.28f) });
-	bool ZCollisionMinus = IsBlockSolid({ (int)(Position.x - 0.28f), (int)(Position.y + 0.2f), (int)(Position.z - 0.31f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.28f), (int)(Position.y + 0.2f), (int)(Position.z - 0.31f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.28f), (int)(Position.y + 1.1f), (int)(Position.z - 0.31f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.28f), (int)(Position.y + 1.1f), (int)(Position.z - 0.31f) });
-	bool ZCollisionPos = IsBlockSolid({ (int)(Position.x - 0.28f), (int)(Position.y + 0.2f), (int)(Position.z + 0.31f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.28f), (int)(Position.y + 0.2f), (int)(Position.z + 0.31f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.28f), (int)(Position.y + 1.1f), (int)(Position.z + 0.31f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.28f), (int)(Position.y + 1.1f), (int)(Position.z + 0.31f) });
-	bool YCollisionPos = IsBlockSolid({ (int)(Position.x - 0.27f), (int)(Position.y + 1.9f), (int)(Position.z + 0.27f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.27f), (int)(Position.y + 1.9f), (int)(Position.z + 0.27f) })
-		|| IsBlockSolid({ (int)(Position.x + 0.27f), (int)(Position.y + 1.9f), (int)(Position.z - 0.27f) })
-		|| IsBlockSolid({ (int)(Position.x - 0.27f), (int)(Position.y + 1.9f), (int)(Position.z - 0.27f) });
-	if (XCollisionPos && Velocity.x > 0) Velocity.x = 0;
-	if (XCollisionMinus && Velocity.x < 0) Velocity.x = 0;
-	if (ZCollisionPos && Velocity.z > 0) Velocity.z = 0;
-	if (ZCollisionMinus && Velocity.z < 0) Velocity.z = 0;
-	if (YCollisionPos && Velocity.y > 0) Velocity.y = 0;
+
+	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && (CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox) || godmode) && Playing && JumpCooldown <= 0)
+	{
+		Velocity.y = 8.5f;
+		JumpCooldown += 0.4f;
+	}
+
+	if (CheckCollision({ Position.x + Velocity.x * deltaTime, Position.y, Position.z }, Hitbox))
+	{
+		Velocity.x = 0;
+	}
+	if (CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox))
+	{
+		Velocity.y = 0;
+	}
+	if (CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * deltaTime }, Hitbox))
+	{
+		Velocity.z = 0;
+	}
+
+	//Apply the velocity to the position
 	Position += Velocity * deltaTime;
-	mainCamera.cameraPos = glm::vec3(Position.x, Position.y + 1.8f, Position.z);
+	mainCamera.cameraPos = glm::vec3(Position.x, Position.y + 1.6f, Position.z);
 	Vector3<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.y) / ChunkSize,((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		Timer t(0);
-		{
-			Timer tt(1);
-		GameManager::Overworld->LoadPlayerChunks(chunkpos, 3);
-		}
-		{
-			Timer ttt(2);
-		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 3);
-		}
-		{
-			Timer tttt(3);
+		GameManager::Overworld->LoadPlayerChunks(chunkpos, 2);
+		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 2);
 		GameManager::Overworld->SubmitChunkChanges();
-		}
 		ChunkPosition = chunkpos;
 	}
 }

@@ -14,13 +14,14 @@ class Player
 public:
 	Player();
 	~Player();
-	Cuboid Hitbox;
+	void CursorMoved(double xpos, double ypos);
 	Block* GetFacingBlock();
 	Block* GetBlockToPlace();
 	void MarkBlockToBreak();
 	void Update(float deltaTime);
 	void DrawPlayer(Block* facingblock);
 	int GetFirstAvaiableSlot(int id, TYPE type);
+	Vector3<double> Hitbox;
 	float yaw = -118.0f;
 	float pitch = -43.0f;
 	float lastX = 0.0f;
@@ -34,17 +35,14 @@ public:
 	Block* breakingBlock = nullptr;
 	int RenderDistance = 5;
 	bool firstMouse = true;
-	Vector3<float> Velocity;
+	Vector3<double> Velocity;
 	MainCamera mainCamera;
 	std::array<ItemStack, 9> Inventory;
 	char ActiveSlot;
-	bool grounded;
 	bool godmode = true;
-	void CursorMoved(double xpos, double ypos);
+	Vector3<double> Position;
 	//Cached data
 	Vector3<int> ChunkPosition = { 0,0,0 };
-
-	Vector3<float> Position;
 
 	//Rendering data
 	std::unique_ptr<IndexBuffer> m_IndexBuffer;
