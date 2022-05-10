@@ -200,15 +200,18 @@ void Player::Update(float deltaTime)
 
 	if (!godmode)
 	{
-		Velocity.y -= 32.0f * deltaTime;
+		Velocity.y -= 24.0f * deltaTime;
+		grounded = CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox);
 	}
 	else
 	{
 		if (Velocity.y < 0) Velocity.y = 0;
 	}
+	crouch = false;
 	if (Input::GetKeyState(GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && Playing)
 	{
 		speed = 2.0f;
+		crouch = true;
 	}
 	else if (Input::GetKeyState(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && Playing)
 	{
@@ -245,12 +248,24 @@ void Player::Update(float deltaTime)
 		Velocity.z = 0;
 	}
 
-	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && (CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox) || godmode) && Playing && JumpCooldown <= 0)
+	if (Input::GetKeyState(GLFW_KEY_SPACE) == GLFW_PRESS && (grounded || godmode) && Playing && JumpCooldown <= 0)
 	{
-		Velocity.y = 8.5f;
+		crouch = false;
+		Velocity.y = 7.2f;
 		JumpCooldown += 0.4f;
 	}
 
+	if (crouch && grounded)
+	{
+		if (!CheckCollision({ Position.x + Velocity.x * deltaTime, Position.y +Velocity.y * deltaTime, Position.z }, Hitbox))
+		{
+			Velocity.x = 0;
+		}
+		if (!CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z + Velocity.z * deltaTime }, Hitbox))
+		{
+			Velocity.z = 0;
+		}
+	}
 	if (CheckCollision({ Position.x + Velocity.x * deltaTime, Position.y, Position.z }, Hitbox))
 	{
 		Velocity.x = 0;

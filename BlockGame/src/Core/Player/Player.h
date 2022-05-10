@@ -30,6 +30,8 @@ public:
 	float speed = 5.0f;
 	float fov = 70.0f;
 	bool isBreakingBlock = false;
+	bool crouch = false;
+	bool grounded = false;
 	float BlockPlaceDelay = 0.3f;
 	float TimeToBreak = 0.0f;
 	Block* breakingBlock = nullptr;
