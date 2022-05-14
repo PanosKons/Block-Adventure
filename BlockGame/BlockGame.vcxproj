@@ -86,6 +86,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Networking.cpp" />
+    <ClCompile Include="src\Core\GameScene.cpp" />
+    <ClCompile Include="src\Core\MainMenuScene.cpp" />
     <ClCompile Include="src\Core\Physics.cpp" />
     <ClCompile Include="src\Core\Player\Entity.cpp" />
     <ClCompile Include="src\Blocks\BlockDryGrass.cpp" />
@@ -116,6 +119,10 @@
     <ClCompile Include="src\Core\World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Networking.h" />
+    <ClInclude Include="src\Core\GameScene.h" />
+    <ClInclude Include="src\Core\MainMenuScene.h" />
+    <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\Physics.h" />
     <ClInclude Include="src\Core\Player\Entity.h" />
     <ClInclude Include="src\Blocks\BlockDryGrass.h" />

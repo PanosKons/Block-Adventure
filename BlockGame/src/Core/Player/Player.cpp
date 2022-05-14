@@ -147,12 +147,9 @@ void Player::Update(float deltaTime)
 	if (isBreakingBlock)
 	{
 		if (facingblock != breakingBlock || Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) isBreakingBlock = false;
-		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM)
+		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && breakingBlock->GetBlockProperties().tool == TOOL::Pickaxe)
 		{
-			if (breakingBlock->GetBlockProperties().tool == TOOL::Pickaxe)
-			{
-				TimeToBreak -= deltaTime * 60 * 12;
-			}
+			TimeToBreak -= deltaTime * 60 * 12;
 		}
 		else
 		{
@@ -285,9 +282,8 @@ void Player::Update(float deltaTime)
 	Vector3<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.y) / ChunkSize,((int)Position.z) / ChunkSize };
 	if (chunkpos != ChunkPosition)
 	{
-		GameManager::Overworld->LoadPlayerChunks(chunkpos, 2);
-		Timer t(1);
-		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 2);
+		GameManager::Overworld->LoadPlayerChunks(chunkpos, 1);
+		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 1);
 		GameManager::Overworld->SubmitChunkChanges();
 		ChunkPosition = chunkpos;
 	}

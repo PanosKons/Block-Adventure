@@ -1,13 +1,19 @@
 #include <Engine.h>
 #include "GameManager.h"
 #include "GlobalVariables.h"
-#include <iostream>
 #include "ManagerUI.h"
 #include "Timer.h"
+#include "SavingData.h"
+#include "Renderer.h"
+#include "Scene.h"
+#include "MainMenuScene.h"
+#include "GameScene.h"
 static float second;
 static int FrameCount = 0;
+static Scene* scene;
 void GameManager::Update(float deltaTime)
 {
+	//Calculate FPS
 	if (second > 1)
 	{
 		FPS = FrameCount;
@@ -16,18 +22,35 @@ void GameManager::Update(float deltaTime)
 	}
 	FrameCount++;
 	second += deltaTime;
-	Overworld->Render();
-	player->Update(deltaTime);
+
+	scene->Update(deltaTime);
+	scene->Render();
 }
 void GameManager::Start()
 {
-	new World(0);
-	player = new Player();
-	ManagerUI::Init();
+	SavingData::ActivateLoading(true); //Debug function
+	ScreenWidth = 1920;
+	ScreenHeight = 1080;
+	Renderer::CreateWindow("GAME");
+
+	scene = (Scene*)new MainMenuScene();
+	scene->Start();
+
+	Renderer::Run();
+	GameManager::Shutdown();
+}
+void GameManager::SetScene(Scene* s)
+{
+	if (scene != s)
+	{
+		scene->End();
+		delete scene;
+		scene = s;
+		scene->Start();
+	}
 }
 void GameManager::Shutdown()
 {
-	Overworld->Save();
-	delete player;
-	delete Overworld;
+	scene->End();
+	delete scene;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "World.h"
 #include "Player.h"
+#include "Scene.h"
 class GameManager
 {
 public:
@@ -9,4 +10,5 @@ public:
 	static void Update(float deltaTime);
 	static void Start();
 	static void Shutdown();
+	static void SetScene(Scene* s);
 };

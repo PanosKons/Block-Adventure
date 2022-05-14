@@ -16,10 +16,6 @@ static bool debugActive = false;
 static bool TypingActive = false;
 static std::string chatbox;
 static std::string lastCommand;
-constexpr float charWidthOffset = 28.0f;
-constexpr float charHeightOffset = 32.0f;
-constexpr float charWidth = 32.0f;
-constexpr float charHeight = 32.0f;
 constexpr float SlotWidth = 64.0f;
 constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
@@ -29,95 +25,17 @@ std::string ManagerUI::ToString(bool value)
 		return "true";
 	else return "false";
 }
-void ManagerUI::PrintString(std::string&& Text, Vector3<float> position)
+void ManagerUI::PrintString(std::string Text, Vector3<float> position)
 {
-	Vertex a;
-	a.color = { 1,1,1,1 };
-	a.texId = 13;
-	a.position = position;
-	for (char digit : Text)
-	{
-		int x = digit % 16;
-		int y = digit / 16;
-		y++;
-		a.texCords = { x / 16.0f,1 - (y / 16.0f) };
-		m_VertexBuffer->Add(a);
-		a.position.y += charHeight;
-		a.texCords.y += 1 / 16.0f;
-		m_VertexBuffer->Add(a);
-		a.position.x += charWidth;
-		a.texCords.x += 1 / 16.0f;
-		m_VertexBuffer->Add(a);
-		a.position.y -= charHeight;
-		a.texCords.y -= 1 / 16.0f;
-		m_VertexBuffer->Add(a);
-		m_IndexBuffer->AddRectangle();
-		a.position.x -= charWidth - charWidthOffset;
-	}
-}
-void ManagerUI::PrintString(std::string& Text, Vector3<float> position)
-{
-	Vertex a;
-	a.color = { 1,1,1,1 };
-	a.texId = 13;
-	a.position = position;
-	for (char digit : Text)
-	{
-		int x = digit % 16;
-		int y = digit / 16;
-		y++;
-		a.texCords = { x / 16.0f,1 - (y / 16.0f) };
-		m_VertexBuffer->Add(a);
-		a.position.y += charHeight;
-		a.texCords.y += 1 / 16.0f;
-		m_VertexBuffer->Add(a);
-		a.position.x += charWidth;
-		a.texCords.x += 1 / 16.0f;
-		m_VertexBuffer->Add(a);
-		a.position.y -= charHeight;
-		a.texCords.y -= 1 / 16.0f;
-		m_VertexBuffer->Add(a);
-		m_IndexBuffer->AddRectangle();
-		a.position.x -= charWidth - charWidthOffset;
-	}
+	Renderer::DrawText(*m_VertexBuffer, *m_IndexBuffer, Text, position);
 }
 void ManagerUI::PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, float TextureID)
 {
-	Vertex a;
-	a.color = Color;
-	a.texId = TextureID;
-	a.texCords = { 0,0 };
-	a.position = Position;
-	m_VertexBuffer->Add(a);
-	a.texCords = { 0,1 };
-	a.position.y += Size.y;
-	m_VertexBuffer->Add(a);
-	a.texCords = { 1,1 };
-	a.position.x += Size.x;
-	m_VertexBuffer->Add(a);
-	a.texCords = { 1,0 };
-	a.position.y -= Size.y;
-	m_VertexBuffer->Add(a);
-	m_IndexBuffer->AddRectangle();
+	Renderer::DrawSquare(*m_VertexBuffer, *m_IndexBuffer, Position, Size, Color, { 0,0 }, {1,1}, TextureID);
 }
 void ManagerUI::PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID)
 {
-	Vertex a;
-	a.color = Color;
-	a.texId = TextureID;
-	a.texCords = TexCords;
-	a.position = Position;
-	m_VertexBuffer->Add(a);
-	a.texCords.y += TexSize.y;
-	a.position.y += Size.y;
-	m_VertexBuffer->Add(a);
-	a.texCords.x += TexSize.x;
-	a.position.x += Size.x;
-	m_VertexBuffer->Add(a);
-	a.texCords.y = TexCords.y;
-	a.position.y -= Size.y;
-	m_VertexBuffer->Add(a);
-	m_IndexBuffer->AddRectangle();
+	Renderer::DrawSquare(*m_VertexBuffer,*m_IndexBuffer,Position, Size, Color, TexCords, TexSize, TextureID);
 }
 void ManagerUI::UpdateUI()
 {

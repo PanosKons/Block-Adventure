@@ -14,7 +14,6 @@
 #include "Input.h"
 #include "GlobalVariables.h"
 namespace Renderer {
-	static float previous;
 	static std::unique_ptr<Shader> m_Shader;
 	static std::vector<std::string> m_Textures;
 	static glm::mat4 proj;
@@ -39,6 +38,11 @@ namespace Renderer {
 		layout.Push<float>(1);
 		layout.Calculate();
 		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->GetIndexBufferTransparent()->GetData().size()), GL_UNSIGNED_INT, chunk->GetIndexBufferTransparent()->GetData().data());
+	}
+	void SetBackroundColorAndClear(std::array<float,4> color)
+	{
+		glClearColor(color[0],color[1],color[2],color[3]);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib)
 	{
@@ -66,71 +70,79 @@ namespace Renderer {
 		glDrawElements(GL_TRIANGLES, (GLsizei)count, GL_UNSIGNED_INT, ib.GetData().data() + offset);
 		
 	}
+	void DrawText(VertexBuffer& vb, IndexBuffer& ib, std::string Text, Vector3<float> position)
+	{
+		Vertex a;
+		a.color = { 1,1,1,1 };
+		a.texId = 13;
+		a.position = position;
+		for (char digit : Text)
+		{
+			int x = digit % 16;
+			int y = digit / 16;
+			y++;
+			a.texCords = { x / 16.0f,1 - (y / 16.0f) };
+			vb.Add(a);
+			a.position.y += charHeight;
+			a.texCords.y += 1 / 16.0f;
+			vb.Add(a);
+			a.position.x += charWidth;
+			a.texCords.x += 1 / 16.0f;
+			vb.Add(a);
+			a.position.y -= charHeight;
+			a.texCords.y -= 1 / 16.0f;
+			vb.Add(a);
+			ib.AddRectangle();
+			a.position.x -= charWidth - charWidthOffset;
+		}
+	}
+	void DrawSquare(VertexBuffer& vb, IndexBuffer& ib, Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID)
+	{
+		Vertex a;
+		a.color = Color;
+		a.texId = TextureID;
+		a.texCords = TexCords;
+		a.position = Position;
+		vb.Add(a);
+		a.texCords.y += TexSize.y;
+		a.position.y += Size.y;
+		vb.Add(a);
+		a.texCords.x += TexSize.x;
+		a.position.x += Size.x;
+		vb.Add(a);
+		a.texCords.y = TexCords.y;
+		a.position.y -= Size.y;
+		vb.Add(a);
+		ib.AddRectangle();
+	}
+	void SetPlayerView()
+	{
+		proj = glm::perspective(glm::radians(GameManager::player->fov), (float)ScreenWidth / (float)ScreenHeight, 0.1f, -30.0f);
+		glm::mat4 view = glm::lookAt(GameManager::player->mainCamera.cameraPos, GameManager::player->mainCamera.cameraPos + GameManager::player->mainCamera.cameraFront, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_Shader->SetUniformMat4f("u_V", proj * view);
+	}
+	void SetUIView()
+	{
+		m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight, -30.0f, 30.0f));
+	}
 	void Run()
 	{
 		while (!glfwWindowShouldClose(ApplicationWindow))
 		{
-			if (Started) {
-				proj = glm::perspective(glm::radians(GameManager::player->fov), (float)ScreenWidth / (float)ScreenHeight, 0.1f, -30.0f);
-				glm::mat4 view = glm::lookAt(GameManager::player->mainCamera.cameraPos, GameManager::player->mainCamera.cameraPos + GameManager::player->mainCamera.cameraFront, glm::vec3(0.0f, 1.0f, 0.0f));
-				m_Shader->SetUniformMat4f("u_V", proj * view);
-				float now = (float)glfwGetTime();
-				float deltaTime = now - previous;
-				previous = now;
-				glClearColor(0.0f, 0.8f, 1.0f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				GameManager::Update(deltaTime);
-				m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight, -30.0f, 30.0f));
-				ManagerUI::UpdateUI();
-				glfwSwapBuffers(ApplicationWindow);
-				glfwPollEvents();
-			}
-			else
-			{
-				glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight, -30.0f, 30.0f));
-				{
-					static VertexBuffer* m_VertexBuffer = new VertexBuffer();
-					static IndexBuffer* m_IndexBuffer = new IndexBuffer();
-					Vertex a;
-					std::string Text = "Welcome";
-					a.color = { 1,1,1,1 };
-					a.texId = 13;
-					a.position = {0,0,0};
-					for (char digit : Text)
-					{
-						int x = digit % 16;
-						int y = digit / 16;
-						y++;
-						a.texCords = { x / 16.0f,1 - (y / 16.0f) };
-						m_VertexBuffer->Add(a);
-						a.position.y += 32.0f;
-						a.texCords.y += 1 / 16.0f;
-						m_VertexBuffer->Add(a);
-						a.position.x += 32.0f;
-						a.texCords.x += 1 / 16.0f;
-						m_VertexBuffer->Add(a);
-						a.position.y -= 32.0f;
-						a.texCords.y -= 1 / 16.0f;
-						m_VertexBuffer->Add(a);
-						m_IndexBuffer->AddRectangle();
-						a.position.x -= 4.0f;
-					}
-					m_VertexBuffer->Bind();
-					m_VertexBuffer->Allocate();
-					Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
-					m_VertexBuffer->Clear();
-					m_IndexBuffer->Clear();
-				}
-				glfwSwapBuffers(ApplicationWindow);
-				glfwPollEvents();
-			}
+			//Calculate deltaTime
+			static float previous;
+			float now = (float)glfwGetTime();
+			float deltaTime = now - previous;
+			previous = now;
+
+			GameManager::Update(deltaTime);
+
+			glfwSwapBuffers(ApplicationWindow);
+			glfwPollEvents();
 		}
 
 		glfwDestroyWindow(ApplicationWindow);
 		glfwTerminate();
-		GameManager::Shutdown();
 	}
 	int CreateWindow(const std::string& name)
 	{
