@@ -59,16 +59,18 @@ Block* Player::GetBlockToPlace()
 {
 	Ray ray(mainCamera.cameraPos, pitch, yaw);
 	Block* block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Block* lastBlock = nullptr;
 	while (true)
 	{
-		if (block == nullptr) return nullptr;
-		if ((block->RenderedSides & (255 - 64)) != 0) break;
+		if (block == nullptr) break;
+		if (block->GetBlockId() != BLOCK_ID::Air) break;
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
 			return nullptr;
+		lastBlock = block;
 		block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	}
-	return GameManager::Overworld->GetBlock({ (int)ray.getLast().x, (int)ray.getLast().y, (int)ray.getLast().z });
+	return lastBlock;
 }
 void Player::MarkBlockToBreak()
 {
