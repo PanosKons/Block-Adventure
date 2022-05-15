@@ -23,8 +23,96 @@ void EntityManager::Render()
 	}
 	for (Entity* player : Players)
 	{
-		if(player != nullptr)
-			Renderer::DrawSquare(*vb.get(), *ib.get(), { (float)player->Position.x,(float)player->Position.y,(float)player->Position.z }, { 3,3 }, { 1,1,1,1 }, { 0,0 }, { 1,1 }, -1);
+		if (player != nullptr)
+		{
+			Vertex a;
+			a.texId = -1.0f;
+			float alpha = 1.0f;
+				a.color = { 0.9f,0.9f,0.9f,alpha };
+				a.texCords = { 0, 0 };
+				a.position = Vector::FloatVector(player->Position);
+				vb->Add(a);
+				a.position.x += 1.0f;
+				a.texCords.x += 1.0f;
+				vb->Add(a);
+				a.position.y += 1.0f;
+				a.texCords.y += 1.0f;
+				vb->Add(a);
+				a.position.x = (float)player->Position.x;
+				a.texCords.x = 0;
+				vb->Add(a);
+				a.color = { 0.85f,0.85f,0.85f,alpha };
+				a.position = Vector::FloatVector(player->Position);
+				a.texCords = { 0, 0 };
+				a.position.x += 1.0f;
+				vb->Add(a);
+				a.position.z += 1.0f;
+				a.texCords.x += 1.0f;
+				vb->Add(a);
+				a.position.y += 1.0f;
+				a.texCords.y += 1.0f;
+				vb->Add(a);
+				a.position.z = (float)player->Position.z;
+				a.texCords.x = 0;
+				vb->Add(a);
+				a.color = { 0.75f,0.75f,0.75f,alpha };
+				a.position = Vector::FloatVector(player->Position);
+				a.texCords = { 0, 0 };
+				a.position.z += 1.0f;
+				a.position.x += 1.0f;
+				vb->Add(a);
+				a.position.x = (float)player->Position.x;
+				a.texCords.x += 1.0f;
+				vb->Add(a);
+				a.position.y += 1.0f;
+				a.texCords.y += 1.0f;
+				vb->Add(a);
+				a.position.x += 1.0f;
+				a.texCords.x = 0;
+				vb->Add(a);
+				a.color = { 0.8f,0.8f,0.8f,alpha };
+				a.position = Vector::FloatVector(player->Position);
+				a.position.z += 1.0f;
+				a.texCords = { 0, 0 };
+				vb->Add(a);
+				a.position.z = (float)player->Position.z;
+				a.texCords.x += 1.0f;
+				vb->Add(a);
+				a.position.y += 1.0f;
+				a.texCords.y += 1.0f;
+				vb->Add(a);
+				a.position.z += 1.0f;
+				a.texCords.x = 0;
+				vb->Add(a);
+				a.color = { 0.7f,0.7f,0.7f,alpha };
+				a.position = Vector::FloatVector(player->Position);
+				a.texCords = { 0, 0 };
+				vb->Add(a);
+				a.position.z += 1.0f;
+				a.texCords.x += 1.0f;
+				vb->Add(a);
+				a.position.x += 1.0f;
+				a.texCords.y += 1.0f;
+				vb->Add(a);
+				a.position.z = (float)player->Position.z;
+				a.texCords.x = 0;
+				vb->Add(a);
+				a.color = { 1.0f,1.0f,1.0f,alpha };
+				a.position = Vector::FloatVector(player->Position);
+				a.position.y += 1.0f;
+				a.texCords = { 0, 0 };
+				vb->Add(a);
+				a.position.x += 1.0f;
+				a.texCords.x += 1.0f;
+				vb->Add(a);
+				a.position.z += 1.0f;
+				a.texCords.y += 1.0f;
+				vb->Add(a);
+				a.position.x = (float)player->Position.x;
+				a.texCords.x = 0;
+				vb->Add(a);
+				ib->AddCuboid(63);
+		}
 	}
 	vb->Bind();
 	vb->Allocate();

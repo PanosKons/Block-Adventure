@@ -6,6 +6,7 @@
 #include "SavingData.h"
 #include "ItemStack.h"
 #include "Entity.h"
+#include "EntityManager.h"
 static std::unordered_map<std::string, BLOCK_ID> blockIds = //Pair each block with string
 {
 	{"air",BLOCK_ID::Air },
@@ -97,6 +98,7 @@ void Commands::ExecuteCommand(const std::string& command)
 		if (tokens.size() == 4)
 		{
 			Entity* en = new Entity();
+			EntityManager::Entities.push_back(en);
 			en->Position = {(double)std::stoi(tokens[1]), (double)std::stoi(tokens[2]), (double)std::stoi(tokens[3])};
 		}
 	}
