@@ -1,5 +1,6 @@
 #include "Networking.h"
 #include "Math/Vector.h"
+#include "GlobalVariables.h"
 #include <Engine.h>
 #include "EntityManager.h"
 #include <winsock2.h>
@@ -55,7 +56,7 @@ void Networking::Connect()
 	}
 	sockaddr_in service;
 	service.sin_family = AF_INET;
-	InetPton(AF_INET, L"127.0.0.1", &service.sin_addr.s_addr);
+	InetPton(AF_INET, ip.c_str(), &service.sin_addr.s_addr);
 	service.sin_port = htons(25555);
 	if (connect(clientSocket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR)
 	{

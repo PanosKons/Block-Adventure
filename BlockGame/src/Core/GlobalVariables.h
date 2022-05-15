@@ -1,7 +1,10 @@
 #pragma once
+#include <Engine.h>
 struct GLFWwindow;
 extern int ScreenWidth;
 extern int ScreenHeight;
 extern GLFWwindow* ApplicationWindow;
 extern int FPS;
 extern bool Playing;
+extern std::wstring ip;
+extern int port;

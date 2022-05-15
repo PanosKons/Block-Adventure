@@ -28,6 +28,8 @@ void GameManager::Update(float deltaTime)
 }
 void GameManager::Start()
 {
+	std::wcin >> ip;
+	std::cin >> port;
 	SavingData::ActivateLoading(true); //Debug function
 	ScreenWidth = 1920;
 	ScreenHeight = 1080;
