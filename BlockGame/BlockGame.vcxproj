@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -75,7 +75,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Player\EntityManager.cpp" />
     <ClCompile Include="src\Core\Networking.cpp" />
     <ClCompile Include="src\Core\GameScene.cpp" />
     <ClCompile Include="src\Core\MainMenuScene.cpp" />
@@ -119,6 +120,7 @@
     <ClCompile Include="src\Core\World\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Player\EntityManager.h" />
     <ClInclude Include="src\Core\Networking.h" />
     <ClInclude Include="src\Core\GameScene.h" />
     <ClInclude Include="src\Core\MainMenuScene.h" />
@@ -154,6 +156,9 @@
     <ClInclude Include="src\Core\World\World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ApocalypseShared\ApocalypseShared.vcxproj">
+      <Project>{31a60ea1-63b4-4987-bc9d-61f81582d43b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{9be7875d-2e8d-4db2-93e0-aefba89ebbcf}</Project>
     </ProjectReference>

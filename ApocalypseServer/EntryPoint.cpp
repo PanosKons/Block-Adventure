@@ -1,12 +1,9 @@
-#include <iostream>
+#include <Engine.h>
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
-#include <chrono>
-#include <thread>
-#include <vector>
-#include <mutex>
-#include <sstream>
+#include "Serializer.h"
+#include "Math/Vector.h"
 #ifdef _DEBUG
 #define ASSERTEXITCODE(x) if(x) __debugbreak();
 #define ASSERT(x) if(x == 0 || x == -1) __debugbreak();
@@ -15,22 +12,26 @@
 #define ASSERT(x) if(x == 0 || x == -1) std::cout << "ERROR" << std::endl;
 #endif
 static std::vector<SOCKET*> sockets;
-static std::vector<char> ids;
 void EchoClientMessage(SOCKET* socket, char id)
 {
 	while (true)
 	{
-		char buffer[200];
-		recv(*socket, buffer, 200, 0);
-		std::string str = "<Player: ";
-		str.push_back(id);
-		str.append("> ");
-		str.append(buffer);
-		for (SOCKET* client : sockets)
+		std::array<char, defaultsize> buffer;
+		recv(*socket, buffer.data(), defaultsize, 0);
+
+		int* p = (int*)buffer.data();
+		PACKET_ID id = *(PACKET_ID*)p;
+		int Player_id = *(p + 1);
+		switch (id)
 		{
-			send(*client, str.data(), 200, 0);
+		case PACKET_ID::PlayerPosition:
+			for (int i = 0; i < sockets.size(); i++)
+			{
+				if (i != Player_id)
+					send(*sockets[i], buffer.data(), defaultsize, 0);
+			}
+			break;
 		}
-		std::cout << str << std::endl;
 	}
 }
 int main()
@@ -53,7 +54,7 @@ int main()
 	service.sin_port = htons(25555);
 	ASSERTEXITCODE(bind(serverSocket, (SOCKADDR*)&service, sizeof(service)));
 	//Listen socket
-	ASSERTEXITCODE(listen(serverSocket, 10));
+	ASSERTEXITCODE(listen(serverSocket, MAX_PLAYERS));
 
 	//Wait for clients
 	while (true)
@@ -61,18 +62,13 @@ int main()
 		static int i = 0;
 		SOCKET* client = new SOCKET(accept(serverSocket, nullptr, nullptr));
 		ASSERT(*client);
-		std::stringstream strs;
-		strs << i;
-		char buffer[200];
-		strs >> buffer;
-		send((*client), buffer, 200, 0);
+		send((*client), (char*)&i, sizeof(int), 0);
 		std::mutex mutex;
 		mutex.lock();
 		sockets.push_back(client);
-		ids.push_back(buffer[0]);
 		mutex.unlock();
-		std::cout << "Client with id: " << buffer[0] << " connected!" << std::endl;
-		std::thread work(EchoClientMessage, client, buffer[0]);
+		std::cout << "Client with id: " << i << " connected!" << std::endl;
+		std::thread work(EchoClientMessage, client, i);
 		work.detach();
 		i++;
 	}

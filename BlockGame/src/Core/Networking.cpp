@@ -1,17 +1,41 @@
 #include "Networking.h"
+#include "Math/Vector.h"
 #include <Engine.h>
+#include "EntityManager.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
 static SOCKET clientSocket = INVALID_SOCKET;
+static int Player_id = -1;
 void HandleMessage()
 {
 	while (true)
 	{
-		char buffer[200];
-		recv(clientSocket, buffer, 200, 0);
-		std::cout << buffer << std::endl;
+		std::array<char, defaultsize> buffer = std::array<char, defaultsize>();
+		recv(clientSocket, buffer.data(), defaultsize, 0);
+		int* p = (int*)buffer.data();
+		PACKET_ID id = *(PACKET_ID*)p;
+		int other_player_id = *(p + 1);
+		switch (id)
+		{
+		case PACKET_ID::PlayerPosition:
+			Vector3<double>* vector = (Vector3<double>*)(buffer.data() + sizeof(int)*2);
+			EntityManager::UpdatePlayer(other_player_id, *vector);
+			break;
+		}
 	}
+}
+void Networking::SendData(PACKET_ID packet_id, char* data, int sizebytes)
+{
+	std::array<char, defaultsize> buffer = std::array<char,defaultsize>();
+	int* p = (int*)buffer.data();
+	*p = (int)packet_id;
+	*(p + 1) = Player_id;
+	for (int i = 0; i < sizebytes; i++)
+	{
+		buffer[i + sizeof(int)*2] = *(data + i);
+	}
+	send(clientSocket, buffer.data(), buffer.size(), 0);
 }
 void Networking::Connect()
 {
@@ -37,7 +61,10 @@ void Networking::Connect()
 	{
 		std::cout << "error" << std::endl;
 	}
-	std::cout << "Connected to the server!" << std::endl;
+	char buffer[sizeof(int)];
+	recv(clientSocket, buffer, sizeof(int), 0);
+	Player_id = *(int*)buffer;
+	std::cout << "Connected to the server with id: " << Player_id << std::endl;
 	std::thread worker(HandleMessage);
 	worker.detach();
 }

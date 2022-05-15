@@ -134,9 +134,7 @@ namespace Renderer {
 			float now = (float)glfwGetTime();
 			float deltaTime = now - previous;
 			previous = now;
-
 			GameManager::Update(deltaTime);
-
 			glfwSwapBuffers(ApplicationWindow);
 			glfwPollEvents();
 		}

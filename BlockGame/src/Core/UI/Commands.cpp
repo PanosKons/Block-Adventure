@@ -5,6 +5,7 @@
 #include "Structure.h"
 #include "SavingData.h"
 #include "ItemStack.h"
+#include "Entity.h"
 static std::unordered_map<std::string, BLOCK_ID> blockIds = //Pair each block with string
 {
 	{"air",BLOCK_ID::Air },
@@ -89,6 +90,14 @@ void Commands::ExecuteCommand(const std::string& command)
 		if (tokens.size() == 4)
 		{
 			GameManager::player->Position = { (float)std::stoi(tokens[1]), (float)std::stoi(tokens[2]), (float)std::stoi(tokens[3]) };
+		}
+	}
+	if (tokens[0] == "/entity")
+	{
+		if (tokens.size() == 4)
+		{
+			Entity* en = new Entity();
+			en->Position = {(double)std::stoi(tokens[1]), (double)std::stoi(tokens[2]), (double)std::stoi(tokens[3])};
 		}
 	}
 	if (tokens[0] == "/set")

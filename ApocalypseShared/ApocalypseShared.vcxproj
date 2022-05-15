@@ -13,19 +13,19 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{38ad3c9c-0218-4547-9f07-b7d9a5786df9}</ProjectGuid>
-    <RootNamespace>ApocalypseServer</RootNamespace>
+    <ProjectGuid>{31a60ea1-63b4-4987-bc9d-61f81582d43b}</ProjectGuid>
+    <RootNamespace>ApocalypseShared</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -59,7 +59,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -75,7 +74,6 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -85,15 +83,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EntryPoint.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ApocalypseShared\ApocalypseShared.vcxproj">
-      <Project>{31a60ea1-63b4-4987-bc9d-61f81582d43b}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{9be7875d-2e8d-4db2-93e0-aefba89ebbcf}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Serializer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Serializer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
