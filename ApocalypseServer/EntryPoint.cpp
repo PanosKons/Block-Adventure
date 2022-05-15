@@ -31,6 +31,13 @@ void EchoClientMessage(SOCKET* socket, char id)
 					send(*sockets[i], buffer.data(), defaultsize, 0);
 			}
 			break;
+		case PACKET_ID::BreakBlock:
+			for (int i = 0; i < sockets.size(); i++)
+			{
+				if (i != Player_id)
+					send(*sockets[i], buffer.data(), defaultsize, 0);
+			}
+			break;
 		}
 	}
 }

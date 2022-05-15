@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "Timer.h"
 #include "Math/EngineMath.h"
+#include "Networking.h"
 Player::Player()
 	:ActiveSlot(0), Inventory(), mainCamera(), Velocity(0), Position({ 1065.0,80.0,1065.0 }), Hitbox({ 0.6, 1.8 ,0.6 })
 {
@@ -163,6 +164,12 @@ void Player::Update(float deltaTime)
 			Inventory[index].count++;
 			breakingBlock->OnBreak(BLOCK_ID::Air);
 			isBreakingBlock = false;
+			//Send
+			std::array<char, sizeof(Vector3<int>) + sizeof(BLOCK_ID)> buffer = std::array<char, sizeof(Vector3<int>) + sizeof(BLOCK_ID)>();
+			int* p = (int*)buffer.data();
+			*(Vector3<int>*)p = breakingBlock->Position;
+			*(p + sizeof(Vector3<int>)) = (int)BLOCK_ID::Air;
+			Networking::SendData(PACKET_ID::BreakBlock,buffer.data(), sizeof(breakingBlock->Position) + sizeof(BLOCK_ID));
 		}
 	}
 	else if (Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && Playing)
@@ -179,6 +186,13 @@ void Player::Update(float deltaTime)
 		{
 			block->OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
 			Inventory[ActiveSlot].count--;
+
+			//Send
+			std::array<char, sizeof(Vector3<int>) + sizeof(BLOCK_ID)> buffer = std::array<char, sizeof(Vector3<int>) + sizeof(BLOCK_ID)>();
+			int* p = (int*)buffer.data();
+			*(Vector3<int>*)p = block->Position;
+			*(p + sizeof(Vector3<int>) / sizeof(int)) = Inventory[ActiveSlot].id;
+			Networking::SendData(PACKET_ID::BreakBlock, buffer.data(), sizeof(block->Position) + sizeof(BLOCK_ID));
 		}
 		else
 		{

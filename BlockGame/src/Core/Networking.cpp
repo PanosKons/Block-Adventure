@@ -1,5 +1,6 @@
 #include "Networking.h"
 #include "Math/Vector.h"
+#include "GameManager.h"
 #include "GlobalVariables.h"
 #include <Engine.h>
 #include "EntityManager.h"
@@ -20,9 +21,18 @@ void HandleMessage()
 		switch (id)
 		{
 		case PACKET_ID::PlayerPosition:
-			Vector3<double>* vector = (Vector3<double>*)(buffer.data() + sizeof(int)*2);
-			EntityManager::UpdatePlayer(other_player_id, *vector);
+		{
+			Vector3<double>* vec = (Vector3<double>*)(buffer.data() + sizeof(int) * 2);
+			EntityManager::UpdatePlayer(other_player_id, *vec);
 			break;
+		}
+		case PACKET_ID::BreakBlock:
+		{
+			Vector3<int>* vector = (Vector3<int>*)(buffer.data() + sizeof(int) * 2);
+			BLOCK_ID* blockid = (BLOCK_ID*)(buffer.data() + sizeof(int) * 2 + sizeof(Vector3<int>));
+			GameManager::Overworld->GetBlock(*vector)->OnBreak(*blockid);
+			break;
+		}
 		}
 	}
 }
