@@ -12,7 +12,8 @@ public:
 	virtual BLOCK_ID GetBlockId() = 0; //Each block overrides this method and returns its own id
 	virtual BlockProperties GetBlockProperties() = 0;
 	virtual void Update();
-	virtual void OnBreak(BLOCK_ID id);
+	void OnBreakOffline(BLOCK_ID id);
+	void OnBreak(BLOCK_ID id);
 	void StateChanged();
 	Vector3<int> Position;
 	unsigned char RenderedSides; // front,right,back,left,bottom,top,renders at all

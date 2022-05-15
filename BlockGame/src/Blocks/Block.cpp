@@ -1,8 +1,7 @@
 #include <Engine.h>
 #include "Block.h"
 #include "../Core/GameManager.h"
-#include <array>
-#include <iostream>
+#include "Networking.h"
 void Block::StateChanged()
 {
 	std::array<Block*, 6> blocks =
@@ -25,14 +24,12 @@ void Block::StateChanged()
 }
 void Block::OnBreak(BLOCK_ID id)
 {
-	auto a = GameManager::Overworld->GetChunk(this->Position)->GetBlocks();
-	auto b = &(*a)[(Position.x + BIG_NUMBER) % ChunkSize][(Position.y + BIG_NUMBER) % ChunkSize][(Position.z + BIG_NUMBER) % ChunkSize];
-	(*b) = GameManager::Overworld->MakeBlock(id);
-	(*b)->Position = Position;
-	(*b)->Update();
-	StateChanged();
-	GameManager::Overworld->GetChunk(this->Position)->Changed = true;
-	delete this;
+	std::array<char, sizeof(Vector3<int>) + sizeof(BLOCK_ID)> buffer = std::array<char, sizeof(Vector3<int>) + sizeof(BLOCK_ID)>();
+	int* p = (int*)buffer.data();
+	*(Vector3<int>*)p = Position;
+	*(p + sizeof(Vector3<int>) / sizeof(int)) = (int)id;
+	Networking::SendData(PACKET_ID::BreakBlock, buffer.data(), sizeof(Position) + sizeof(BLOCK_ID));
+	OnBreakOffline(id);
 }
 Block::Block()
 	:RenderedSides(64), Transparent(false)
@@ -106,4 +103,16 @@ void Block::Update()
 
 	if (oldSides != RenderedSides)
 		GameManager::Overworld->GetChunk(this->Position)->Changed = true;
+}
+
+void Block::OnBreakOffline(BLOCK_ID id)
+{
+	auto a = GameManager::Overworld->GetChunk(this->Position)->GetBlocks();
+	auto b = &(*a)[(Position.x + BIG_NUMBER) % ChunkSize][(Position.y + BIG_NUMBER) % ChunkSize][(Position.z + BIG_NUMBER) % ChunkSize];
+	(*b) = GameManager::Overworld->MakeBlock(id);
+	(*b)->Position = Position;
+	(*b)->Update();
+	StateChanged();
+	GameManager::Overworld->GetChunk(this->Position)->Changed = true;
+	delete this;
 }

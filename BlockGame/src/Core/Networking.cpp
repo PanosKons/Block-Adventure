@@ -30,7 +30,7 @@ void HandleMessage()
 		{
 			Vector3<int>* vector = (Vector3<int>*)(buffer.data() + sizeof(int) * 2);
 			BLOCK_ID* blockid = (BLOCK_ID*)(buffer.data() + sizeof(int) * 2 + sizeof(Vector3<int>));
-			GameManager::Overworld->GetBlock(*vector)->OnBreak(*blockid);
+			GameManager::Overworld->GetBlock(*vector)->OnBreakOffline(*blockid);
 			break;
 		}
 		}
