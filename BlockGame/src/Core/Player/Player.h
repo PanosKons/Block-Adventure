@@ -9,6 +9,7 @@
 #include "ItemStack.h"
 #include "Rendering/VertexBuffer.h"
 #include "Rendering/IndexBuffer.h"
+constexpr int InventorySize = 9;
 class Player
 {
 public:
@@ -29,6 +30,8 @@ public:
 	float JumpCooldown = 0.0f;
 	float speed = 5.0f;
 	float fov = 70.0f;
+	float maxHealth = 100.0f;
+	float health = 100.0f;
 	bool isBreakingBlock = false;
 	bool crouch = false;
 	bool grounded = false;
@@ -39,7 +42,7 @@ public:
 	bool firstMouse = true;
 	Vector3<double> Velocity;
 	MainCamera mainCamera;
-	std::array<ItemStack, 9> Inventory;
+	std::array<ItemStack, InventorySize> Inventory;
 	char ActiveSlot;
 	bool godmode = true;
 	Vector3<double> Position;

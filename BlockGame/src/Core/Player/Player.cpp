@@ -124,7 +124,6 @@ bool CheckCollision(Vector3<double> Position ,Vector3<double> Hitbox)
 {
 	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
 	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
-	bool Collision = false;
 	for (int x = Point1.x; x <= Point2.x; x++)
 	{
 		for (int y = Point1.y; y <= Point2.y; y++)
@@ -133,13 +132,31 @@ bool CheckCollision(Vector3<double> Position ,Vector3<double> Hitbox)
 			{
 				if (IsBlockSolid({ x,y,z }))
 				{
-					Collision = true;
-					break;
+					return true;
 				}
 			}
 		}
 	}
-	return Collision;
+	return false;
+}
+bool CheckCollision(Vector3<double> Position, Vector3<double> Hitbox, Vector3<int> block)
+{
+	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
+	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
+	for (int x = Point1.x; x <= Point2.x; x++)
+	{
+		for (int y = Point1.y; y <= Point2.y; y++)
+		{
+			for (int z = Point1.z; z <= Point2.z; z++)
+			{
+				if (block == Vector3<int>{x, y, z})
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 void Player::Update(float deltaTime)
 {
@@ -177,7 +194,8 @@ void Player::Update(float deltaTime)
 	{
 		Block* block = GetBlockToPlace();
 		if (block == nullptr) return;
-		if (block->Position.x == (int)mainCamera.cameraPos.x && (block->Position.y == (int)mainCamera.cameraPos.y || block->Position.y == (int)mainCamera.cameraPos.y - 1) && block->Position.z == (int)mainCamera.cameraPos.z) return;
+		if (CheckCollision(Position,Hitbox,block->Position) == true)
+			return;
 		if (Inventory[ActiveSlot].count > 0 && Inventory[ActiveSlot].type == TYPE::BLOCK)
 		{
 			block->OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
@@ -195,6 +213,13 @@ void Player::Update(float deltaTime)
 		godmode = !godmode;
 	}
 
+	if (Input::GetMouseState(GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS && Playing && godmode)
+	{
+		ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)facingblock->GetBlockId(), TYPE::BLOCK)];
+		stack.id = (int)facingblock->GetBlockId();
+		stack.count += 1;
+		stack.type = TYPE::BLOCK;
+	}
 
 	JumpCooldown -= deltaTime;
 
@@ -272,6 +297,7 @@ void Player::Update(float deltaTime)
 	}
 	if (CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox))
 	{
+		if (Velocity.y <= -6.0f) health -= -Velocity.y / 3.0f;
 		Velocity.y = 0;
 	}
 	if (CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * deltaTime }, Hitbox))

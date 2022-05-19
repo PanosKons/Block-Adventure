@@ -19,6 +19,7 @@ static std::string lastCommand;
 constexpr float SlotWidth = 64.0f;
 constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
+constexpr float SlotsX = 64.0f;
 std::string ManagerUI::ToString(bool value)
 {
 	if (value)
@@ -39,14 +40,19 @@ void ManagerUI::PrintSquare(Vector3<float> Position, Vector2<float> Size, Vector
 }
 void ManagerUI::UpdateUI()
 {
-	Vector3<float> SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.3f };
-	for (int i = 0; i < 9; i++)
+	Vector3<float> SlotPosition = { SlotsX,0.0f,BaseLayer - 0.3f };
+
+	Vector3<float> HealthBarPosition = { SlotsX,10.0f + SlotHeight, BaseLayer };
+	PrintSquare(HealthBarPosition, { 320.0f,40.0f }, { 1.0f,0.0f,0.0f,1.0f }, -1);
+	PrintSquare(HealthBarPosition, { 320.0f * GameManager::player->health / GameManager::player->maxHealth,40.0f }, { 0.0f,1.0f,0.0f,1.0f }, -1);
+	PrintString(StringConvertions::ToString((int)GameManager::player->health) + "/" + StringConvertions::ToString((int)GameManager::player->maxHealth), HealthBarPosition);
+	for (int i = 0; i < InventorySize; i++)
 	{
 		PrintSquare(SlotPosition, { SlotWidth,SlotHeight }, { 1,1,1,1 }, 14);
 		SlotPosition.x += SlotWidth;
 	}
-	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.2f };
-	for (int i = 0; i < 9; i++)
+	SlotPosition = { SlotsX,0.0f,BaseLayer - 0.2f };
+	for (int i = 0; i < InventorySize; i++)
 	{
 		if (GameManager::player->Inventory[i].count != 0)
 		{
@@ -55,14 +61,14 @@ void ManagerUI::UpdateUI()
 		}
 		SlotPosition.x += SlotWidth;
 	}
-	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.1f };
-	for (int i = 0; i < 9; i++)
+	SlotPosition = { SlotsX,0.0f,BaseLayer - 0.1f };
+	for (int i = 0; i < InventorySize; i++)
 	{
 		if (GameManager::player->Inventory[i].count > 1)
 			PrintString(StringConvertions::ToString(GameManager::player->Inventory[i].count), SlotPosition);
 		SlotPosition.x += SlotWidth;
 	}
-	SlotPosition = { (ScreenWidth / 2) - (4.5f * SlotWidth),0.0f,BaseLayer - 0.05f };
+	SlotPosition = { SlotsX,0.0f,BaseLayer - 0.05f };
 	PrintSquare({ SlotPosition.x + SlotWidth * GameManager::player->ActiveSlot,SlotPosition.y,SlotPosition.z }, { SlotWidth,SlotHeight }, { 1,1,1,1 }, 15);
 	PrintSquare({ (float)(ScreenWidth - 16) / 2,(float)(ScreenHeight - 16) / 2,BaseLayer }, { 32.0f, 32.0f }, { 1, 1, 1, 1 }, 12);
 	if (debugActive)

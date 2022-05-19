@@ -8,7 +8,7 @@
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage)
 {
 	static Structure* structure = SavingData::LoadStructure(name.c_str());
-	if(GenerationStage)
+	if(GenerationStage == true)
 		for (int x = 0; x < StructureSize; x++)
 		{
 			for (int y = 0; y < StructureSize; y++)
@@ -25,7 +25,7 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bo
 			}
 	}
 	else
-		for (int x = 0; x < StructureSize; x++)
+a		for (int x = 0; x < StructureSize; x++)
 		{
 			for (int y = 0; y < StructureSize; y++)
 			{
@@ -123,10 +123,11 @@ Chunk::Chunk(Vector3<int> Position, World* world)
 	{
 		for (int z = 0; z < ChunkSize; z++)
 		{
-			auto y = HeightMap[x + z * ChunkSize];
-			if (rand() % 100 == 0 && y > 40)
+			int y = HeightMap[x + z * ChunkSize] + 1;
+
+			if (rand() % 100 == 0 && y > 40 && y / ChunkSize == Position.y)
 			{
-				SpawnStructure({ x,y + 1 ,z }, "tree");
+				SpawnStructure({ x,y % ChunkSize ,z }, "tree");
 			}
 		}
 	}
