@@ -6,40 +6,24 @@
 #include <array>
 #include <filesystem>
 #include <iostream>
-void SavingData::SaveChunk(Chunk* chunk)
+void SavingData::SaveChunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks)
 {
 	std::ofstream fout;
-	fout.open("data/chunks/" + StringConvertions::ToString(chunk->GetPosition().x) + "," + StringConvertions::ToString(chunk->GetPosition().y) + "," + StringConvertions::ToString(chunk->GetPosition().z) + ".chunk", std::ios::binary);
-	std::array<unsigned short, ChunkSize* ChunkSize* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkSize* ChunkSize>();
-	for (int x = 0; x < ChunkSize; x++)
-		for (int y = 0; y < ChunkSize; y++)
-			for (int z = 0; z < ChunkSize; z++)
-				(*bytes)[z + y * ChunkSize + x * ChunkSize * ChunkSize] = (unsigned short)(*chunk->GetBlocks())[x][y][z]->GetBlockId();
-	fout.write((const char*)(*bytes).data(), (*bytes).size() * sizeof(unsigned short));
+	fout.open("data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + "," + StringConvertions::ToString(Position.z) + ".chunk", std::ios::binary);
+	fout.write((const char*)(*blocks).data(), ChunkSize* ChunkSize* ChunkSize * sizeof(BlockData));
 	fout.close();
-	delete bytes;
 }
-std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* SavingData::LoadChunk(Vector3<int> Position)
+void SavingData::LoadChunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>** blocks)
 {
 	if (!Activated)
-		return nullptr;
-	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + StringConvertions::ToString(Position.z) + ".chunk";
-	if (!std::filesystem::exists(path)) return nullptr;
-	std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* blocks = new std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>();
-	std::array<unsigned short, ChunkSize* ChunkSize* ChunkSize>* bytes = new std::array<unsigned short, ChunkSize* ChunkSize* ChunkSize>();
+		return;
+	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + "," + StringConvertions::ToString(Position.z) + ".chunk";
+	if (!std::filesystem::exists(path)) return;
 	std::ifstream fin;
 	fin.open(path, std::ios::binary | std::ios::in);
-	fin.read((char*)(*bytes).data(), (*bytes).size() * sizeof(unsigned short));
+	*blocks = new std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>();
+	fin.read((char*)(**blocks).data(), ChunkSize * ChunkSize * ChunkSize * sizeof(BlockData));
 	fin.close();
-	for (int x = 0; x < ChunkSize; x++)
-		for (int y = 0; y < ChunkSize; y++)
-			for (int z = 0; z < ChunkSize; z++)
-			{
-				(*blocks)[x][y][z] = World::MakeBlock((BLOCK_ID)(*bytes)[z + y * ChunkSize + x * ChunkSize * ChunkSize]);
-				(*blocks)[x][y][z]->Position = { x + ChunkSize * Position.x,y + ChunkSize * Position.y,z + ChunkSize * Position.z };
-			}
-	delete bytes;
-	return blocks;
 }
 
 Structure* SavingData::LoadStructure(const char* name)
@@ -69,9 +53,9 @@ void SavingData::SavePlayer(Player* player)
 {
 	std::array<float, 5> data =
 	{
-		player->Position.x,
-		player->Position.y,
-		player->Position.z,
+		(float)player->Position.x,
+		(float)player->Position.y,
+		(float)player->Position.z,
 		player->pitch,
 		player->yaw
 	};

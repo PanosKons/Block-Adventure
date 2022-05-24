@@ -40,33 +40,33 @@ int Player::GetFirstAvaiableSlot(int id,TYPE type)
 	}
 	return -1;
 }
-Block* Player::GetFacingBlock()
+Block Player::GetFacingBlock()
 {
 	Ray ray(mainCamera.cameraPos, pitch, yaw);
-	Block* block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Block block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	while (true)
 	{
-		if (block == nullptr) break;
-		if (block->GetBlockId() != BLOCK_ID::Air) break;
+		if (block.data == nullptr) break;
+		if (block.GetBlockId() != BLOCK_ID::Air) break;
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
-			return nullptr;
+			return Block();
 		block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	}
 	return block;
 }
-Block* Player::GetBlockToPlace()
+Block Player::GetBlockToPlace()
 {
 	Ray ray(mainCamera.cameraPos, pitch, yaw);
-	Block* block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
-	Block* lastBlock = nullptr;
+	Block block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Block lastBlock = Block();
 	while (true)
 	{
-		if (block == nullptr) break;
-		if (block->GetBlockId() != BLOCK_ID::Air) break;
+		if (block.data == nullptr) break;
+		if (block.GetBlockId() != BLOCK_ID::Air) break;
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
-			return nullptr;
+			return Block();
 		lastBlock = block;
 		block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	}
@@ -74,11 +74,11 @@ Block* Player::GetBlockToPlace()
 }
 void Player::MarkBlockToBreak()
 {
-	Block* block = GetFacingBlock();
-	if (block == nullptr) return;
+	Block block = GetFacingBlock();
+	if (block.data == nullptr) return;
 	isBreakingBlock = true;
 	breakingBlock = block;
-	TimeToBreak = (float)block->GetBlockProperties().hardness;
+	TimeToBreak = (float)block.GetBlockProperties().hardness;
 }
 void Player::CursorMoved(double xpos, double ypos)
 {
@@ -115,9 +115,9 @@ void Player::CursorMoved(double xpos, double ypos)
 }
 bool IsBlockSolid(Vector3<int> Position)
 {
-	Block* block = GameManager::Overworld->GetBlock({ Position.x,Position.y,Position.z });
-	if (block != nullptr)
-		return block->GetBlockId() != BLOCK_ID::Air;
+	Block block = GameManager::Overworld->GetBlock({ Position.x,Position.y,Position.z });
+	if (block.data != nullptr)
+		return block.GetBlockId() != BLOCK_ID::Air;
 	return true;
 }
 bool CheckCollision(Vector3<double> Position ,Vector3<double> Hitbox)
@@ -161,13 +161,13 @@ bool CheckCollision(Vector3<double> Position, Vector3<double> Hitbox, Vector3<in
 void Player::Update(float deltaTime)
 {
 	deltaTime = Math::Min(deltaTime, 0.05f);
-	Block* facingblock = GetFacingBlock();
+	Block facingblock = GetFacingBlock();
 	DrawPlayer(facingblock);
 	Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
 	if (isBreakingBlock)
 	{
 		if (facingblock != breakingBlock || Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) isBreakingBlock = false;
-		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && breakingBlock->GetBlockProperties().tool == TOOL::Pickaxe)
+		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && breakingBlock.GetBlockProperties().tool == TOOL::Pickaxe)
 		{
 			TimeToBreak -= deltaTime * 60 * 12;
 		}
@@ -177,11 +177,11 @@ void Player::Update(float deltaTime)
 		}
 		if (TimeToBreak < 0)
 		{
-			int index = GetFirstAvaiableSlot((int)breakingBlock->GetBlockId(), TYPE::BLOCK);
-			Inventory[index].id = (int)breakingBlock->GetBlockId();
+			int index = GetFirstAvaiableSlot((int)breakingBlock.GetBlockId(), TYPE::BLOCK);
+			Inventory[index].id = (int)breakingBlock.GetBlockId();
 			Inventory[index].type = TYPE::BLOCK;
 			Inventory[index].count++;
-			breakingBlock->OnBreak(BLOCK_ID::Air);
+			breakingBlock.OnBreak(BLOCK_ID::Air);
 			isBreakingBlock = false;
 		}
 	}
@@ -192,19 +192,14 @@ void Player::Update(float deltaTime)
 	BlockPlaceDelay -= deltaTime;
 	if (Input::GetMouseState(GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && Playing && BlockPlaceDelay < 0)
 	{
-		Block* block = GetBlockToPlace();
-		if (block == nullptr) return;
-		if (CheckCollision(Position,Hitbox,block->Position) == true)
+		Block block = GetBlockToPlace();
+		if (block.data == nullptr) return;
+		if (CheckCollision(Position,Hitbox,block.Position) == true)
 			return;
 		if (Inventory[ActiveSlot].count > 0 && Inventory[ActiveSlot].type == TYPE::BLOCK)
 		{
-			block->OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
+			block.OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
 			Inventory[ActiveSlot].count--;
-		}
-		else
-		{
-			IClickable* cb = dynamic_cast<IClickable*>(facingblock);
-			if (cb) cb->OnClick();
 		}
 		BlockPlaceDelay = 0.3f;
 	}
@@ -215,8 +210,8 @@ void Player::Update(float deltaTime)
 
 	if (Input::GetMouseState(GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS && Playing && godmode)
 	{
-		ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)facingblock->GetBlockId(), TYPE::BLOCK)];
-		stack.id = (int)facingblock->GetBlockId();
+		ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)facingblock.GetBlockId(), TYPE::BLOCK)];
+		stack.id = (int)facingblock.GetBlockId();
 		stack.count += 1;
 		stack.type = TYPE::BLOCK;
 	}
@@ -297,7 +292,7 @@ void Player::Update(float deltaTime)
 	}
 	if (CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox))
 	{
-		if (Velocity.y <= -6.0f) health -= -Velocity.y / 3.0f;
+		if (Velocity.y <= -6.0f) health -= -(float)Velocity.y / 3.0f;
 		Velocity.y = 0;
 	}
 	if (CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * deltaTime }, Hitbox))
@@ -319,12 +314,12 @@ void Player::Update(float deltaTime)
 }
 #define WIDTH 0.02f
 #define OP_WIDTH 1.0f - WIDTH
-void Player::DrawPlayer(Block* facingblock)
+void Player::DrawPlayer(Block facingblock)
 {
 	m_VertexBuffer->Clear();
 	m_IndexBuffer->Clear();
-	if (facingblock == nullptr) return;
-	Vector3<int> FacingBlockPosition = facingblock->Position;
+	if (facingblock.data == nullptr) return;
+	Vector3<int> FacingBlockPosition = facingblock.Position;
 	Vertex a;
 	a.texCords = { 0,0 };
 	a.texId = -1.0f;

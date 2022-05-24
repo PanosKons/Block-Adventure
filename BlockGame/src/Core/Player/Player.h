@@ -16,11 +16,11 @@ public:
 	Player();
 	~Player();
 	void CursorMoved(double xpos, double ypos);
-	Block* GetFacingBlock();
-	Block* GetBlockToPlace();
+	Block GetFacingBlock();
+	Block GetBlockToPlace();
 	void MarkBlockToBreak();
 	void Update(float deltaTime);
-	void DrawPlayer(Block* facingblock);
+	void DrawPlayer(Block facingblock);
 	int GetFirstAvaiableSlot(int id, TYPE type);
 	Vector3<double> Hitbox;
 	float yaw = -118.0f;
@@ -37,7 +37,7 @@ public:
 	bool grounded = false;
 	float BlockPlaceDelay = 0.3f;
 	float TimeToBreak = 0.0f;
-	Block* breakingBlock = nullptr;
+	Block breakingBlock;
 	int RenderDistance = 5;
 	bool firstMouse = true;
 	Vector3<double> Velocity;

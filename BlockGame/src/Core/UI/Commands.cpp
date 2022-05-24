@@ -72,7 +72,7 @@ void Commands::ExecuteCommand(const std::string& command)
 					{
 						for (int z = 0; z < Size.z; z++)
 						{
-							str.data[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z })->GetBlockId();
+							str.data[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z }).GetBlockId();
 						}
 					}
 				}
@@ -82,7 +82,7 @@ void Commands::ExecuteCommand(const std::string& command)
 			else if (tokens[1] == "load")
 			{
 				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
-				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkSize , Position.z % ChunkSize}, tokens[5].c_str(),false);
+				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkSize , Position.z % ChunkSize}, tokens[5].c_str());
 			}
 		}
 	}
@@ -106,15 +106,15 @@ void Commands::ExecuteCommand(const std::string& command)
 	{
 		if (tokens.size() == 2)
 		{
-			Block* block = GameManager::player->GetFacingBlock();
-			if (block == nullptr) return;
-			if (block->GetBlockId() != blockIds[tokens[1]]) block->OnBreak(blockIds[tokens[1]]);
+			Block block = GameManager::player->GetFacingBlock();
+			if (block.data == nullptr) return;
+			if (block.GetBlockId() != blockIds[tokens[1]]) block.OnBreak(blockIds[tokens[1]]);
 		}
 		else if (tokens.size() == 5)
 		{
-			Block* block = GameManager::Overworld->GetBlock({ std::stoi(tokens[1]), std::stoi(tokens[2]), std::stoi(tokens[3]) });
-			if (block == nullptr) return;
-			if (block->GetBlockId() != blockIds[tokens[4]]) block->OnBreak(blockIds[tokens[4]]);
+			Block block = GameManager::Overworld->GetBlock({ std::stoi(tokens[1]), std::stoi(tokens[2]), std::stoi(tokens[3]) });
+			if (block.data == nullptr) return;
+			if (block.GetBlockId() != blockIds[tokens[4]]) block.OnBreak(blockIds[tokens[4]]);
 		}
 		else if (tokens.size() == 8)
 		{
@@ -133,9 +133,9 @@ void Commands::ExecuteCommand(const std::string& command)
 				for (int y = start.y; y <= end.y; y++)
 					for (int z = start.z; z <= end.z; z++)
 					{
-						Block* block = GameManager::Overworld->GetBlock({ x, y, z });
-						if (block == nullptr) return;
-						if (block->GetBlockId() != blockIds[tokens[7]])block->OnBreak(blockIds[tokens[7]]);
+						Block block = GameManager::Overworld->GetBlock({ x, y, z });
+						if (block.data == nullptr) return;
+						if (block.GetBlockId() != blockIds[tokens[7]])block.OnBreak(blockIds[tokens[7]]);
 					}
 		}
 	}

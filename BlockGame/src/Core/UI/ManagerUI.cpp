@@ -78,11 +78,11 @@ void ManagerUI::UpdateUI()
 		TextPosition.y -= charHeightOffset;
 		PrintString("Position:" + StringConvertions::ToString((int)GameManager::player->Position.x) + "," + StringConvertions::ToString((int)GameManager::player->Position.y) + "," + StringConvertions::ToString((int)GameManager::player->Position.z), TextPosition);
 		TextPosition.y -= charHeightOffset;
-		PrintString("ChunkPosition:" + StringConvertions::ToString((int)GameManager::player->ChunkPosition.x) + "," + StringConvertions::ToString((int)GameManager::player->ChunkPosition.y), TextPosition);
-		Block* bl = GameManager::player->GetFacingBlock();
-		if (bl != nullptr) {
+		PrintString("ChunkPosition:" + StringConvertions::ToString((int)GameManager::player->ChunkPosition.x) + "," + StringConvertions::ToString((int)GameManager::player->ChunkPosition.y) + "," + StringConvertions::ToString((int)GameManager::player->ChunkPosition.z), TextPosition);
+		Block bl = GameManager::player->GetFacingBlock();
+		if (bl.data != nullptr) {
 			TextPosition.y -= charHeightOffset;
-			PrintString("Facing block:" + StringConvertions::ToString(bl->Position.x) + "," + StringConvertions::ToString(bl->Position.y) + "," + StringConvertions::ToString(bl->Position.z), TextPosition);
+			PrintString("Facing block:" + StringConvertions::ToString(bl.Position.x) + "," + StringConvertions::ToString(bl.Position.y) + "," + StringConvertions::ToString(bl.Position.z), TextPosition);
 		}
 	}
 	if (TypingActive)

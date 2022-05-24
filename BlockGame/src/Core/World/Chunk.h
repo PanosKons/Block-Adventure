@@ -11,8 +11,8 @@ class Chunk {
 public:
 	Chunk(Vector3<int> ChunkPosition, World* world);
 	~Chunk();
-	Block* GetBlock(Vector3<int> RelativePosition) const;
-	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name, bool GenerationStage = true);
+	Block GetBlock(Vector3<int> RelativePosition) const;
+	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name);
 	void Draw();
 	void UpdateAllBlocks();
 	void UpdateBorderBlocks();
@@ -24,16 +24,15 @@ public:
 	IndexBuffer* GetIndexBuffer() const;
 	IndexBuffer* GetIndexBufferTransparent() const;
 	Vector3<int> GetPosition() const;
-	std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* GetBlocks() const;
 private:
 	World* world;
 	Vector3<int> Position;
-	std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* blocks;
+	std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks;
 
 	std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	std::unique_ptr<VertexBuffer> m_VertexBuffer;
 	std::unique_ptr<IndexBuffer> m_IndexBufferTransparent;
 	std::unique_ptr<VertexBuffer> m_VertexBufferTransparent;
 
-	void DrawBlock(Block* block);
+	void DrawBlock(Block block);
 };

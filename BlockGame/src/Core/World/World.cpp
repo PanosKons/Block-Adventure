@@ -32,7 +32,7 @@ void World::Save()
 {
 	for (auto& element : ChunkMap)
 	{
-		SavingData::SaveChunk(element.second);
+		delete element.second;
 	}
 }
 void World::Render()
@@ -50,38 +50,15 @@ void World::Render()
 		Renderer::DrawChunkTransparent(element.second);
 	}
 }
-Block* World::MakeBlock(BLOCK_ID id) //Has nothing to do with world
+Block World::MakeBlock(BlockData* data,Vector3<int> Position) //Has nothing to do with world
 {
-	switch (id)
-	{
-	case BLOCK_ID::Air:
-		return new BlockAir;
-	case BLOCK_ID::Cobblestone:
-		return new BlockCobblestone;
-	case BLOCK_ID::Grass:
-		return new BlockGrass;
-	case BLOCK_ID::Log:
-		return new BlockLog;
-	case BLOCK_ID::Iron:
-		return new BlockIron;
-	case BLOCK_ID::Dirt:
-		return new BlockDirt;
-	case BLOCK_ID::Glass:
-		return new BlockGlass;
-	case BLOCK_ID::Leaves:
-		return new BlockLeaves;
-	case BLOCK_ID::Water:
-		return new BlockWater;
-	case BLOCK_ID::DryGrass:
-		return new BlockDryGrass;
-	}
-	return nullptr;
+	return Block(Position,data);
 }
 World::World(int seed)
 {
 	GameManager::Overworld = this;
 }
-Block* World::GetBlock(Vector3<int> AbsolutePosition) const
+Block World::GetBlock(Vector3<int> AbsolutePosition) const
 {
 	int x = Math::Floor(AbsolutePosition.x / (float)ChunkSize);
 	int y = Math::Floor(AbsolutePosition.y / (float)ChunkSize);
@@ -89,7 +66,7 @@ Block* World::GetBlock(Vector3<int> AbsolutePosition) const
 	auto it = ChunkMap.find(ToLong(x, y, z));
 	if (it != ChunkMap.end())
 		return it->second->GetBlock({ (AbsolutePosition.x + BIG_NUMBER) % ChunkSize, (AbsolutePosition.y + BIG_NUMBER) % ChunkSize, (AbsolutePosition.z + BIG_NUMBER) % ChunkSize });
-	return nullptr;
+	return Block();
 }
 Chunk* World::GetChunk(Vector3<int> Position) const
 {
@@ -167,8 +144,7 @@ void World::UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance)
 		if (Math::Abs(pos.x - ChunkPosition.x) > RenderDistance || Math::Abs(pos.y - ChunkPosition.y) > RenderDistance || Math::Abs(pos.z - ChunkPosition.z) > RenderDistance)
 		{
 			ChunkMap.erase(value);
-			std::thread thread([=](Chunk* chunk) {delete chunk; }, chunk);
-			thread.detach();
+			delete chunk;
 		}
 	}
 }

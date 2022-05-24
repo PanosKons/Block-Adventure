@@ -15,6 +15,7 @@ void HandleMessage()
 	{
 		std::array<char, defaultsize> buffer = std::array<char, defaultsize>();
 		recv(clientSocket, buffer.data(), defaultsize, 0);
+		if (ShuttingDown == true) return;
 		int* p = (int*)buffer.data();
 		PACKET_ID id = *(PACKET_ID*)p;
 		int other_player_id = *(p + 1);
@@ -30,7 +31,7 @@ void HandleMessage()
 		{
 			Vector3<int>* vector = (Vector3<int>*)(buffer.data() + sizeof(int) * 2);
 			BLOCK_ID* blockid = (BLOCK_ID*)(buffer.data() + sizeof(int) * 2 + sizeof(Vector3<int>));
-			GameManager::Overworld->GetBlock(*vector)->OnBreakOffline(*blockid);
+			GameManager::Overworld->GetBlock(*vector).OnBreakOffline(*blockid);
 			break;
 		}
 		}

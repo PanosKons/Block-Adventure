@@ -5,17 +5,24 @@ enum class BLOCK_ID
 {
 	Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass
 };
+struct BlockData
+{
+	unsigned short blockId;
+	unsigned char RenderedSides = 64; // front,right,back,left,bottom,top,renders at all
+};
 class Block //Base class all blocks derive from
 {
 public:
+	bool operator!=(Block& other);
 	Block();
-	virtual BLOCK_ID GetBlockId() = 0; //Each block overrides this method and returns its own id
-	virtual BlockProperties GetBlockProperties() = 0;
-	virtual void Update();
+	Block(Vector3<int> Position, BlockData* data);
+	BLOCK_ID GetBlockId() const; //Each block overrides this method and returns its own id
+	bool GetTransparent();
+	BlockProperties GetBlockProperties();
+	void Update();
 	void OnBreakOffline(BLOCK_ID id);
 	void OnBreak(BLOCK_ID id);
 	void StateChanged();
 	Vector3<int> Position;
-	unsigned char RenderedSides; // front,right,back,left,bottom,top,renders at all
-	bool Transparent; //Determine if block is transparent
+	BlockData* data;
 };

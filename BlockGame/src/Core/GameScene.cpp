@@ -1,3 +1,4 @@
+#include <Engine.h>
 #include "GameScene.h"
 #include "World.h"
 #include "Player.h"
@@ -6,6 +7,7 @@
 #include "Renderer.h"
 #include "Networking.h"
 #include "EntityManager.h"
+#include "GlobalVariables.h"
 void GameScene::Start()
 {
 	Networking::Connect();
@@ -38,6 +40,7 @@ void GameScene::Render()
 
 void GameScene::End()
 {
+	ShuttingDown = true;
 	EntityManager::ShutDown();
 	GameManager::Overworld->Save();
 	delete GameManager::player;

@@ -8,8 +8,8 @@ static bool Activated = false;
 class SavingData
 {
 public:
-	static void SaveChunk(Chunk* chunk);
-	static std::array<std::array<std::array<Block*, ChunkSize>, ChunkSize>, ChunkSize>* LoadChunk(Vector3<int> Position);
+	static void SaveChunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks);
+	static void LoadChunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>** blocks);
 	static Structure* LoadStructure(const char* path);
 	static void SaveStructure(std::string& name, Structure structure);
 	static void ActivateLoading(bool value);
