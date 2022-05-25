@@ -58,7 +58,7 @@ BlockProperties Block::GetBlockProperties()
 	switch ((BLOCK_ID)data->blockId)
 	{
 	case BLOCK_ID::Air:
-		return { 0,TOOL::None,0, {0,0,0,0,0,0} };
+		return { 0,TOOL::None,0, {INVALID,INVALID,INVALID,INVALID,INVALID,INVALID} };
 	case BLOCK_ID::Cobblestone:
 		return { 180,TOOL::Pickaxe,0,{3,3,3,3,3,3} };
 	case BLOCK_ID::Dirt:
@@ -82,6 +82,7 @@ BlockProperties Block::GetBlockProperties()
 }
 void Block::Update()
 {
+	if (data->blockId == (unsigned short)BLOCK_ID::Air) return;
 	unsigned char oldSides = data->RenderedSides;
 	Block blocks[] =
 	{
@@ -148,7 +149,10 @@ void Block::Update()
 		}
 
 	if (oldSides != data->RenderedSides)
-		GameManager::Overworld->GetChunk(this->Position)->Changed = true;
+	{
+		Chunk* chunk = GameManager::Overworld->GetChunk(this->Position);
+		if (chunk != nullptr) chunk->Changed = true;
+	}
 }
 
 void Block::OnBreakOffline(BLOCK_ID id)
@@ -156,5 +160,6 @@ void Block::OnBreakOffline(BLOCK_ID id)
 	data->blockId = (unsigned short)id;
 	Update();
 	StateChanged();
-	GameManager::Overworld->GetChunk(this->Position)->Changed = true;
+	Chunk* chunk = GameManager::Overworld->GetChunk(this->Position);
+	if(chunk != nullptr) chunk->Changed = true;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "Math/Vector.h"
 #include "../BlockProperties.h"
+#define INVALID 255
 enum class BLOCK_ID
 {
 	Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass

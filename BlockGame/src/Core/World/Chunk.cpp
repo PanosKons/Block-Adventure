@@ -7,7 +7,7 @@
 #include "GlobalVariables.h"
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 {
-	/*static Structure* structure = SavingData::LoadStructure(name.c_str());
+	static Structure* structure = SavingData::LoadStructure(name.c_str());
 	for (int x = 0; x < StructureSize; x++)
 	{
 		for (int y = 0; y < StructureSize; y++)
@@ -17,12 +17,11 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 				if (structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
 				if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkSize && RelativePosition.z + z < ChunkSize)
 				{
-					Block block = GetBlock({ RelativePosition.x + x, RelativePosition.y + y, RelativePosition.z + z });
-					block.OnBreak(structure->data[x + y * StructureSize + z * StructureSize * StructureSize]);
+					(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z].blockId = (unsigned short)structure->data[x + y * StructureSize + z * StructureSize * StructureSize];
 				}
 			}
 		}
-	}*/
+	}
 }
 Chunk::Chunk(Vector3<int> Position, World* world)
 	:Position(Position), world(world), blocks(nullptr)
@@ -178,9 +177,9 @@ void Chunk::UpdateBorderBlocks()
 	worker.detach();
 }
 
-Block Chunk::GetBlock(Vector3<int> Position) const
+Block Chunk::GetBlock(Vector3<int> RelativePosition) const
 {
-	return World::MakeBlock(&(*blocks)[Position.x][Position.y][Position.z], {Position.x + this->Position.x * ChunkSize,Position.y + this->Position.y * ChunkSize, Position.z + this->Position.z * ChunkSize });
+	return World::MakeBlock(&(*blocks)[RelativePosition.x][RelativePosition.y][RelativePosition.z], { RelativePosition.x + Position.x * ChunkSize,RelativePosition.y + Position.y * ChunkSize, RelativePosition.z + Position.z * ChunkSize });
 }
 Vector3<int> Chunk::GetPosition() const
 {
@@ -212,6 +211,7 @@ void Chunk::DrawBlock(Block block)
 	block.GetTransparent() ? indexBuffer = m_IndexBufferTransparent.get() : indexBuffer = m_IndexBuffer.get();
 	if (!(block.data->RenderedSides & (unsigned char)64)) return;
 	std::array<unsigned char, 6> arr = block.GetBlockProperties().textureSides;
+	if (arr[0] == INVALID) return;
 	Vertex a;
 	a.texId = 0.0f;
 	float alpha = 1.0f;
