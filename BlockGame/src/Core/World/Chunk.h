@@ -5,11 +5,11 @@
 #include "Rendering/VertexBuffer.h"
 #include "Rendering/IndexBuffer.h"
 #include "../Blocks.h"
+#include "Serializer.h"
 class World;
-constexpr int ChunkSize = 32;
 class Chunk {
 public:
-	Chunk(Vector3<int> ChunkPosition, World* world);
+	Chunk(Vector3<int> ChunkPosition, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks, World* world);
 	~Chunk();
 	Block GetBlock(Vector3<int> RelativePosition) const;
 	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name);

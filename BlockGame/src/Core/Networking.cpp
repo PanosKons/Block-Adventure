@@ -14,24 +14,42 @@ void HandleMessage()
 	while (true)
 	{
 		std::array<char, defaultsize> buffer = std::array<char, defaultsize>();
-		recv(clientSocket, buffer.data(), defaultsize, 0);
+		recv(clientSocket, buffer.data(), buffer.size(), 0);
 		if (ShuttingDown == true) return;
 		int* p = (int*)buffer.data();
 		PACKET_ID id = *(PACKET_ID*)p;
-		int other_player_id = *(p + 1);
 		switch (id)
 		{
 		case PACKET_ID::PlayerPosition:
 		{
-			Vector3<double>* vec = (Vector3<double>*)(buffer.data() + sizeof(int) * 2);
-			EntityManager::UpdatePlayer(other_player_id, *vec);
+			int other_player_id = *(p + 1);
+			Vector3<double>* vector = (Vector3<double>*)(buffer.data() + sizeof(int) * 2);
+			EntityManager::UpdatePlayer(other_player_id, *vector);
 			break;
 		}
 		case PACKET_ID::BreakBlock:
 		{
+			int other_player_id = *(p + 1);
 			Vector3<int>* vector = (Vector3<int>*)(buffer.data() + sizeof(int) * 2);
 			BLOCK_ID* blockid = (BLOCK_ID*)(buffer.data() + sizeof(int) * 2 + sizeof(Vector3<int>));
 			GameManager::Overworld->GetBlock(*vector).OnBreakOffline(*blockid);
+			break;
+		}
+		case PACKET_ID::SendChunk:
+		{
+			Vector3<int>* vector = (Vector3<int>*)(buffer.data() + sizeof(int));
+			std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks = new std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>();
+			send(clientSocket, buffer.data(), buffer.size(), 0);
+			recv(clientSocket, (char*)blocks->data(), ChunkSize* ChunkSize* ChunkSize*sizeof(BlockData), 0);
+			GameManager::Overworld->MakeNewChunk(*vector,blocks);
+			GameManager::Overworld->SubmitChunkChanges();
+			send(clientSocket, buffer.data(), buffer.size(), 0);
+			break;
+		}
+		case PACKET_ID::DeleteChunk:
+		{
+			Vector3<int>* vector = (Vector3<int>*)(buffer.data() + sizeof(int));
+			GameManager::Overworld->DestroyChunk(*vector);
 			break;
 		}
 		}

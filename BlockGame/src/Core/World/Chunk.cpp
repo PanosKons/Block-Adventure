@@ -5,6 +5,7 @@
 #include "Math/Noise.h"
 #include "SavingData.h"
 #include "GlobalVariables.h"
+#include "Networking.h"
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 {
 	static Structure* structure = SavingData::LoadStructure(name.c_str());
@@ -23,85 +24,18 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 		}
 	}
 }
-Chunk::Chunk(Vector3<int> Position, World* world)
-	:Position(Position), world(world), blocks(nullptr)
+Chunk::Chunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks, World* world)
+	:Position(Position), world(world), blocks(blocks)
 {
 	m_VertexBuffer = std::make_unique<VertexBuffer>();
 	m_IndexBuffer = std::make_unique<IndexBuffer>();
 	m_VertexBufferTransparent = std::make_unique<VertexBuffer>();
 	m_IndexBufferTransparent = std::make_unique<IndexBuffer>();
-	SavingData::LoadChunk(Position, &blocks);
+
+	/*SavingData::LoadChunk(Position, &blocks);
 	if (blocks != nullptr)
 		return;
-	blocks = new std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>();
-	srand(1);
-	std::array<int, ChunkSize* ChunkSize> HeightMap;
-	std::array<int, ChunkSize* ChunkSize> BiomeMap;
-	for (int x = 0; x < ChunkSize; x++)
-	{
-		for (int z = 0; z < ChunkSize; z++)
-		{
-			HeightMap[x + z * ChunkSize] = Noise::GetYLevel(x + Position.x * ChunkSize, z + Position.z * ChunkSize);
-			BiomeMap[x + z * ChunkSize] = Noise::GetBiomeTemperature(x + Position.x * ChunkSize, z + Position.z * ChunkSize);
-		}
-	}
-	for (int x = 0; x < ChunkSize; x++)
-	{
-		for (int y = 0; y < ChunkSize; y++)
-		{
-			for (int z = 0; z < ChunkSize; z++)
-			{
-				int ylevel = y + ChunkSize * Position.y;
-				int level = HeightMap[x + z * ChunkSize];
-				if (ylevel > level && ylevel <= 30)
-				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Water;
-				}
-				else if (ylevel == level)
-				{
-					if (ylevel < 30)
-					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;
-					}
-					else if (BiomeMap[x + z * ChunkSize] == 0)
-					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Cobblestone;
-					}
-					else if (BiomeMap[x + z * ChunkSize] == 1)
-					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;
-					}
-					else if (BiomeMap[x + z * ChunkSize] == 2)
-					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::DryGrass;
-					}
-					else
-					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Grass;
-					}
-				}
-				else if (ylevel + 1 == level)
-				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;
-				}
-				else if (ylevel + 2 == level)
-				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;;
-				}
-				else if (ylevel < level)
-				{
-					if(rand() % 50 == 0)
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Iron;
-					else
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Cobblestone;
-				}
-				else
-				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Air;
-				}
-			}
-		}
-	}
+
 	for (int x = 0; x < ChunkSize; x++)
 	{
 		for (int z = 0; z < ChunkSize; z++)
@@ -113,7 +47,7 @@ Chunk::Chunk(Vector3<int> Position, World* world)
 				SpawnStructure({ x,y % ChunkSize ,z }, "tree");
 			}
 		}
-	}
+	}*/
 }
 Chunk::~Chunk()
 {

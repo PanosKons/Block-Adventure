@@ -90,61 +90,84 @@ void World::SubmitChunkChanges()
 		chunk->ShouldUpdateBorders = false;
 	}
 }
-Chunk* LoadChunkAsync(Vector3<int> ChunkPosition, World* world)
+//Chunk* LoadChunkAsync(Vector3<int> ChunkPosition, World* world)
+//{
+//	return new Chunk(ChunkPosition, world);
+//}
+//void World::LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance)
+//{
+// 	int startX = ChunkPosition.x - RenderDistance;
+//	int startY = ChunkPosition.y - RenderDistance;
+//	int startZ = ChunkPosition.z - RenderDistance;
+//	int EndX = ChunkPosition.x + RenderDistance;
+//	int EndY = ChunkPosition.y + RenderDistance;
+//	int EndZ = ChunkPosition.z + RenderDistance;
+//	std::vector<std::future<Chunk*>> futures;
+//	for (int x = startX; x <= EndX; x++)
+//	{
+//		for (int y = startY; y <= EndY; y++)
+//		{
+//			for (int z = startZ; z <= EndZ; z++)
+//			{
+//				if (ChunkMap.find(ToLong(x, y, z)) == ChunkMap.end())
+//				{
+//					Vector3<int> v = { x,y,z };
+//					futures.push_back(std::async(std::launch::async, LoadChunkAsync, v, this));
+//				}
+//			}
+//		}
+//	}
+//	for (int i = 0; i < futures.size(); i++)
+//	{
+//		Chunk* chunk = futures[i].get();
+//		ChunkMap.emplace(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z), chunk);
+//		if (ChunkMap.find(ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
+//			ChunkMap[ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+//		if (ChunkMap.find(ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
+//			ChunkMap[ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+//		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)) != ChunkMap.end())
+//			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+//		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)) != ChunkMap.end())
+//			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+//		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)) != ChunkMap.end())
+//			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)]->ShouldUpdateBorders = true;
+//		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)) != ChunkMap.end())
+//			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)]->ShouldUpdateBorders = true;
+//	}
+//}
+//void World::UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance)
+//{
+//	auto ChunkMapCopy = ChunkMap;
+//	for (auto& [value, chunk] : ChunkMapCopy)
+//	{
+//		Vector3<int> pos = ToVector(value);
+//		if (Math::Abs(pos.x - ChunkPosition.x) > RenderDistance || Math::Abs(pos.y - ChunkPosition.y) > RenderDistance || Math::Abs(pos.z - ChunkPosition.z) > RenderDistance)
+//		{
+//			ChunkMap.erase(value);
+//			delete chunk;
+//		}
+//	}
+//}
+void World::MakeNewChunk(Vector3<int> ChunkPosition, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks)
 {
-	return new Chunk({ ChunkPosition.x,ChunkPosition.y, ChunkPosition.z }, world);
+	Chunk* chunk = new Chunk(ChunkPosition,blocks, this);
+	ChunkMap.emplace(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z), chunk);
+	if (ChunkMap.find(ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
+		ChunkMap[ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+	if (ChunkMap.find(ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
+		ChunkMap[ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+	if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)) != ChunkMap.end())
+		ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+	if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)) != ChunkMap.end())
+		ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
+	if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)) != ChunkMap.end())
+		ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)]->ShouldUpdateBorders = true;
+	if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)) != ChunkMap.end())
+		ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)]->ShouldUpdateBorders = true;
 }
-void World::LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance)
+void World::DestroyChunk(Vector3<int> ChunkPosition)
 {
- 	int startX = ChunkPosition.x - RenderDistance;
-	int startY = ChunkPosition.y - RenderDistance;
-	int startZ = ChunkPosition.z - RenderDistance;
-	int EndX = ChunkPosition.x + RenderDistance;
-	int EndY = ChunkPosition.y + RenderDistance;
-	int EndZ = ChunkPosition.z + RenderDistance;
-	std::vector<std::future<Chunk*>> futures;
-	for (int x = startX; x <= EndX; x++)
-	{
-		for (int y = startY; y <= EndY; y++)
-		{
-			for (int z = startZ; z <= EndZ; z++)
-			{
-				if (ChunkMap.find(ToLong(x, y, z)) == ChunkMap.end())
-				{
-					Vector3<int> v = { x,y,z };
-					futures.push_back(std::async(std::launch::async, LoadChunkAsync, v, this));
-				}
-			}
-		}
-	}
-	for (int i = 0; i < futures.size(); i++)
-	{
-		Chunk* chunk = futures[i].get();
-		ChunkMap.emplace(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z), chunk);
-		if (ChunkMap.find(ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
-			ChunkMap[ToLong(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
-			ChunkMap[ToLong(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)) != ChunkMap.end())
-			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)) != ChunkMap.end())
-			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)) != ChunkMap.end())
-			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)]->ShouldUpdateBorders = true;
-		if (ChunkMap.find(ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)) != ChunkMap.end())
-			ChunkMap[ToLong(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)]->ShouldUpdateBorders = true;
-	}
-}
-void World::UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance)
-{
-	auto ChunkMapCopy = ChunkMap;
-	for (auto& [value, chunk] : ChunkMapCopy)
-	{
-		Vector3<int> pos = ToVector(value);
-		if (Math::Abs(pos.x - ChunkPosition.x) > RenderDistance || Math::Abs(pos.y - ChunkPosition.y) > RenderDistance || Math::Abs(pos.z - ChunkPosition.z) > RenderDistance)
-		{
-			ChunkMap.erase(value);
-			delete chunk;
-		}
-	}
+	Chunk* chunk = ChunkMap[ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z)];
+	ChunkMap.erase(ToLong(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z));
+	delete chunk;
 }

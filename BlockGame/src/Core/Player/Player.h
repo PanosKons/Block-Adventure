@@ -46,8 +46,6 @@ public:
 	char ActiveSlot;
 	bool godmode = true;
 	Vector3<double> Position;
-	//Cached data
-	Vector3<int> ChunkPosition = { 0,0,0 };
 
 	//Rendering data
 	std::unique_ptr<IndexBuffer> m_IndexBuffer;

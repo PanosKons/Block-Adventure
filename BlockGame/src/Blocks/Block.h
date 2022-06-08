@@ -1,16 +1,9 @@
 #pragma once
+#include "BlockData.h"
 #include "Math/Vector.h"
 #include "../BlockProperties.h"
+
 #define INVALID 255
-enum class BLOCK_ID
-{
-	Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass
-};
-struct BlockData
-{
-	unsigned short blockId;
-	unsigned char RenderedSides = 64; // front,right,back,left,bottom,top,renders at all
-};
 class Block //Base class all blocks derive from
 {
 public:

@@ -77,8 +77,6 @@ void ManagerUI::UpdateUI()
 		PrintString("FPS:" + StringConvertions::ToString(FPS), TextPosition);
 		TextPosition.y -= charHeightOffset;
 		PrintString("Position:" + StringConvertions::ToString((int)GameManager::player->Position.x) + "," + StringConvertions::ToString((int)GameManager::player->Position.y) + "," + StringConvertions::ToString((int)GameManager::player->Position.z), TextPosition);
-		TextPosition.y -= charHeightOffset;
-		PrintString("ChunkPosition:" + StringConvertions::ToString((int)GameManager::player->ChunkPosition.x) + "," + StringConvertions::ToString((int)GameManager::player->ChunkPosition.y) + "," + StringConvertions::ToString((int)GameManager::player->ChunkPosition.z), TextPosition);
 		Block bl = GameManager::player->GetFacingBlock();
 		if (bl.data != nullptr) {
 			TextPosition.y -= charHeightOffset;

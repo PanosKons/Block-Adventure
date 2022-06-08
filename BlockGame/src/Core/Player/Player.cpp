@@ -303,14 +303,6 @@ void Player::Update(float deltaTime)
 	//Apply the velocity to the position
 	Position += Velocity * deltaTime;
 	mainCamera.cameraPos = glm::vec3(Position.x, Position.y + 1.6f, Position.z);
-	Vector3<int> chunkpos = { ((int)Position.x) / ChunkSize, ((int)Position.y) / ChunkSize,((int)Position.z) / ChunkSize };
-	if (chunkpos != ChunkPosition)
-	{
-		GameManager::Overworld->LoadPlayerChunks(chunkpos, 1);
-		GameManager::Overworld->UnLoadPlayerChunks(chunkpos, 1);
-		GameManager::Overworld->SubmitChunkChanges();
-		ChunkPosition = chunkpos;
-	}
 }
 #define WIDTH 0.02f
 #define OP_WIDTH 1.0f - WIDTH

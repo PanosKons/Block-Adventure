@@ -15,6 +15,8 @@ public:
 	void LoadPlayerChunks(Vector3<int> ChunkPosition,int RenderDistance);
 	void UnLoadPlayerChunks(Vector3<int> ChunkPosition, int RenderDistance);
 	void SubmitChunkChanges();
+	void MakeNewChunk(Vector3<int> ChunkPosition, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks);
+	void DestroyChunk(Vector3<int> ChunkPosition);
 private:
 	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };
