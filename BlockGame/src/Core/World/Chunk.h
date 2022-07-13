@@ -13,6 +13,8 @@ public:
 	~Chunk();
 	Block GetBlock(Vector3<int> RelativePosition) const;
 	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name);
+
+
 	void Draw();
 	void UpdateAllBlocks();
 	void UpdateBorderBlocks();

@@ -110,7 +110,7 @@ public:
 };
 namespace Vector
 {
-	inline Vector3<int> IntVector(Vector3<float>& other) { return Vector3<int>((int)other.x, (int)other.y, (int)other.z); };
-	inline Vector3<float> FloatVector(Vector3<int>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
-	inline Vector3<float> FloatVector(Vector3<double>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
+	inline Vector3<int> IntVector(const Vector3<float>& other) { return Vector3<int>((int)other.x, (int)other.y, (int)other.z); };
+	inline Vector3<float> FloatVector(const Vector3<int>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
+	inline Vector3<float> FloatVector(const Vector3<double>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
 };

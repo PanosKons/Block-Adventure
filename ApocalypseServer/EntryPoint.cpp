@@ -187,7 +187,7 @@ int main()
 	//Bind socket
 	sockaddr_in service;
 	service.sin_family = AF_INET;
-	InetPton(AF_INET, L"192.168.1.16", &service.sin_addr.s_addr);
+	InetPton(AF_INET, L"192.168.1.26", &service.sin_addr.s_addr);
 	service.sin_port = htons(25555);
 	ASSERTEXITCODE(bind(serverSocket, (SOCKADDR*)&service, sizeof(service)));
 	//Listen socket
