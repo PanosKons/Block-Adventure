@@ -86,6 +86,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp" />
+    <ClCompile Include="Networking.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApocalypseShared\ApocalypseShared.vcxproj">
@@ -94,6 +95,9 @@
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{9be7875d-2e8d-4db2-93e0-aefba89ebbcf}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Networking.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

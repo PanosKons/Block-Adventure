@@ -23,7 +23,6 @@ void GameScene::Update(float deltaTime)
 	Renderer::SetBackroundColorAndClear({ 0.0f, 0.8f, 1.0f, 1.0f });
 	Networking::SendData(PACKET_ID::PlayerPosition,(char*)&GameManager::player->Position,sizeof(GameManager::player->Position));
 
-
 	Renderer::SetPlayerView();
 	GameManager::Overworld->Render();
 	GameManager::player->Update(deltaTime);

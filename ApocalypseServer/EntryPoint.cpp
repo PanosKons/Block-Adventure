@@ -1,18 +1,8 @@
 #include <Engine.h>
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#pragma comment(lib,"WS2_32")
-#include "Serializer.h"
+#include "Networking.h"
 #include "Math/Vector.h"
 #include "BlockData.h"
 #include "Math/Noise.h"
-#ifdef _DEBUG
-#define ASSERTEXITCODE(x) if(x) __debugbreak();
-#define ASSERT(x) if(x == 0 || x == -1) __debugbreak();
-#else
-#define ASSERTEXITCODE(x) if(x) std::cout << "ERROR" << std::endl;
-#define ASSERT(x) if(x == 0 || x == -1) std::cout << "ERROR" << std::endl;
-#endif
 constexpr int RenderDistance = 1;
 class Player
 {
@@ -30,7 +20,6 @@ public:
 		return false;
 	}
 };
-static std::vector<SOCKET*> sockets;
 static std::unordered_map<int, Player> PlayerMap;
 std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* CreateChunk(Vector3<int> ChunkPosition)
 {
@@ -133,85 +122,14 @@ void SendNewChunks(int Player_id, Vector3<int> ChunkPosition)
 	recv(*sockets[Player_id], (char*)buffer.data(), buffer.size(),0);
 
 }
-void EchoClientMessage(SOCKET* socket, char id)
-{
-	while (true)
-	{
-		std::array<char, defaultsize> buffer;
-		recv(*socket, buffer.data(), defaultsize, 0);
-
-		int* p = (int*)buffer.data();
-		PACKET_ID id = *(PACKET_ID*)p;
-		int Player_id = *(p + 1);
-		switch (id)
-		{
-		case PACKET_ID::PlayerPosition:
-		{
-			Player& p = PlayerMap[Player_id];
-			Vector3<double>* vector = (Vector3<double>*)(buffer.data() + sizeof(int) * 2);
-			Vector3<int> pos;
-			if (p.ChangedChunk(*vector, &pos))
-				SendNewChunks(Player_id, pos);
-			for (int i = 0; i < sockets.size(); i++)
-			{
-				if (i != Player_id)
-					send(*sockets[i], buffer.data(), defaultsize, 0);
-			}
-			break;
-		}
-		case PACKET_ID::BreakBlock:
-		{
-			for (int i = 0; i < sockets.size(); i++)
-			{
-				if (i != Player_id)
-					send(*sockets[i], buffer.data(), defaultsize, 0);
-			}
-			break;
-		}
-		}
-	}
-}
 int main()
 {
-	//Start dll
-	WSADATA wsaData;
-	WORD wVersionRequested = MAKEWORD(2, 2);
-	int err = WSAStartup(wVersionRequested, &wsaData);
-	ASSERTEXITCODE(err);
-
-	//Make a socket
-	SOCKET serverSocket = INVALID_SOCKET;
-	serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	ASSERT(serverSocket);
-
-	//Bind socket
-	sockaddr_in service;
-	service.sin_family = AF_INET;
-	InetPton(AF_INET, L"192.168.1.26", &service.sin_addr.s_addr);
-	service.sin_port = htons(25555);
-	ASSERTEXITCODE(bind(serverSocket, (SOCKADDR*)&service, sizeof(service)));
-	//Listen socket
-	ASSERTEXITCODE(listen(serverSocket, MAX_PLAYERS));
-
-	//Wait for clients
+	std::thread network(Networking::Start);
 	while (true)
 	{
-		static int i = 0;
-		SOCKET* client = new SOCKET(accept(serverSocket, nullptr, nullptr));
-		ASSERT(*client);
-		send((*client), (char*)&i, sizeof(int), 0);
-		std::mutex mutex;
-		mutex.lock();
-		sockets.push_back(client);
-		mutex.unlock();
-		std::cout << "Client with id: " << i << " connected!" << std::endl;
-		std::thread work(EchoClientMessage, client, i);
-		work.detach();
-		i++;
+		std::this_thread::sleep_for(std::chrono::milliseconds(20)); //50fps
+		Networking::Update();
 	}
-	for (SOCKET* socket : sockets)
-		closesocket(*socket);
-	closesocket(serverSocket);
-	WSACleanup();
+	Networking::Shutdown();
 	return 0;
 }
