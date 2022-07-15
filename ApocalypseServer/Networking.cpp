@@ -20,7 +20,7 @@ namespace Networking {
 		while (true)
 		{
 			Packet<DefaultPacketSize> packet = GetPacketFromClient<DefaultPacketSize>(ClientId);
-			switch (packet.GetPacketId())
+			switch (packet.ExtractPacketData<PACKET_ID>())
 			{
 				case PACKET_ID::PlayerPosition:
 				{
@@ -32,6 +32,7 @@ namespace Networking {
 				}
 				case PACKET_ID::RequestChunk:
 				{
+
 				}
 			}
 		}

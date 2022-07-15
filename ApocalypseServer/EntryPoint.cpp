@@ -3,24 +3,6 @@
 #include "Math/Vector.h"
 #include "BlockData.h"
 #include "Math/Noise.h"
-constexpr int RenderDistance = 1;
-class Player
-{
-public:
-	Vector3<int> CurrentChunkPosition = { -1123, -1432, -1754};
-	bool ChangedChunk(Vector3<double> Position, Vector3<int>* ChunkPosi)
-	{
-		Vector3<int> ChunkPos = { (int)Position.x / ChunkSize ,(int)Position.y / ChunkSize,(int)Position.z / ChunkSize };
-		if (ChunkPos != CurrentChunkPosition)
-		{
-			CurrentChunkPosition = ChunkPos;
-			*ChunkPosi = ChunkPos;
-			return true;
-		}
-		return false;
-	}
-};
-static std::unordered_map<int, Player> PlayerMap;
 std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* CreateChunk(Vector3<int> ChunkPosition)
 {
 	std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks = new std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>();
@@ -93,34 +75,6 @@ std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* 
 		}
 	}
 	return blocks;
-}
-void SendNewChunks(int Player_id, Vector3<int> ChunkPosition)
-{
-	int startX = ChunkPosition.x - RenderDistance;
-	int startY = ChunkPosition.y - RenderDistance;
-	int startZ = ChunkPosition.z - RenderDistance;
-	int EndX = ChunkPosition.x + RenderDistance;
-	int EndY = ChunkPosition.y + RenderDistance;
-	int EndZ = ChunkPosition.z + RenderDistance;
-	for (int x = startX; x <= EndX; x++)
-	{
-		for (int y = startY; y <= EndY; y++)
-		{
-			for (int z = startZ; z <= EndZ; z++)
-			{
-				std::array<char, defaultsize> buffer;
-				*(int*)buffer.data() = (int)PACKET_ID::SendChunk;
-				*(Vector3<int>*)(buffer.data() + sizeof(int)) = {x,y,z};
-				send(*sockets[Player_id], buffer.data(), defaultsize, 0);
-				std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks = CreateChunk({x,y,z});
-				recv(*sockets[Player_id], (char*)buffer.data(), buffer.size(), 0);
-				send(*sockets[Player_id], (char*)blocks->data(), ChunkSize * ChunkSize * ChunkSize * sizeof(BlockData), 0);
-			}
-		}
-	}
-	std::array<char, defaultsize> buffer;
-	recv(*sockets[Player_id], (char*)buffer.data(), buffer.size(),0);
-
 }
 int main()
 {

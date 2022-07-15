@@ -20,7 +20,10 @@ namespace Networking{
 	template<int TSize>
 	Packet<TSize> GetPacketFromClient(unsigned char ClientId)
 	{
-		//recv(*sockets(ClientId), );
+		Packet<TSize> packet;
+		packet.InitMemory();
+		recv(*sockets(ClientId),packet.GetPacket(),packet.GetPacketSize(),0);
+		return packet;
 	}
 }
 
