@@ -1,11 +1,14 @@
 #include "Networking.h"
-#include <Engine.h>
+#include "pch.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
-#include "Math/Vector.h"
-#include "BlockData.h"
-#include "Math/Noise.h"
+#include "Common/Math/Vector.h"
+#include "Common/Blocks/BlockData.h"
+#include "Common/Math/Noise.h"
+#include "Common/World/WorldManager.h"
+#include "Server/Server.h"
+#include "Common/World/World.h"
 #ifdef _DEBUG
 #define ASSERTEXITCODE(x) if(x) __debugbreak();
 #define ASSERT(x) if(x == 0 || x == -1) __debugbreak();
@@ -32,7 +35,8 @@ namespace Networking {
 				}
 				case PACKET_ID::RequestChunk:
 				{
-
+					Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
+					WorldManager::BaseWorld->CreateChunk(ChunkPosition);
 				}
 			}
 		}
@@ -41,10 +45,10 @@ namespace Networking {
 	{
 		WSACleanup();
 	}
-	void Update()
+	void Tick()
 	{
 	}
-	void Start()
+	void ListenForClients()
 	{
 		//Start dll
 		WSADATA wsaData;

@@ -1,9 +1,9 @@
+#include "pch.h"
 #include "Networking.h"
-#include "Math/Vector.h"
+#include "Common/Math/Vector.h"
 #include "GameManager.h"
-#include "GlobalVariables.h"
-#include <Engine.h>
-#include "EntityManager.h"
+#include "Client.h"
+#include "Common/Entities/EntityManager.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -57,15 +57,6 @@ void HandleMessage()
 }
 void Networking::SendData(PACKET_ID packet_id, char* data, int sizebytes)
 {
-	std::array<char, defaultsize> buffer = std::array<char,defaultsize>();
-	int* p = (int*)buffer.data();
-	*p = (int)packet_id;
-	*(p + 1) = Player_id;
-	for (int i = 0; i < sizebytes; i++)
-	{
-		buffer[i + sizeof(int)*2] = *(data + i);
-	}
-	send(clientSocket, buffer.data(), buffer.size(), 0);
 }
 void Networking::Connect()
 {
@@ -85,8 +76,8 @@ void Networking::Connect()
 	}
 	sockaddr_in service;
 	service.sin_family = AF_INET;
-	InetPton(AF_INET, ip.c_str(), &service.sin_addr.s_addr);
-	service.sin_port = htons(25555);
+	InetPton(AF_INET, Client::ip.c_str(), &service.sin_addr.s_addr);
+	service.sin_port = htons(Client::port);
 	if (connect(clientSocket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR)
 	{
 		std::cout << "error" << std::endl;

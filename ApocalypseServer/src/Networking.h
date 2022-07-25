@@ -1,9 +1,9 @@
 #pragma once
-#include "Packet.h"
+#include "Common/Networking/Packet.h"
 namespace Networking{
-	void Start();
+	void ListenForClients();
 	void Shutdown();
-	void Update();
+	void Tick();
 	template<int TSize>
 	void SendPacketToClient(unsigned char ClientId, Packet<TSize>& packet)
 	{
@@ -26,4 +26,3 @@ namespace Networking{
 		return packet;
 	}
 }
-

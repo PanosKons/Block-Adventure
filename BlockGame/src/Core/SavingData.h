@@ -4,7 +4,6 @@
 #include "../Blocks.h"
 #include "Structure.h"
 #include "Player.h"
-static bool Activated = false;
 class SavingData
 {
 public:

@@ -1,14 +1,12 @@
 #pragma once
-#include <string>
-#include <array>
-#include <list>
-#include "Math/Vector.h"
-#include "../Blocks/Block.h"
-#include <memory>
-#include <vector>
+#include "pch.h"
+#include "Rendering/IndexBuffer.h"
+#include "Rendering/VertexBuffer.h"
+#include "Common/Math/Vector.h"
+#include "Common/Blocks/Block.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
-#include "Chunk.h"
+#include "Common/World/Chunk.h"
 constexpr float charWidthOffset = 28.0f;
 constexpr float charHeightOffset = 32.0f;
 constexpr float charWidth = 32.0f;

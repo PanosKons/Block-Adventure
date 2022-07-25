@@ -1,18 +1,19 @@
-#include <Engine.h>
+#include "pch.h"
 #include "GameScene.h"
-#include "World.h"
-#include "Player.h"
-#include "ManagerUI.h"
+#include "Common/World/World.h"
+#include "Common/Entities/Player/Player.h"
+#include "UI/ManagerUI.h"
 #include "GameManager.h"
 #include "Renderer.h"
-#include "Networking.h"
-#include "EntityManager.h"
-#include "GlobalVariables.h"
+#include "Networking/Networking.h"
+#include "Common/Entities/EntityManager.h"
+#include "Client.h"
+#include "Common/World/WorldManager.h"
 void GameScene::Start()
 {
 	Networking::Connect();
 	EntityManager::Start();
-	new World(0);
+	WorldManager::BaseWorld = new World();
 	GameManager::player = new Player();
 	ManagerUI::Init();
 }
@@ -24,7 +25,7 @@ void GameScene::Update(float deltaTime)
 	Networking::SendData(PACKET_ID::PlayerPosition,(char*)&GameManager::player->Position,sizeof(GameManager::player->Position));
 
 	Renderer::SetPlayerView();
-	GameManager::Overworld->Render();
+	WorldManager::BaseWorld->Render();
 	GameManager::player->Update(deltaTime);
 
 	Renderer::SetUIView();

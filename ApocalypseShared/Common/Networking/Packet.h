@@ -1,11 +1,11 @@
 #pragma once
-#include <Engine.h>
-#include "Math/Vector.h"
-#include "BlockData.h"
-constexpr int ChunkSize = 32;
+#include "pch.h"
+#include "Common/Math/Vector.h"
+#include "Common/Blocks/BlockData.h"
+#include "Common/World/WorldConstants.h"
 constexpr int DefaultPacketSize = 128;
-constexpr int ChunkPacketSize = ChunkSize * ChunkSize * ChunkSize * sizeof(BlockData);
-constexpr int MAX_PLAYERS = 10;
+constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
+constexpr int MAX_PLAYERS = 20;
 enum class PACKET_ID
 {
 	//Sender: client and server

@@ -1,13 +1,13 @@
-#include <Engine.h>
+#include "pch.h"
 #include "GameManager.h"
-#include "GlobalVariables.h"
-#include "ManagerUI.h"
+#include "Client.h"
+#include "UI/ManagerUI.h"
 #include "Timer.h"
 #include "SavingData.h"
 #include "Renderer.h"
-#include "Scene.h"
-#include "MainMenuScene.h"
-#include "GameScene.h"
+#include "Scenes/Scene.h"
+#include "Scenes/MainMenuScene.h"
+#include "Scenes/GameScene.h"
 static float second;
 static int FrameCount = 0;
 static Scene* scene;
@@ -16,7 +16,7 @@ void GameManager::Update(float deltaTime)
 	//Calculate FPS
 	if (second > 1)
 	{
-		FPS = FrameCount;
+		Client::FPS = FrameCount;
 		second = 0;
 		FrameCount = 0;
 	}
@@ -28,11 +28,10 @@ void GameManager::Update(float deltaTime)
 }
 void GameManager::Start()
 {
-	std::wcin >> ip;
-	std::cin >> port;
-	SavingData::ActivateLoading(true); //Debug function
-	ScreenWidth = 1920;
-	ScreenHeight = 1080;
+	std::wcin >> Client::ip;
+	std::cin >> Client::port;
+	Client::ScreenWidth = 1920;
+	Client::ScreenHeight = 1080;
 	Renderer::CreateWindow("GAME");
 
 	scene = (Scene*)new MainMenuScene();

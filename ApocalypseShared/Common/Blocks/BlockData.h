@@ -1,7 +1,7 @@
 #pragma once
 enum class BLOCK_ID
 {
-	Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass
+	Invalid, Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass
 };
 struct BlockData
 {

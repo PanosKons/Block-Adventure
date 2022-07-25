@@ -1,4 +1,3 @@
-#include <Engine.h>
 #include "Renderer.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,11 +7,10 @@
 #include "Rendering/Texture.h"
 #include "Rendering/VertexBufferLayout.h"
 #include "GameManager.h"
-#include <iostream>
-#include "MainCamera.h"
-#include "ManagerUI.h"
-#include "Input.h"
-#include "GlobalVariables.h"
+#include "Common/Entities/Player/MainCamera.h"
+#include "UI/ManagerUI.h"
+#include "Common/Entities/Player/Input.h"
+#include "Client.h"
 namespace Renderer {
 	static std::unique_ptr<Shader> m_Shader;
 	static std::vector<std::string> m_Textures;
@@ -127,19 +125,21 @@ namespace Renderer {
 	}
 	void Run()
 	{
-		while (!glfwWindowShouldClose(ApplicationWindow))
+		while (!glfwWindowShouldClose(Client::ApplicationWindow))
 		{
 			//Calculate deltaTime
 			static float previous;
 			float now = (float)glfwGetTime();
 			float deltaTime = now - previous;
 			previous = now;
+
 			GameManager::Update(deltaTime);
-			glfwSwapBuffers(ApplicationWindow);
+
+			glfwSwapBuffers(Client::ApplicationWindow);
 			glfwPollEvents();
 		}
 
-		glfwDestroyWindow(ApplicationWindow);
+		glfwDestroyWindow(Client::ApplicationWindow);
 		glfwTerminate();
 	}
 	int CreateWindow(const std::string& name)
@@ -151,15 +151,15 @@ namespace Renderer {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-		ApplicationWindow = glfwCreateWindow(ScreenWidth, ScreenHeight, name.c_str(), NULL, NULL);
-		if (!ApplicationWindow)
+		Client::ApplicationWindow = glfwCreateWindow(Client::ScreenWidth, Client::ScreenHeight, name.c_str(), NULL, NULL);
+		if (!Client::ApplicationWindow)
 		{
 			glfwTerminate();
 			return -1;
 		}
-		glfwMakeContextCurrent(ApplicationWindow);
+		glfwMakeContextCurrent(Client::ApplicationWindow);
 		glfwSwapInterval(1);
-		glfwSetInputMode(ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return -1;
 

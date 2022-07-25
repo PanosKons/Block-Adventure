@@ -7,5 +7,4 @@
 #include <unordered_map>
 #include <list>
 #include <future>
-#include <cstdio> 
-#define BIG_NUMBER 0x1000000
+#include <cstdio>

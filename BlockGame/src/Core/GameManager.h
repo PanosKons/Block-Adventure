@@ -1,11 +1,10 @@
 #pragma once
-#include "World.h"
-#include "Player.h"
-#include "Scene.h"
+#include "Common/World/World.h"
+#include "Common/Entities/Player/Player.h"
+#include "Scenes/Scene.h"
 class GameManager
 {
 public:
-	inline static World* Overworld;
 	inline static Player* player;
 	static void Update(float deltaTime);
 	static void Start();

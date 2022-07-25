@@ -2,8 +2,8 @@
 #include "Renderer.h"
 #include "Rendering/VertexBuffer.h"
 #include "Rendering/IndexBuffer.h"
-#include "GlobalVariables.h"
-#include "Input.h"
+#include "Client.h"
+#include "Common/Entities/Player/Input.h"
 #include "GameManager.h"
 #include "GameScene.h"
 void MainMenuScene::Start()
@@ -27,7 +27,7 @@ void MainMenuScene::Render()
 	static IndexBuffer ib;
 	vb.Clear();
 	ib.Clear();
-	Renderer::DrawSquare(vb, ib, { (float)ScreenWidth / 2,(float)ScreenHeight / 2 }, { 100.0f,100.0f }, { 1.0f,1.0f,1.0f,1.0f }, {0,0},{1,1}, -1);
+	Renderer::DrawSquare(vb, ib, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 100.0f,100.0f }, { 1.0f,1.0f,1.0f,1.0f }, {0,0},{1,1}, -1);
 	vb.Bind();
 	vb.Allocate();
 	Renderer::DrawGeometry(vb, ib);
