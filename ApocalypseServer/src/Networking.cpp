@@ -27,7 +27,12 @@ namespace Networking {
 			{
 				case PACKET_ID::PlayerPosition:
 				{
-					SendAllClients(packet);
+					Packet<DefaultPacketSize> sPacket;
+					sPacket.InitMemory();
+					sPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
+					sPacket.AddPacketData<int>(ClientId);
+					sPacket.AddPacketData<Vector3<double>>(packet.ExtractPacketData<Vector3<double>>());
+					SendAllClients(sPacket);
 				}
 				case PACKET_ID::BreakBlock:
 				{

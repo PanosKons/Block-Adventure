@@ -8,13 +8,18 @@ constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
 constexpr int MAX_PLAYERS = 20;
 enum class PACKET_ID
 {
-	//Sender: client and server
+	//Sender: server
 	//Data: char PlayerId
 	//		Vector3<double> Position
+	//Sender: client
+	//Data: Vector3<double> Position
 	PlayerPosition,
-	//Sender: client and server
+	//Sender: server
 	//Data: char PlayerId
 	//		Vector3<int> BlockPosition
+	//		int BLOCK_ID
+	//Sender: client
+	//Data: Vector3<int> BlockPosition
 	//		int BLOCK_ID
 	BreakBlock,
 	//Sender: client
@@ -34,9 +39,12 @@ public:
 	const T& ExtractPacketData();
 	template<typename T>
 	void AddPacketData(T Data);
+
 	char* GetPacket();
 	int GetPacketSize();
+
 	void SetPacket(std::array<char, TSize>* PacketData);
+
 	void InitMemory();
 private:
 	std::array<char, TSize>* PacketData;

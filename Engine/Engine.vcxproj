@@ -59,10 +59,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Engine.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -77,10 +78,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Engine.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,14 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="scr\Math\Noise.h" />
-    <ClInclude Include="scr\Math\Cuboid.h" />
-    <ClInclude Include="scr\Math\Ray.h" />
     <ClInclude Include="scr\Rendering\IndexBuffer.h" />
-    <ClInclude Include="scr\Engine.h" />
-    <ClInclude Include="scr\Math\mat4.h" />
-    <ClInclude Include="scr\Math\EngineMath.h" />
-    <ClInclude Include="scr\Math\Vector.h" />
     <ClInclude Include="scr\Rendering\Shader.h" />
     <ClInclude Include="scr\Rendering\Texture.h" />
     <ClInclude Include="scr\Rendering\VertexBuffer.h" />
@@ -105,30 +100,15 @@
     <ClInclude Include="scr\Timer.h" />
     <ClInclude Include="scr\vendor\PerlinNoise.hpp" />
     <ClInclude Include="scr\vendor\stb_image.h" />
-    <ClInclude Include="scr\util\StringConvertions.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="scr\Engine.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="scr\Math\Noise.cpp" />
-    <ClCompile Include="scr\Math\Cuboid.cpp" />
-    <ClCompile Include="scr\Math\Ray.cpp" />
     <ClCompile Include="scr\Rendering\IndexBuffer.cpp" />
-    <ClCompile Include="scr\Math\mat4.cpp" />
-    <ClCompile Include="scr\Math\EngineMath.cpp" />
     <ClCompile Include="scr\Rendering\Shader.cpp" />
     <ClCompile Include="scr\Rendering\Texture.cpp" />
     <ClCompile Include="scr\Rendering\VertexBuffer.cpp" />
     <ClCompile Include="scr\Rendering\VertexBufferLayout.cpp" />
     <ClCompile Include="scr\Timer.cpp" />
     <ClCompile Include="scr\vendor\stb_image.cpp" />
-    <ClCompile Include="scr\util\StringConvertions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Glad\Glad.vcxproj">

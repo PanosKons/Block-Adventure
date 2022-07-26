@@ -7,7 +7,7 @@
 static std::thread* ListeningThread;
 void ServerManager::Start()
 {
-	WorldManager::BaseWorld = new World(0);
+	WorldManager::BaseWorld = new World();
 	ListeningThread = new std::thread(Networking::ListenForClients);
 }
 

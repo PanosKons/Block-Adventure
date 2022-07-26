@@ -6,13 +6,14 @@
 #include "GameManager.h"
 #include "Renderer.h"
 #include "Networking/Networking.h"
-#include "Common/Entities/EntityManager.h"
+#include "Entities/EntityManagerClient.h"
 #include "Client.h"
 #include "Common/World/WorldManager.h"
 void GameScene::Start()
 {
 	Networking::Connect();
-	EntityManager::Start();
+	EntityManagerClient::Start();
+
 	WorldManager::BaseWorld = new World();
 	GameManager::player = new Player();
 	ManagerUI::Init();

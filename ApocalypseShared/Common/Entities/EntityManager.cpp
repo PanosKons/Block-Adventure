@@ -1,8 +1,7 @@
 #include "EntityManager.h"
-#include "Renderer.h"
-#include "Packet.h"
-static std::unique_ptr<VertexBuffer> vb;
-static std::unique_ptr<IndexBuffer> ib;
+#include "Common/Networking/Packet.h"
+//static std::unique_ptr<VertexBuffer> vb;
+//static std::unique_ptr<IndexBuffer> ib;
 void EntityManager::Start()
 {
 	Players.reserve(MAX_PLAYERS);
@@ -10,10 +9,10 @@ void EntityManager::Start()
 	{
 		Players.push_back(nullptr);
 	}
-	vb = std::make_unique<VertexBuffer>();
-	ib = std::make_unique<IndexBuffer>();
+	//vb = std::make_unique<VertexBuffer>();
+	//ib = std::make_unique<IndexBuffer>();
 }
-void AddPlayerModel(VertexBuffer* vb,IndexBuffer* ib, Entity* player)
+/*void AddPlayerModel(VertexBuffer* vb, IndexBuffer* ib, Entity* player)
 {
 	Vector3<float> Position = Vector::FloatVector(Vector3<double>{ player->Position.x - player->Hitbox.x / 2,player->Position.y,player->Position.z - player->Hitbox.z / 2 });
 	Vector3<float> Hitbox = Vector::FloatVector(player->Hitbox);
@@ -124,25 +123,33 @@ void EntityManager::Render()
 	vb->Allocate();
 	Renderer::DrawGeometry(*vb.get(), *ib.get());
 }
+void EntityManager::UpdatePlayer(int id, Vector3<double> Position)
+{
+	if (Players[id] == nullptr) AddPlayer(id);
+	Players[id]->Position = Position;
+}*/
 void EntityManager::ShutDown()
 {
 	for (Entity* entity : Players)
 	{
 		delete entity;
 	}
-	for (Entity* entity : Entities)
-	{
-		delete entity;
-	}
 }
-void EntityManager::AddPlayer(int id)
+
+
+void EntityManager::CreatePlayer(int PlayerId)
 {
 	Entity* player = new Entity();
+
+	player->Position = { 0,0,0 };
 	player->Hitbox = { 0.6, 1.8 ,0.6 };
-	Players[id] = player;
-}
-void EntityManager::UpdatePlayer(int id, Vector3<double> Position)
-{
-	if (Players[id] == nullptr) AddPlayer(id);
-	Players[id]->Position = Position;
+	player->Velocity = { 0,0,0 };
+	player->maxHealth = 100.0f;
+	player->health = 100.0f;
+	player->speed = 5.0f;
+	player->pitch = 30.0f;
+	player->yaw = 30.0f;
+	player->grounded = false;
+
+	Players[PlayerId] = player;
 }
