@@ -3,11 +3,18 @@
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/BlockData.h"
 #include "Common/World/WorldConstants.h"
+
+constexpr int StartPacketSize = 1000;
 constexpr int DefaultPacketSize = 128;
 constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
 constexpr int MAX_PLAYERS = 20;
+
 enum class PACKET_ID
 {
+	//Sender: server
+	//Data: char PlayerId
+	//		Vector3<double> Position
+	PlayerJoin,
 	//Sender: server
 	//Data: char PlayerId
 	//		Vector3<double> Position

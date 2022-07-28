@@ -9,34 +9,39 @@
 #include "Entities/EntityManagerClient.h"
 #include "Client.h"
 #include "Common/World/WorldManager.h"
+
 void GameScene::Start()
 {
-	Networking::Connect();
 	EntityManagerClient::Start();
-
 	WorldManager::BaseWorld = new World();
-	GameManager::player = new Player();
+
+	Networking::Connect();
+
+	EntityManagerClient::CreateSelf(Networking::Player_id);
+
 	ManagerUI::Init();
 }
 
 void GameScene::Update(float deltaTime)
 {
-
 	Renderer::SetBackroundColorAndClear({ 0.0f, 0.8f, 1.0f, 1.0f });
-	Networking::SendData(PACKET_ID::PlayerPosition,(char*)&GameManager::player->Position,sizeof(GameManager::player->Position));
 
-	Renderer::SetPlayerView();
-	WorldManager::BaseWorld->Render();
-	GameManager::player->Update(deltaTime);
+	PlayerInput::Update();
 
-	Renderer::SetUIView();
-	ManagerUI::UpdateUI();
+	EntityManagerClient::player->Update(deltaTime);
 }
 
 void GameScene::Render()
 {
 	Renderer::SetPlayerView();
+	WorldManager::BaseWorld->Render();
+
+	Renderer::SetUIView();
+	ManagerUI::UpdateUI();
+
+	Renderer::SetPlayerView();
 	EntityManager::Render();
+
 }
 
 void GameScene::End()

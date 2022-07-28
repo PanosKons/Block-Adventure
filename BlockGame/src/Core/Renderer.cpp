@@ -7,10 +7,11 @@
 #include "Rendering/Texture.h"
 #include "Rendering/VertexBufferLayout.h"
 #include "GameManager.h"
-#include "Common/Entities/Player/MainCamera.h"
+#include "Entities/MainCamera.h"
 #include "UI/ManagerUI.h"
 #include "Common/Entities/Player/Input.h"
 #include "Client.h"
+#include "Entities/EntityManagerClient.h"
 namespace Renderer {
 	static std::unique_ptr<Shader> m_Shader;
 	static std::vector<std::string> m_Textures;
@@ -115,8 +116,8 @@ namespace Renderer {
 	}
 	void SetPlayerView()
 	{
-		proj = glm::perspective(glm::radians(GameManager::player->fov), (float)ScreenWidth / (float)ScreenHeight, 0.1f, -30.0f);
-		glm::mat4 view = glm::lookAt(GameManager::player->mainCamera.cameraPos, GameManager::player->mainCamera.cameraPos + GameManager::player->mainCamera.cameraFront, glm::vec3(0.0f, 1.0f, 0.0f));
+		proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
+		glm::mat4 view = glm::lookAt(EntityManagerClient::GetPlayer().GetCameraPosition(), EntityManagerClient::GetPlayer().GetCameraPosition() + EntityManagerClient::GetPlayer().GetCameraFront(), glm::vec3(0.0f, 1.0f, 0.0f));
 		m_Shader->SetUniformMat4f("u_V", proj * view);
 	}
 	void SetUIView()

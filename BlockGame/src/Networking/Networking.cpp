@@ -57,10 +57,12 @@ void Networking::Connect()
 	{
 		std::cout << "error" << std::endl;
 	}
-	char buffer[sizeof(int)];
-	recv(clientSocket, buffer, sizeof(int), 0);
-	Player_id = *(int*)buffer;
+
+	Packet<StartPacketSize> StartPacket;
+	StartPacket = Networking::GetPacketFromServer<StartPacketSize>();
+	Player_id = StartPacket.ExtractPacketData<int>();
 	std::cout << "Connected to the server with id: " << Player_id << std::endl;
+
 	std::thread worker(HandleMessage);
 	worker.detach();
 }

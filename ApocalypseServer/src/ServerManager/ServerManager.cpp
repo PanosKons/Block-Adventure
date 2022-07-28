@@ -4,7 +4,9 @@
 #include "Common/World/World.h"
 #include "Server/Server.h"
 #include "Common/World/WorldManager.h"
+
 static std::thread* ListeningThread;
+
 void ServerManager::Start()
 {
 	WorldManager::BaseWorld = new World();

@@ -5,10 +5,11 @@
 class EntityManager
 {
 public:
-	inline static std::vector<Entity*> Players;
-
 	static void Start();
 	static void ShutDown();
 	static void CreatePlayer(int PlayerId);
+	static Entity* GetEntity(int PlayerId);
+protected:
+	inline static std::vector<Entity*> Players;
 };
 

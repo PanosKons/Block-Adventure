@@ -4,6 +4,11 @@ class Math
 {
 public:
 	template<typename T>
+	static T Radians(T degrees)
+	{
+		return degrees * (T)(0.01745329251994329576923690768489);
+	}
+	template<typename T>
 	static T Max(T a, T b)
 	{
 		return a < b ? b : a;

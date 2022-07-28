@@ -153,3 +153,8 @@ void EntityManager::CreatePlayer(int PlayerId)
 
 	Players[PlayerId] = player;
 }
+
+Entity* EntityManager::GetEntity(int PlayerId)
+{
+	return Players[PlayerId];
+}

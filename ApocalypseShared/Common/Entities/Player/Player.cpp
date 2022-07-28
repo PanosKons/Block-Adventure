@@ -1,33 +1,13 @@
-#include <Engine.h>
+#include "pch.h"
 #include "Player.h"
-#include "GameManager.h"
 #include "Input.h"
 #include "Math/Ray.h"
-#include "GlobalVariables.h"
-#include "SavingData.h"
-#include "Renderer.h"
-#include "Timer.h"
+#include "World/WorldConstants.h"
 #include "Math/EngineMath.h"
-#include "Networking.h"
-Player::Player()
-	:ActiveSlot(0), Inventory(), mainCamera(), Velocity(0), Position({ 1065.0,80.0,1065.0 }), Hitbox({ 0.6, 1.8 ,0.6 })
-{
-	SavingData::LoadPlayer(this);
-	Input::SetCursorCallback([](GLFWwindow* window, double xpos, double ypos) {GameManager::player->CursorMoved(xpos, ypos); });
-	//Code to setup camera //identical to cursorMoved function
-	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	mainCamera.cameraFront = glm::normalize(front);
+#include "World/WorldManager.h"
+Player::Player() {}
 
-	m_VertexBuffer = std::make_unique<VertexBuffer>();
-	m_IndexBuffer = std::make_unique<IndexBuffer>();
-}
-Player::~Player()
-{
-	SavingData::SavePlayer(this);
-}
+Player::~Player() {}
 int Player::GetFirstAvaiableSlot(int id,TYPE type)
 {
 	for (unsigned int i = 0; i < Inventory.size(); i++)
@@ -40,10 +20,14 @@ int Player::GetFirstAvaiableSlot(int id,TYPE type)
 	}
 	return -1;
 }
+Vector3<double> Player::GetLookPosition()
+{
+	return { Position.x,Position.y + 1.6, Position.z };
+}
 Block Player::GetFacingBlock()
 {
-	Ray ray(mainCamera.cameraPos, pitch, yaw);
-	Block block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Ray ray(GetLookPosition(), Pitch, Yaw);
+	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	while (true)
 	{
 		if (block.data == nullptr) break;
@@ -51,14 +35,14 @@ Block Player::GetFacingBlock()
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
 			return Block();
-		block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+		block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	}
 	return block;
 }
 Block Player::GetBlockToPlace()
 {
-	Ray ray(mainCamera.cameraPos, pitch, yaw);
-	Block block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Ray ray(GetLookPosition(), Pitch, Yaw);
+	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	Block lastBlock = Block();
 	while (true)
 	{
@@ -68,7 +52,7 @@ Block Player::GetBlockToPlace()
 		if (ray.getLength() > 5.9f)
 			return Block();
 		lastBlock = block;
-		block = GameManager::Overworld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+		block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	}
 	return lastBlock;
 }
@@ -76,46 +60,13 @@ void Player::MarkBlockToBreak()
 {
 	Block block = GetFacingBlock();
 	if (block.data == nullptr) return;
-	isBreakingBlock = true;
-	breakingBlock = block;
+	IsBreakingBlock = true;
+	BreakingBlock = block;
 	TimeToBreak = (float)block.GetBlockProperties().hardness;
-}
-void Player::CursorMoved(double xpos, double ypos)
-{
-	if (!Playing) return;
-	if (firstMouse)
-	{
-		lastX = (float)xpos;
-		lastY = (float)ypos;
-		firstMouse = false;
-	}
-	float xoffset = (float)xpos - lastX;
-	float yoffset = lastY - (float)ypos;
-	lastX = (float)xpos;
-	lastY = (float)ypos;
-	float sensitivity = 0.1f; // change this value to your liking
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-	yaw += xoffset;
-	pitch += yoffset;
-	if (yaw < -180)
-		yaw += 360;
-	if (yaw > 180)
-		yaw -= 360;
-	// make sure that when pitch is out of bounds, screen doesn't get flipped
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	mainCamera.cameraFront = glm::normalize(front);
 }
 bool IsBlockSolid(Vector3<int> Position)
 {
-	Block block = GameManager::Overworld->GetBlock({ Position.x,Position.y,Position.z });
+	Block block = WorldManager::BaseWorld->GetBlock({ Position.x,Position.y,Position.z });
 	if (block.data != nullptr)
 		return block.GetBlockId() != BLOCK_ID::Air;
 	return true;
@@ -158,9 +109,8 @@ bool CheckCollision(Vector3<double> Position, Vector3<double> Hitbox, Vector3<in
 	}
 	return false;
 }
-void Player::Update(float deltaTime)
+void Player::Update()
 {
-	deltaTime = Math::Min(deltaTime, 0.05f);
 	Block facingblock = GetFacingBlock();
 	DrawPlayer(facingblock);
 	Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
@@ -240,12 +190,12 @@ void Player::Update(float deltaTime)
 	}
 	else
 	{
-		speed = 4.0f;
+		Speed = 4.0f;
 	}
 	if (Input::GetKeyState(GLFW_KEY_W) == GLFW_PRESS && Playing)
 	{
-		Velocity.x = speed * cos(glm::radians(yaw));
-		Velocity.z = speed * sin(glm::radians(yaw));
+		Velocity.x = Speed * cos(glm::radians(yaw));
+		Velocity.z = Speed * sin(glm::radians(yaw));
 	}
 	else if (Input::GetKeyState(GLFW_KEY_S) == GLFW_PRESS && Playing)
 	{
@@ -292,7 +242,7 @@ void Player::Update(float deltaTime)
 	}
 	if (CheckCollision({ Position.x , Position.y + Velocity.y * deltaTime, Position.z }, Hitbox))
 	{
-		if (Velocity.y <= -6.0f) health -= -(float)Velocity.y / 3.0f;
+		if (Velocity.y <= -6.0f) Health -= -(float)Velocity.y / 3.0f;
 		Velocity.y = 0;
 	}
 	if (CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * deltaTime }, Hitbox))
@@ -302,8 +252,8 @@ void Player::Update(float deltaTime)
 
 	//Apply the velocity to the position
 	Position += Velocity * deltaTime;
-	mainCamera.cameraPos = glm::vec3(Position.x, Position.y + 1.6f, Position.z);
 }
+/*
 #define WIDTH 0.02f
 #define OP_WIDTH 1.0f - WIDTH
 void Player::DrawPlayer(Block facingblock)
@@ -567,3 +517,4 @@ void Player::DrawPlayer(Block facingblock)
 	m_VertexBuffer->Bind();
 	m_VertexBuffer->Allocate();
 }
+*/

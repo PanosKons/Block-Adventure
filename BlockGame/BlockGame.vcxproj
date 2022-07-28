@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Entities\EntityManagerClient.cpp" />
     <ClCompile Include="src\Core\ChunkRenderer.cpp" />
     <ClCompile Include="src\Networking\Networking.cpp" />
     <ClCompile Include="src\Scenes\GameScene.cpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="src\Core\SavingData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Entities\EntityManagerClient.h" />
     <ClInclude Include="src\Core\ChunkRenderer.h" />
     <ClInclude Include="src\Networking\Networking.h" />
     <ClInclude Include="src\Scenes\GameScene.h" />

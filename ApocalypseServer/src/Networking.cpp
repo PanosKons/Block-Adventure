@@ -52,6 +52,7 @@ namespace Networking {
 	}
 	void Tick()
 	{
+
 	}
 	void ListenForClients()
 	{
@@ -78,16 +79,22 @@ namespace Networking {
 		//Wait for clients
 		while (true)
 		{
-			static int i = 0;
+			static int ClientId = 0;
 			SOCKET* client = new SOCKET(accept(serverSocket, nullptr, nullptr));
 			ASSERT(*client);
-			send((*client), (char*)&i, sizeof(int), 0);
+
 			std::mutex mutex;
 			mutex.lock();
 			sockets.push_back(client);
 			mutex.unlock();
-			std::cout << "Client with id: " << i << " connected!" << std::endl;
-			std::thread work(HandleClientPacket, client, i);
+
+			Packet<StartPacketSize> StartPacket;
+			StartPacket.InitMemory();
+			StartPacket.AddPacketData<int>(ClientId);
+
+			std::cout << "Client with id: " << ClientId << " connected!" << std::endl;
+
+			std::thread work(HandleClientPacket, client, ClientId);
 			work.detach();
 			i++;
 		}
