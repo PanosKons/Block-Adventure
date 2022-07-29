@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="scr\Rendering\RenderData.h" />
     <ClInclude Include="scr\Rendering\IndexBuffer.h" />
     <ClInclude Include="scr\Rendering\Shader.h" />
     <ClInclude Include="scr\Rendering\Texture.h" />

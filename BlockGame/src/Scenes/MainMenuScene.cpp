@@ -3,16 +3,14 @@
 #include "Rendering/VertexBuffer.h"
 #include "Rendering/IndexBuffer.h"
 #include "Client.h"
-#include "Common/Entities/Player/Input.h"
+#include "Core/Input.h"
 #include "GameManager.h"
 #include "GameScene.h"
-void MainMenuScene::Start()
-{
-}
+void MainMenuScene::Start(){}
 
 void MainMenuScene::Update(float deltaTime)
 {
-	if (Input::GetMouseState(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (Input::GetMouseState(Mouse::Left) == Action::Press)
 	{
 		Scene* scene = (Scene*)new GameScene();
 		GameManager::SetScene(scene);
@@ -32,7 +30,4 @@ void MainMenuScene::Render()
 	vb.Allocate();
 	Renderer::DrawGeometry(vb, ib);
 }
-
-void MainMenuScene::End()
-{
-}
+void MainMenuScene::End(){}

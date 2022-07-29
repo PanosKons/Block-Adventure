@@ -1,6 +1,6 @@
-#include <Engine.h>
+#include "pch.h"
 #include "IndexBuffer.h"
-#include "../Math/EngineMath.h"
+#include "Common/Math/EngineMath.h"
 IndexBuffer::IndexBuffer()
 	:m_Index(0) {}
 void IndexBuffer::AddTriangle()

@@ -9,66 +9,119 @@
 #include "GameManager.h"
 #include "Entities/MainCamera.h"
 #include "UI/ManagerUI.h"
-#include "Common/Entities/Player/Input.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
+
 namespace Renderer {
+
+	static std::vector<RenderCommand> RenderCommandQueue;
+
+	static View view = View::None;
 	static std::unique_ptr<Shader> m_Shader;
 	static std::vector<std::string> m_Textures;
 	static glm::mat4 proj;
-	void DrawChunk(Chunk* chunk)
+
+	int CreateWindow(const std::string& name)
 	{
-		chunk->GetVertexBuffer()->Bind();
-		VertexBufferLayout layout;
-		layout.Push<float>(3);
-		layout.Push<float>(4);
-		layout.Push<float>(2);
-		layout.Push<float>(1);
-		layout.Calculate();
-		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->GetIndexBuffer()->GetData().size()), GL_UNSIGNED_INT, chunk->GetIndexBuffer()->GetData().data());
-	}
-	void DrawChunkTransparent(Chunk* chunk)
-	{
-		chunk->GetVertexBufferTransparent()->Bind();
-		VertexBufferLayout layout;
-		layout.Push<float>(3);
-		layout.Push<float>(4);
-		layout.Push<float>(2);
-		layout.Push<float>(1);
-		layout.Calculate();
-		glDrawElements(GL_TRIANGLES, (GLsizei)(chunk->GetIndexBufferTransparent()->GetData().size()), GL_UNSIGNED_INT, chunk->GetIndexBufferTransparent()->GetData().data());
-	}
-	void SetBackroundColorAndClear(std::array<float,4> color)
-	{
-		glClearColor(color[0],color[1],color[2],color[3]);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib)
-	{
-		vb.Bind();
-		VertexBufferLayout layout;
-		layout.Push<float>(3);
-		layout.Push<float>(4);
-		layout.Push<float>(2);
-		layout.Push<float>(1);
-		layout.Calculate();
-		glDepthFunc(GL_ALWAYS);
-		glDrawElements(GL_TRIANGLES, (GLsizei)(ib.GetData().size()), GL_UNSIGNED_INT, ib.GetData().data());
+		std::ios_base::sync_with_stdio(false);
+
+		if (!glfwInit())
+			return -1;
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+		Client::ApplicationWindow = glfwCreateWindow(Client::ScreenWidth, Client::ScreenHeight, name.c_str(), NULL, NULL);
+
+		if (!Client::ApplicationWindow)
+		{
+			glfwTerminate();
+			return -1;
+		}
+
+		glfwMakeContextCurrent(Client::ApplicationWindow);
+		glfwSwapInterval(1);
+		glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+			return -1;
+
+		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
+		unsigned int m_RendererID;
+		glCreateVertexArrays(1, &m_RendererID);
+		glBindVertexArray(m_RendererID);
+
+		m_Shader = std::make_unique<Shader>("res/shaders/Base.shader");
+		m_Shader->Bind();
+		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
+		m_Shader->SetUniform1iv("u_texture", textures, 32);
+		Texture::Load("res/textures/cursor.png", 12);
+		Texture::Load("res/textures/selected_slot.png", 15);
+		Texture::Load("res/textures/text.png", 13);
+		Texture::Load("res/textures/slot.png", 14);
+		Texture::Load("res/textures/TextureAtlas.png", 0);
+		glFrontFace(GL_CW);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		return 0;
 	}
-	void DrawGeometry(VertexBuffer& vb, IndexBuffer& ib, unsigned int count, unsigned int offset)
+	void Run()
 	{
-		vb.Bind();
-		VertexBufferLayout layout;
-		layout.Push<float>(3);
-		layout.Push<float>(4);
-		layout.Push<float>(2);
-		layout.Push<float>(1);
-		layout.Calculate();
-		
-		glDrawElements(GL_TRIANGLES, (GLsizei)count, GL_UNSIGNED_INT, ib.GetData().data() + offset);
-		
+		while (!glfwWindowShouldClose(Client::ApplicationWindow))
+		{
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			for (RenderCommand& renderCommand : RenderCommandQueue)
+			{
+				if (view != renderCommand.view)
+				{
+					view = renderCommand.view;
+					if (view == View::Player)
+					{
+						proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
+						glm::mat4 view = glm::lookAt(EntityManagerClient::GetPlayer().GetCameraPosition(), EntityManagerClient::GetPlayer().GetCameraPosition() + EntityManagerClient::GetPlayer().GetCameraFront(), glm::vec3(0.0f, 1.0f, 0.0f));
+						m_Shader->SetUniformMat4f("u_V", proj * view);
+					}
+					else if (view == View::UI)
+					{
+						m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
+					}
+				}
+				renderCommand.renderData->vertexBuffer.Bind();
+				VertexBufferLayout layout;
+				layout.Push<float>(3);
+				layout.Push<float>(4);
+				layout.Push<float>(2);
+				layout.Push<float>(1);
+				layout.Calculate();
+				if (renderCommand.Depth == true)
+				{
+					glDepthFunc(GL_ALWAYS);
+					glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData.indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData.indexBuffer.GetData().data());
+					glDepthFunc(GL_LEQUAL);
+				}
+				else
+				{
+					glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData.indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData.indexBuffer.GetData().data());
+				}
+			}
+			RenderCommandQueue.empty();
+			glfwSwapBuffers(Client::ApplicationWindow);
+			glfwPollEvents();
+		}
+
+		glfwDestroyWindow(Client::ApplicationWindow);
+		glfwTerminate();
 	}
+
+	/*
 	void DrawText(VertexBuffer& vb, IndexBuffer& ib, std::string Text, Vector3<float> position)
 	{
 		Vertex a;
@@ -114,78 +167,5 @@ namespace Renderer {
 		vb.Add(a);
 		ib.AddRectangle();
 	}
-	void SetPlayerView()
-	{
-		proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
-		glm::mat4 view = glm::lookAt(EntityManagerClient::GetPlayer().GetCameraPosition(), EntityManagerClient::GetPlayer().GetCameraPosition() + EntityManagerClient::GetPlayer().GetCameraFront(), glm::vec3(0.0f, 1.0f, 0.0f));
-		m_Shader->SetUniformMat4f("u_V", proj * view);
-	}
-	void SetUIView()
-	{
-		m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)ScreenWidth, 0.0f, (float)ScreenHeight, -30.0f, 30.0f));
-	}
-	void Run()
-	{
-		while (!glfwWindowShouldClose(Client::ApplicationWindow))
-		{
-			//Calculate deltaTime
-			static float previous;
-			float now = (float)glfwGetTime();
-			float deltaTime = now - previous;
-			previous = now;
-
-			GameManager::Update(deltaTime);
-
-			glfwSwapBuffers(Client::ApplicationWindow);
-			glfwPollEvents();
-		}
-
-		glfwDestroyWindow(Client::ApplicationWindow);
-		glfwTerminate();
-	}
-	int CreateWindow(const std::string& name)
-	{
-		std::ios_base::sync_with_stdio(false);
-		if (!glfwInit())
-			return -1;
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-		Client::ApplicationWindow = glfwCreateWindow(Client::ScreenWidth, Client::ScreenHeight, name.c_str(), NULL, NULL);
-		if (!Client::ApplicationWindow)
-		{
-			glfwTerminate();
-			return -1;
-		}
-		glfwMakeContextCurrent(Client::ApplicationWindow);
-		glfwSwapInterval(1);
-		glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-			return -1;
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-
-		unsigned int m_RendererID;
-		glCreateVertexArrays(1, &m_RendererID);
-		glBindVertexArray(m_RendererID);
-
-		m_Shader = std::make_unique<Shader>("res/shaders/Base.shader");
-		m_Shader->Bind();
-		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
-		m_Shader->SetUniform1iv("u_texture", textures, 32);
-		Texture::Load("res/textures/cursor.png", 12);
-		Texture::Load("res/textures/selected_slot.png", 15);
-		Texture::Load("res/textures/text.png", 13);
-		Texture::Load("res/textures/slot.png", 14);
-		Texture::Load("res/textures/TextureAtlas.png", 0);
-		glFrontFace(GL_CW);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		return 0;
-	}
+	*/
 }

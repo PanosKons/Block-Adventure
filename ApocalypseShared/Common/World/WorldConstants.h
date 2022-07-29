@@ -3,7 +3,7 @@ enum class Context
 {
 	Server, Client
 };
-constexpr double TimeStep = 0.02;
+constexpr double IdealTimeStep = 0.02;
 
 constexpr int InventorySize = 9;
 

@@ -9,7 +9,7 @@
 #pragma comment(lib,"WS2_32")
 void HandleMessage()
 {
-	while (Client::ShuttingDown == false)
+	while (Client::ShouldStop == false)
 	{
 		Packet<DefaultPacketSize> packet = Networking::GetPacketFromServer<DefaultPacketSize>();
 		switch (packet.ExtractPacketData<PACKET_ID>())

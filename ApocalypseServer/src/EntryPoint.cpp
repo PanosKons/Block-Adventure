@@ -14,9 +14,9 @@ int main()
 		Now = std::chrono::system_clock::now();
 		std::chrono::duration<double> StepDelta = Now - LastStep;
 		LastStep = Now;
-		if (TimeStep > StepDelta.count() * 1000.0)
+		if (IdealTimeStep > StepDelta.count() * 1000.0)
 		{
-			double WaitTime = (TimeStep - StepDelta.count() * 1000.0) * 1000.0;
+			double WaitTime = (IdealTimeStep - StepDelta.count() * 1000.0) * 1000.0;
 			std::this_thread::sleep_for(std::chrono::nanoseconds((int)WaitTime));
 		}
 		ServerManager::Tick();

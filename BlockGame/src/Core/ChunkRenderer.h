@@ -4,7 +4,7 @@
 #include "Common/World/Chunk.h"
 #include "Rendering/IndexBuffer.h"
 #include "Rendering/VertexBuffer.h"
-struct RenderData
+struct RenderDataa
 {
 	std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	std::unique_ptr<VertexBuffer> m_VertexBuffer;

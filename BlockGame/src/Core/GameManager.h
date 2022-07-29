@@ -5,7 +5,7 @@
 class GameManager
 {
 public:
-	static void Update(float deltaTime);
+	static void Tick(double StepTime);
 	static void Start();
 	static void Shutdown();
 	static void SetScene(Scene* s);

@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
-#include <array>
-#include "../Math/Vector.h"
+#include "pch.h"
+#include "Common/Math/Vector.h"
 class Vertex
 {
 public:
