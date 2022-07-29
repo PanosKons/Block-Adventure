@@ -1,10 +1,12 @@
 #pragma once
 #include "pch.h"
-#include "Math/Vector.h"
-#include "Blocks/Block.h"
+#include "Common/Math/Vector.h"
+#include "Common/Blocks/Block.h"
 #include "ItemStack.h"
-#include "World/WorldConstants.h"
-class Player
+#include "Common/World/WorldConstants.h"
+#include "Common/Entities/Entity.h"
+
+class Player : public Entity
 {
 public:
 
@@ -18,28 +20,17 @@ public:
 	int GetFirstAvaiableSlot(int id, TYPE type);
 	Vector3<double> GetLookPosition();
 
-	Vector3<double> Position;
-	Vector3<double> Velocity;
-	Vector3<double> Hitbox;
-	float Yaw;
-	float Pitch;
-
-	float MaxHealth;
-	float Health;
-	float Speed;
-
 	char ActiveSlot;
 	std::array<ItemStack, InventorySize> Inventory;
 
 	float TimeToBreak = 0.0f;
 	Block BreakingBlock;
 	bool IsBreakingBlock = false;
+	float BlockPlaceDelay = 0.3f;
 
 
 	float JumpCooldown = 0.0f;
 	bool Crouch = false;
-	bool Grounded = false;
-
 	bool Godmode = true;
 
 };

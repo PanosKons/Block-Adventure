@@ -100,9 +100,7 @@
     <ClInclude Include="Common\Blocks\BlockProperties.h" />
     <ClInclude Include="Common\Entities\Entity.h" />
     <ClInclude Include="Common\Entities\EntityManager.h" />
-    <ClInclude Include="Common\Entities\Player\Input.h" />
     <ClInclude Include="Common\Entities\Player\ItemStack.h" />
-    <ClInclude Include="Common\Entities\Player\MainCamera.h" />
     <ClInclude Include="Common\Entities\Player\Player.h" />
     <ClInclude Include="Common\Math\Cuboid.h" />
     <ClInclude Include="Common\Math\EngineMath.h" />
@@ -125,9 +123,7 @@
     <ClCompile Include="Common\Blocks\BlockProperties.cpp" />
     <ClCompile Include="Common\Entities\Entity.cpp" />
     <ClCompile Include="Common\Entities\EntityManager.cpp" />
-    <ClCompile Include="Common\Entities\Player\Input.cpp" />
     <ClCompile Include="Common\Entities\Player\ItemStack.cpp" />
-    <ClCompile Include="Common\Entities\Player\MainCamera.cpp" />
     <ClCompile Include="Common\Entities\Player\Player.cpp" />
     <ClCompile Include="Common\Math\Cuboid.cpp" />
     <ClCompile Include="Common\Math\EngineMath.cpp" />

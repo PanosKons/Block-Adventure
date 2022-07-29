@@ -30,5 +30,5 @@ void EntityManagerClient::CreateSelf(int PlayerId)
 	player->Yaw = 30.0f;
 	player->Grounded = false;
 
-	Players[PlayerId] = (Entity*)player;
+	Players[PlayerId] = (Player*)player;
 }

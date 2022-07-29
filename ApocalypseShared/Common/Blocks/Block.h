@@ -1,7 +1,7 @@
 #pragma once
 #include "BlockData.h"
 #include "Math/Vector.h"
-#include "../BlockProperties.h"
+#include "BlockProperties.h"
 
 #define INVALID 255
 class Block //Base class all blocks derive from
@@ -19,4 +19,6 @@ public:
 	void StateChanged();
 	Vector3<int> Position;
 	BlockData* data;
+
+	static bool IsBlockSolid(Vector3<int> Position);
 };

@@ -8,9 +8,11 @@ public:
 	void CursorMoved(double xpos, double ypos);
 	glm::vec3 GetCameraFront();
 	glm::vec3 GetCameraPosition();
+	void InputTick(double TimeStep);
 	float lastX = 0.0f;
 	float lastY = 0.0f;
 	float Fov = 70.0f;
 	bool firstMouse = true;
+	bool IsGUIOpen = false;
 };
 

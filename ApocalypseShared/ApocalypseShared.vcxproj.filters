@@ -39,13 +39,7 @@
     <ClInclude Include="Common\Blocks\BlockProperties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common\Entities\Player\Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Entities\Player\ItemStack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Entities\Player\MainCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Common\Entities\Player\Player.h">
@@ -104,13 +98,7 @@
     <ClCompile Include="Common\Blocks\BlockProperties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Entities\Player\Input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Common\Entities\Player\ItemStack.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\Entities\Player\MainCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Common\Entities\Player\Player.cpp">

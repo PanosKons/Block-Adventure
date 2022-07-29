@@ -12,6 +12,44 @@ void EntityManager::Start()
 	//vb = std::make_unique<VertexBuffer>();
 	//ib = std::make_unique<IndexBuffer>();
 }
+bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox)
+{
+	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
+	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
+	for (int x = Point1.x; x <= Point2.x; x++)
+	{
+		for (int y = Point1.y; y <= Point2.y; y++)
+		{
+			for (int z = Point1.z; z <= Point2.z; z++)
+			{
+				if (IsBlockSolid({ x,y,z }))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox, Vector3<int> block)
+{
+	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
+	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
+	for (int x = Point1.x; x <= Point2.x; x++)
+	{
+		for (int y = Point1.y; y <= Point2.y; y++)
+		{
+			for (int z = Point1.z; z <= Point2.z; z++)
+			{
+				if (block == Vector3<int>{x, y, z})
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
 /*void AddPlayerModel(VertexBuffer* vb, IndexBuffer* ib, Entity* player)
 {
 	Vector3<float> Position = Vector::FloatVector(Vector3<double>{ player->Position.x - player->Hitbox.x / 2,player->Position.y,player->Position.z - player->Hitbox.z / 2 });
@@ -130,31 +168,31 @@ void EntityManager::UpdatePlayer(int id, Vector3<double> Position)
 }*/
 void EntityManager::ShutDown()
 {
-	for (Entity* entity : Players)
+	for (Player* player : Players)
 	{
-		delete entity;
+		delete player;
 	}
 }
 
 
 void EntityManager::CreatePlayer(int PlayerId)
 {
-	Entity* player = new Entity();
+	Player* player = new Player();
 
 	player->Position = { 0,0,0 };
 	player->Hitbox = { 0.6, 1.8 ,0.6 };
 	player->Velocity = { 0,0,0 };
-	player->maxHealth = 100.0f;
-	player->health = 100.0f;
-	player->speed = 5.0f;
-	player->pitch = 30.0f;
-	player->yaw = 30.0f;
-	player->grounded = false;
+	player->MaxHealth = 100.0f;
+	player->Health = 100.0f;
+	player->Speed = 5.0f;
+	player->Pitch = 30.0f;
+	player->Yaw = 30.0f;
+	player->Grounded = false;
 
 	Players[PlayerId] = player;
 }
 
-Entity* EntityManager::GetEntity(int PlayerId)
+Player* EntityManager::GetPlayer(int PlayerId)
 {
 	return Players[PlayerId];
 }

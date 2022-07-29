@@ -9,6 +9,8 @@
 #include "Common/World/WorldManager.h"
 #include "Server/Server.h"
 #include "Common/World/World.h"
+#include "Common/Entities/EntityManager.h"
+
 #ifdef _DEBUG
 #define ASSERTEXITCODE(x) if(x) __debugbreak();
 #define ASSERT(x) if(x == 0 || x == -1) __debugbreak();
@@ -50,10 +52,6 @@ namespace Networking {
 	{
 		WSACleanup();
 	}
-	void Tick()
-	{
-
-	}
 	void ListenForClients()
 	{
 		//Start dll
@@ -77,7 +75,7 @@ namespace Networking {
 		ASSERTEXITCODE(listen(serverSocket, MAX_PLAYERS));
 
 		//Wait for clients
-		while (true)
+		while (!Server::ShouldStop)
 		{
 			static int ClientId = 0;
 			SOCKET* client = new SOCKET(accept(serverSocket, nullptr, nullptr));
@@ -88,6 +86,8 @@ namespace Networking {
 			sockets.push_back(client);
 			mutex.unlock();
 
+			EntityManager::CreatePlayer(ClientId);
+
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<int>(ClientId);
@@ -96,7 +96,7 @@ namespace Networking {
 
 			std::thread work(HandleClientPacket, client, ClientId);
 			work.detach();
-			i++;
+			ClientId++;
 		}
 	}
 }

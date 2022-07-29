@@ -3,7 +3,6 @@
 namespace Networking{
 	void ListenForClients();
 	void Shutdown();
-	void Tick();
 	template<int TSize>
 	void SendPacketToClient(unsigned char ClientId, Packet<TSize>& packet)
 	{

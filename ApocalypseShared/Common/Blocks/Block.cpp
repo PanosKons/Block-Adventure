@@ -1,17 +1,16 @@
-#include <Engine.h>
+#include "pch.h"
 #include "Block.h"
-#include "../Core/GameManager.h"
-#include "Networking.h"
+#include "World/WorldManager.h"
 void Block::StateChanged()
 {
 	std::array<Block, 6> blocks =
 	{
-		GameManager::Overworld->GetBlock({ Position.x + 1, Position.y, Position.z }),
-		GameManager::Overworld->GetBlock({ Position.x - 1, Position.y, Position.z }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y, Position.z + 1 }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y, Position.z - 1 }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y + 1, Position.z }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y - 1, Position.z })
+		WorldManager::BaseWorld->GetBlock({ Position.x + 1, Position.y, Position.z }),
+		WorldManager::BaseWorld->GetBlock({ Position.x - 1, Position.y, Position.z }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z + 1 }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z - 1 }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y + 1, Position.z }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y - 1, Position.z })
 	};
 	for (unsigned int i = 0; i < blocks.size(); i++)
 	{
@@ -21,6 +20,15 @@ void Block::StateChanged()
 				blocks[i].Update();
 			}
 	}
+}
+bool Block::IsBlockSolid(Vector3<int> Position)
+{
+	
+	Block block = WorldManager::BaseWorld->GetBlock({ Position.x,Position.y,Position.z });
+	if (block.data != nullptr)
+		return block.GetBlockId() != BLOCK_ID::Air;
+	return true;
+	
 }
 void Block::OnBreak(BLOCK_ID id)
 {
@@ -86,12 +94,12 @@ void Block::Update()
 	unsigned char oldSides = data->RenderedSides;
 	Block blocks[] =
 	{
-		GameManager::Overworld->GetBlock({ Position.x + 1, Position.y, Position.z }),
-		GameManager::Overworld->GetBlock({ Position.x - 1, Position.y, Position.z }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y, Position.z + 1 }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y, Position.z - 1 }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y + 1, Position.z }),
-		GameManager::Overworld->GetBlock({ Position.x, Position.y - 1, Position.z })
+		WorldManager::BaseWorld->GetBlock({ Position.x + 1, Position.y, Position.z }),
+		WorldManager::BaseWorld->GetBlock({ Position.x - 1, Position.y, Position.z }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z + 1 }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z - 1 }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y + 1, Position.z }),
+		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y - 1, Position.z })
 	};
 	if (blocks[0].data != nullptr)
 		if (blocks[0].GetTransparent() && blocks[0].GetBlockId() != GetBlockId())
@@ -150,7 +158,7 @@ void Block::Update()
 
 	if (oldSides != data->RenderedSides)
 	{
-		Chunk* chunk = GameManager::Overworld->GetChunk(this->Position);
+		Chunk* chunk = WorldManager::BaseWorld->GetChunk(this->Position);
 		if (chunk != nullptr) chunk->Changed = true;
 	}
 }
@@ -160,6 +168,6 @@ void Block::OnBreakOffline(BLOCK_ID id)
 	data->blockId = (unsigned short)id;
 	Update();
 	StateChanged();
-	Chunk* chunk = GameManager::Overworld->GetChunk(this->Position);
+	Chunk* chunk = WorldManager::BaseWorld->GetChunk(this->Position);
 	if(chunk != nullptr) chunk->Changed = true;
 }

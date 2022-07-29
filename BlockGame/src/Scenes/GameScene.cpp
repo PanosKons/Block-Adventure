@@ -26,9 +26,7 @@ void GameScene::Update(float deltaTime)
 {
 	Renderer::SetBackroundColorAndClear({ 0.0f, 0.8f, 1.0f, 1.0f });
 
-	PlayerInput::Update();
-
-	EntityManagerClient::player->Update(deltaTime);
+	EntityManagerClient::GetPlayer().Update();
 }
 
 void GameScene::Render()
@@ -41,7 +39,6 @@ void GameScene::Render()
 
 	Renderer::SetPlayerView();
 	EntityManager::Render();
-
 }
 
 void GameScene::End()
