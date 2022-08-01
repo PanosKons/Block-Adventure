@@ -4,9 +4,6 @@
 #include "GameManager.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#pragma comment(lib,"WS2_32")
 void HandleMessage()
 {
 	while (Client::ShouldStop == false)

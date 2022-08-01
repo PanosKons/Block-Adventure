@@ -19,5 +19,8 @@ struct RenderCommand
 namespace Renderer
 {
 	int CreateWindow(const std::string& name);
-	void Run();
+	void Render();
+	void ShutDown();
+	bool ShouldWindowClose();
+	void AddCommand(RenderCommand renderCommand);
 };

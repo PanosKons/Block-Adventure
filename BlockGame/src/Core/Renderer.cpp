@@ -72,53 +72,62 @@ namespace Renderer {
 		glCullFace(GL_BACK);
 		return 0;
 	}
-	void Run()
+	void Render()
 	{
-		while (!glfwWindowShouldClose(Client::ApplicationWindow))
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		for (RenderCommand& renderCommand : RenderCommandQueue)
 		{
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			for (RenderCommand& renderCommand : RenderCommandQueue)
+			if (view != renderCommand.view)
 			{
-				if (view != renderCommand.view)
+				view = renderCommand.view;
+				if (view == View::Player)
 				{
-					view = renderCommand.view;
-					if (view == View::Player)
-					{
-						proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
-						glm::mat4 view = glm::lookAt(EntityManagerClient::GetPlayer().GetCameraPosition(), EntityManagerClient::GetPlayer().GetCameraPosition() + EntityManagerClient::GetPlayer().GetCameraFront(), glm::vec3(0.0f, 1.0f, 0.0f));
-						m_Shader->SetUniformMat4f("u_V", proj * view);
-					}
-					else if (view == View::UI)
-					{
-						m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
-					}
+					proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
+					glm::mat4 view = glm::lookAt(EntityManagerClient::GetPlayer().GetCameraPosition(), EntityManagerClient::GetPlayer().GetCameraPosition() + EntityManagerClient::GetPlayer().GetCameraFront(), glm::vec3(0.0f, 1.0f, 0.0f));
+					m_Shader->SetUniformMat4f("u_V", proj * view);
 				}
-				renderCommand.renderData->vertexBuffer.Bind();
-				VertexBufferLayout layout;
-				layout.Push<float>(3);
-				layout.Push<float>(4);
-				layout.Push<float>(2);
-				layout.Push<float>(1);
-				layout.Calculate();
-				if (renderCommand.Depth == true)
+				else if (view == View::UI)
 				{
-					glDepthFunc(GL_ALWAYS);
-					glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData.indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData.indexBuffer.GetData().data());
-					glDepthFunc(GL_LEQUAL);
-				}
-				else
-				{
-					glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData.indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData.indexBuffer.GetData().data());
+					m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
 				}
 			}
-			RenderCommandQueue.empty();
-			glfwSwapBuffers(Client::ApplicationWindow);
-			glfwPollEvents();
+			renderCommand.renderData->vertexBuffer.Bind();
+			VertexBufferLayout layout;
+			layout.Push<float>(3);
+			layout.Push<float>(4);
+			layout.Push<float>(2);
+			layout.Push<float>(1);
+			layout.Calculate();
+			if (renderCommand.Depth == true)
+			{
+				glDepthFunc(GL_ALWAYS);
+				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
+			}
+			else
+			{
+				glDepthFunc(GL_LEQUAL);
+				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
+			}
 		}
+		RenderCommandQueue.empty();
+		glfwSwapBuffers(Client::ApplicationWindow);
+		glfwPollEvents();
+	}
 
+	void ShutDown()
+	{
 		glfwDestroyWindow(Client::ApplicationWindow);
 		glfwTerminate();
+	}
+	bool ShouldWindowClose()
+	{
+		return glfwWindowShouldClose(Client::ApplicationWindow);
+	}
+	void AddCommand(RenderCommand renderCommand)
+	{
+		RenderCommandQueue.push_back(renderCommand);
 	}
 
 	/*

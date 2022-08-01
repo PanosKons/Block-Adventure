@@ -1,6 +1,11 @@
 #pragma once
 #include "Common/Networking/Packet.h"
 #include "pch.h"
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#pragma comment(lib,"WS2_32")
+
+
 class Networking
 {
 public:

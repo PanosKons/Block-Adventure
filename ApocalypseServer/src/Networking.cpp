@@ -1,15 +1,15 @@
 #include "Networking.h"
 #include "pch.h"
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#pragma comment(lib,"WS2_32")
 #include "Common/Math/Vector.h"
-#include "Common/Blocks/BlockData.h"
+#include "Common/Blocks/Block.h"
 #include "Common/Math/Noise.h"
 #include "Common/World/WorldManager.h"
 #include "Server/Server.h"
 #include "Common/World/World.h"
 #include "Common/Entities/EntityManager.h"
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#pragma comment(lib,"WS2_32")
 
 #ifdef _DEBUG
 #define ASSERTEXITCODE(x) if(x) __debugbreak();
@@ -91,6 +91,7 @@ namespace Networking {
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<int>(ClientId);
+
 
 			std::cout << "Client with id: " << ClientId << " connected!" << std::endl;
 

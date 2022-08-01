@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "Math/Vector.h"
-#include "../Blocks/Block.h"
+#include "Common/Math/Vector.h"
+#include "Common/Blocks/Block.h"
 #include "Chunk.h"
 #include "WorldConstants.h"
 
@@ -18,6 +18,8 @@ public:
 
 	void CreateChunk(Vector3<int> ChunkPosition, BlockArray* blocks);
 	void DestroyChunk(Vector3<int> ChunkPosition);
+
+	std::unordered_map<int64_t, Chunk*>* GetChunkMap() { return &ChunkMap; }
 private:
 	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };

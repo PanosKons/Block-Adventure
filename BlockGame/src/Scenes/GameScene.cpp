@@ -9,6 +9,7 @@
 #include "Entities/EntityManagerClient.h"
 #include "Client.h"
 #include "Common/World/WorldManager.h"
+#include "RendererClient.h"
 
 void GameScene::Start()
 {
@@ -24,13 +25,17 @@ void GameScene::Start()
 
 void GameScene::Update(float deltaTime)
 {
-	Renderer::SetBackroundColorAndClear({ 0.0f, 0.8f, 1.0f, 1.0f });
-
 	EntityManagerClient::GetPlayer().Update();
 }
 
 void GameScene::Render()
 {
+	Renderer::SetBackroundColorAndClear({ 0.0f, 0.8f, 1.0f, 1.0f });
+
+	RendererClient::RenderWorld(WorldManager::BaseWorld);
+	RendererClient::RenderEntities();
+	RendererClient::RenderUI();
+
 	Renderer::SetPlayerView();
 	WorldManager::BaseWorld->Render();
 
@@ -43,10 +48,7 @@ void GameScene::Render()
 
 void GameScene::End()
 {
-	ShuttingDown = true;
 	EntityManager::ShutDown();
-	GameManager::Overworld->Save();
-	delete GameManager::player;
-	delete GameManager::Overworld;
 	Networking::ShutDown();
+	delete WorldManager::BaseWorld;
 }

@@ -11,7 +11,7 @@ namespace Networking{
 	template<int TSize>
 	void SendAllClients(Packet<TSize>& packet)
 	{
-		for (int i = 0; i < sockets.size())
+		for (int i = 0; i < sockets.size();i++)
 		{
 			SendPacketToClient(i, packet);
 		}

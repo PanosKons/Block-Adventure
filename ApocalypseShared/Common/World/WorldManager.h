@@ -7,7 +7,7 @@ class WorldManager
 {
 public:
 	static Block GetBlock(BlockData* data, Vector3<int> WorldPosition);
-	static int64_t GetChunkKey(short x, short y, short z);
+	static int64_t GetChunkKey(Vector3<int> Position);
 	static Vector3<int> GetVectorFromKey(int64_t value);
 
 	inline static World* BaseWorld;

@@ -1,11 +1,8 @@
-#include <Engine.h>
+#include "pch.h"
 #include "SavingData.h"
 #include "GameManager.h"
-#include "util/StringConvertions.h"
-#include <fstream>
-#include <array>
-#include <filesystem>
-#include <iostream>
+#include "Common/Math/StringConvertions.h"
+
 void SavingData::SaveChunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks)
 {
 	std::ofstream fout;
@@ -15,8 +12,6 @@ void SavingData::SaveChunk(Vector3<int> Position, std::array<std::array<std::arr
 }
 void SavingData::LoadChunk(Vector3<int> Position, std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>** blocks)
 {
-	if (!Activated)
-		return;
 	const std::string path = "data/chunks/" + StringConvertions::ToString(Position.x) + "," + StringConvertions::ToString(Position.y) + "," + StringConvertions::ToString(Position.z) + ".chunk";
 	if (!std::filesystem::exists(path)) return;
 	std::ifstream fin;
@@ -44,11 +39,6 @@ void SavingData::SaveStructure(std::string& name, Structure structure)
 	fout.write((const char*)&structure, sizeof(Structure));
 	fout.close();
 }
-
-void SavingData::ActivateLoading(bool value)
-{
-	Activated = value;
-}
 void SavingData::SavePlayer(Player* player)
 {
 	std::array<float, 5> data =
@@ -66,8 +56,6 @@ void SavingData::SavePlayer(Player* player)
 }
 void SavingData::LoadPlayer(Player* player)
 {
-	if (!Activated)
-		return;
 	std::ifstream fin;
 	const std::string path = "data/player.chunk";
 	if(!std::filesystem::exists(path)) return;

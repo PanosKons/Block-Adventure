@@ -126,38 +126,15 @@ std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* 
 	return blocks;
 }
 
-void World::Save()
-{
-	for (auto& element : ChunkMap)
-	{
-		delete element.second;
-	}
-}
-void World::Render()
-{
-	for (auto& element : ChunkMap)
-	{
-		if (element.second->Changed) {
-			element.second->Draw();
-			element.second->Changed = false;
-		}
-		Renderer::DrawChunk(element.second);
-	}
-	for (auto& element : ChunkMap)
-	{
-		Renderer::DrawChunkTransparent(element.second);
-	}
-}
-
-void World::SubmitChunkChanges()
-{
-	for (auto[id, chunk] : ChunkMap)
-	{
-		if (chunk->ShouldUpdate)
-			chunk->UpdateAllBlocks();
-		else if (chunk->ShouldUpdateBorders)
-			chunk->UpdateBorderBlocks();
-		chunk->ShouldUpdate = false;
-		chunk->ShouldUpdateBorders = false;
-	}
-}
+//void World::SubmitChunkChanges()
+//{
+//	for (auto[id, chunk] : ChunkMap)
+//	{
+//		if (chunk->ShouldUpdate)
+//			chunk->UpdateAllBlocks();
+//		else if (chunk->ShouldUpdateBorders)
+//			chunk->UpdateBorderBlocks();
+//		chunk->ShouldUpdate = false;
+//		chunk->ShouldUpdateBorders = false;
+//	}
+//}

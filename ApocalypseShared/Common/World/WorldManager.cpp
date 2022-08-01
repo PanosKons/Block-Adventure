@@ -5,15 +5,15 @@ Block WorldManager::GetBlock(BlockData* data, Vector3<int> WorldPosition)
 {
     return Block(WorldPosition,data);
 }
-int64_t WorldManager::GetChunkKey(short x, short y, short z)
+int64_t WorldManager::GetChunkKey(Vector3<int> position)
 {
 	int64_t data = 0;
 	short* p = (short*)&data;
-	(*p) = x;
+	(*p) = (short)position.x;
 	p++;
-	(*p) = y;
+	(*p) = (short)position.y;
 	p++;
-	(*p) = z;
+	(*p) = (short)position.z;
 	return data;
 }
 Vector3<int> WorldManager::GetVectorFromKey(int64_t value)

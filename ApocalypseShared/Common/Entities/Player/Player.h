@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/Block.h"
-#include "ItemStack.h"
+#include "Common/Entities/Inventory/ItemStack.h"
 #include "Common/World/WorldConstants.h"
 #include "Common/Entities/Entity.h"
 

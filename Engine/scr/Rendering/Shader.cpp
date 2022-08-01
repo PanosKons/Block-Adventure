@@ -1,9 +1,6 @@
-#include <Engine.h>
+#include "pch.h"
 #include "Shader.h"
 #include <glad/glad.h>
-#include <iostream>
-#include <sstream>
-#include <fstream>
 Shader::Shader(const std::string& filepath)
 	:m_FilePath(filepath), m_Renderer_ID(0)
 {
@@ -81,9 +78,6 @@ void Shader::SetUniform1i(const std::string& name, int value) {
 }
 void Shader::SetUniform1iv(const std::string& name, int value[], int count) {
 	glUniform1iv(GetUniformLocation(name), count, value);
-}
-void Shader::SetUniformMat4f(const std::string& name, const mat4& matrix) {
-	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, (const GLfloat*)matrix.data.data());
 }
 void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) {
 	glUniformMatrix4fv(GetUniformLocation(name), 1, GL_TRUE, &matrix[0][0]);

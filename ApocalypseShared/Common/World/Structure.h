@@ -1,7 +1,8 @@
 #pragma once
-#include <Engine.h>
+#include "pch.h"
 #include "Math/Vector.h"
-#include "../Blocks.h"
+#include "Math/Blocks/Block.h"
+
 constexpr int StructureSize = 8;
 struct Structure
 {

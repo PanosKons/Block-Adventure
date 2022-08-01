@@ -18,9 +18,6 @@
     <ClInclude Include="Common\Networking\Packet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common\Blocks\BlockData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common\World\Chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,10 +33,7 @@
     <ClInclude Include="Common\Blocks\Block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common\Blocks\BlockProperties.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Entities\Player\ItemStack.h">
+    <ClInclude Include="Common\Entities\Inventory\ItemStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Common\Entities\Player\Player.h">
@@ -95,10 +89,7 @@
     <ClCompile Include="Common\Blocks\Block.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Blocks\BlockProperties.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\Entities\Player\ItemStack.cpp">
+    <ClCompile Include="Common\Entities\Inventory\ItemStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Common\Entities\Player\Player.cpp">
