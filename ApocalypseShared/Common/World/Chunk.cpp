@@ -1,12 +1,10 @@
 #include "pch.h"
-#include "Blocks.h"
+#include "Blocks/Block.h"
 #include "Chunk.h"
 #include "World.h"
 #include "Math/Noise.h"
-#include "SavingData.h"
-#include "GlobalVariables.h"
-#include "Networking.h"
 #include "WorldManager.h"
+
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 {
 	static Structure* structure = SavingData::LoadStructure(name.c_str());
@@ -25,11 +23,10 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 		}
 	}
 }
-Chunk::Chunk(Vector3<int> Position, World* world)
-	:Position(Position), world(world), blocks(nullptr) {}
+Chunk::Chunk(Vector3<int> Position, World* world,BlockArray* blocks)
+	:Position(Position), world(world), blocks(blocks) {}
 Chunk::~Chunk()
 {
-	SavingData::SaveChunk(Position,blocks);
 	delete blocks;
 }
 void UpdateAllBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks,Chunk* chunk)
@@ -92,8 +89,4 @@ void Chunk::UpdateBorderBlocks()
 Block Chunk::GetBlock(Vector3<int> RelativePosition) const
 {
 	return WorldManager::GetBlock(&(*blocks)[RelativePosition.x][RelativePosition.y][RelativePosition.z], { RelativePosition.x + Position.x * ChunkSize,RelativePosition.y + Position.y * ChunkSize, RelativePosition.z + Position.z * ChunkSize });
-}
-Vector3<int> Chunk::GetPosition() const
-{
-	return Position;
 }

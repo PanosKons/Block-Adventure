@@ -6,7 +6,7 @@
 #include "Common/World/WorldManager.h"
 #include "Server/Server.h"
 #include "Common/World/World.h"
-#include "Common/Entities/EntityManager.h"
+#include "EntityManagerServer.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -86,12 +86,12 @@ namespace Networking {
 			sockets.push_back(client);
 			mutex.unlock();
 
-			EntityManager::CreatePlayer(ClientId);
+			EntityManagerServer::CreatePlayer(ClientId);
 
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<int>(ClientId);
-
+			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(ClientId));
 
 			std::cout << "Client with id: " << ClientId << " connected!" << std::endl;
 

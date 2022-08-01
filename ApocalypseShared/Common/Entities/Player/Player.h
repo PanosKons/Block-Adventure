@@ -24,8 +24,9 @@ public:
 	std::array<ItemStack, InventorySize> Inventory;
 
 	float TimeToBreak = 0.0f;
-	Block BreakingBlock;
+	Vector3<int> BreakingBlockPosition;
 	bool IsBreakingBlock = false;
+
 	float BlockPlaceDelay = 0.3f;
 
 

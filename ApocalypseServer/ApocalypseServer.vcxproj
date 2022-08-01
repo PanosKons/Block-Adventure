@@ -86,6 +86,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EntityManagerServer.cpp" />
+    <ClCompile Include="src\Reader.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\Networking.cpp" />
     <ClCompile Include="src\ServerManager\ServerManager.cpp" />
@@ -100,6 +102,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\EntityManagerServer.h" />
+    <ClInclude Include="src\Reader.h" />
     <ClInclude Include="src\Networking.h" />
     <ClInclude Include="src\ServerManager\ServerManager.h" />
     <ClInclude Include="src\Server\Server.h" />

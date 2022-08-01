@@ -174,24 +174,6 @@ void EntityManager::ShutDown()
 	}
 }
 
-
-void EntityManager::CreatePlayer(int PlayerId)
-{
-	Player* player = new Player();
-
-	player->Position = { 0,0,0 };
-	player->Hitbox = { 0.6, 1.8 ,0.6 };
-	player->Velocity = { 0,0,0 };
-	player->MaxHealth = 100.0f;
-	player->Health = 100.0f;
-	player->Speed = 5.0f;
-	player->Pitch = 30.0f;
-	player->Yaw = 30.0f;
-	player->Grounded = false;
-
-	Players[PlayerId] = player;
-}
-
 Player* EntityManager::GetPlayer(int PlayerId)
 {
 	return Players[PlayerId];

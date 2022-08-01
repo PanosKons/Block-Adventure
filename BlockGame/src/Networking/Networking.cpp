@@ -58,6 +58,8 @@ void Networking::Connect()
 	Packet<StartPacketSize> StartPacket;
 	StartPacket = Networking::GetPacketFromServer<StartPacketSize>();
 	Player_id = StartPacket.ExtractPacketData<int>();
+	Player player = StartPacket.ExtractPacketData<Player>();
+	EntityManagerClient::CreateSelf(Networking::Player_id, &player);
 	std::cout << "Connected to the server with id: " << Player_id << std::endl;
 
 	std::thread worker(HandleMessage);

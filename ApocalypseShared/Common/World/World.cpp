@@ -29,7 +29,7 @@ Chunk* World::GetChunk(Vector3<int> Position) const
 
 void World::CreateChunk(Vector3<int> ChunkPosition, BlockArray* blocks)
 {
-	Chunk* chunk = new Chunk(ChunkPosition, this);
+	Chunk* chunk = new Chunk(ChunkPosition, this, blocks);
 	//ChunkMap.emplace(WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z), chunk);
 	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
 	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;

@@ -18,8 +18,6 @@ void GameScene::Start()
 
 	Networking::Connect();
 
-	EntityManagerClient::CreateSelf(Networking::Player_id);
-
 	ManagerUI::Init();
 }
 

@@ -4,9 +4,29 @@
 #include "World/WorldConstants.h"
 #include "Math/EngineMath.h"
 #include "World/WorldManager.h"
-Player::Player() {}
-
+Player::Player()
+{
+	Position = { 260,80,260 };
+	Hitbox = { 0.6, 1.8 ,0.6 };
+	Velocity = { 0,0,0 };
+	MaxHealth = 100.0f;
+	Health = 100.0f;
+	Speed = 5.0f;
+	Pitch = 30.0f;
+	Yaw = 30.0f;
+	Grounded = false;
+	ActiveSlot = 0;
+	Inventory = {};
+	TimeToBreak = 0.0f;
+	BreakingBlockPosition = { 0,0,0 };
+	IsBreakingBlock = false;
+	BlockPlaceDelay = 0.3f;
+	JumpCooldown = 0.0f;
+	Crouch = false;
+	Godmode = true;
+}
 Player::~Player() {}
+
 int Player::GetFirstAvaiableSlot(int id,TYPE type)
 {
 	for (unsigned int i = 0; i < Inventory.size(); i++)
