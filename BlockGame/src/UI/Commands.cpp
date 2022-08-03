@@ -1,12 +1,12 @@
-#include <Engine.h>
+#include "pch.h"
 #include "Commands.h"
 #include "GameManager.h"
-#include "Math/EngineMath.h"
-#include "Structure.h"
-#include "SavingData.h"
-#include "ItemStack.h"
-#include "Entity.h"
-#include "EntityManager.h"
+#include "Common/Math/EngineMath.h"
+#include "Common/World/Structure.h"
+#include "Common/Entities/Inventory/ItemStack.h"
+#include "Common/Entities/Entity.h"
+#include "Entities/EntityManagerClient.h"
+#include "Common/World/WorldManager.h"
 static std::unordered_map<std::string, BLOCK_ID> blockIds = //Pair each block with string
 {
 	{"air",BLOCK_ID::Air },
@@ -42,14 +42,14 @@ void Commands::ExecuteCommand(const std::string& command)
 		{
 			if (tokens[1] == "block")
 			{
-				ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)blockIds[tokens[2]],TYPE::BLOCK)];
+				ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot((int)blockIds[tokens[2]], TYPE::BLOCK)];
 				stack.id = (int)blockIds[tokens[2]];
 				stack.count += std::stoi(tokens[3]);
 				stack.type = TYPE::BLOCK;
 			}
 			else if (tokens[1] == "item")
 			{
-				ItemStack& stack = GameManager::player->Inventory[GameManager::player->GetFirstAvaiableSlot((int)itemIds[tokens[2]], TYPE::ITEM)];
+				ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot((int)itemIds[tokens[2]], TYPE::ITEM)];
 				stack.id = (int)itemIds[tokens[2]];
 				stack.count += std::stoi(tokens[3]);
 				stack.type = TYPE::ITEM;
@@ -72,17 +72,17 @@ void Commands::ExecuteCommand(const std::string& command)
 					{
 						for (int z = 0; z < Size.z; z++)
 						{
-							str.data[x + y * StructureSize + z * StructureSize * StructureSize] = GameManager::Overworld->GetBlock({ x + Position.x,y + Position.y,z + Position.z }).GetBlockId();
+							str.data[x + y * StructureSize + z * StructureSize * StructureSize] = WorldManager::BaseWorld->GetBlock({ x + Position.x,y + Position.y,z + Position.z }).GetBlockId();
 						}
 					}
 				}
 				str.Center = Center;
-				SavingData::SaveStructure(tokens[11], str);
+				//SavingData::SaveStructure(tokens[11], str);
 			}
 			else if (tokens[1] == "load")
 			{
 				Vector3<int> Position = { std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]) };
-				GameManager::Overworld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkSize , Position.z % ChunkSize}, tokens[5].c_str());
+				//WorldManager::BaseWorld->GetChunk(Position)->SpawnStructure({Position.x % ChunkSize , Position.y % ChunkSize , Position.z % ChunkSize}, tokens[5].c_str());
 			}
 		}
 	}
@@ -90,7 +90,7 @@ void Commands::ExecuteCommand(const std::string& command)
 	{
 		if (tokens.size() == 4)
 		{
-			GameManager::player->Position = { (float)std::stoi(tokens[1]), (float)std::stoi(tokens[2]), (float)std::stoi(tokens[3]) };
+			EntityManagerClient::GetPlayer().Position = { (float)std::stoi(tokens[1]), (float)std::stoi(tokens[2]), (float)std::stoi(tokens[3]) };
 		}
 	}
 	if (tokens[0] == "/entity")
@@ -98,7 +98,7 @@ void Commands::ExecuteCommand(const std::string& command)
 		if (tokens.size() == 4)
 		{
 			Entity* en = new Entity();
-			EntityManager::Entities.push_back(en);
+			//EntityManager::Entities.push_back(en);
 			en->Position = {(double)std::stoi(tokens[1]), (double)std::stoi(tokens[2]), (double)std::stoi(tokens[3])};
 		}
 	}
@@ -106,13 +106,13 @@ void Commands::ExecuteCommand(const std::string& command)
 	{
 		if (tokens.size() == 2)
 		{
-			Block block = GameManager::player->GetFacingBlock();
+			Block block = EntityManagerClient::GetPlayer().GetFacingBlock();
 			if (block.data == nullptr) return;
 			if (block.GetBlockId() != blockIds[tokens[1]]) block.OnBreak(blockIds[tokens[1]]);
 		}
 		else if (tokens.size() == 5)
 		{
-			Block block = GameManager::Overworld->GetBlock({ std::stoi(tokens[1]), std::stoi(tokens[2]), std::stoi(tokens[3]) });
+			Block block = WorldManager::BaseWorld->GetBlock({ std::stoi(tokens[1]), std::stoi(tokens[2]), std::stoi(tokens[3]) });
 			if (block.data == nullptr) return;
 			if (block.GetBlockId() != blockIds[tokens[4]]) block.OnBreak(blockIds[tokens[4]]);
 		}
@@ -133,7 +133,7 @@ void Commands::ExecuteCommand(const std::string& command)
 				for (int y = start.y; y <= end.y; y++)
 					for (int z = start.z; z <= end.z; z++)
 					{
-						Block block = GameManager::Overworld->GetBlock({ x, y, z });
+						Block block = WorldManager::BaseWorld->GetBlock({ x, y, z });
 						if (block.data == nullptr) return;
 						if (block.GetBlockId() != blockIds[tokens[7]])block.OnBreak(blockIds[tokens[7]]);
 					}

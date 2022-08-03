@@ -28,20 +28,10 @@ void GameScene::Update(float deltaTime)
 
 void GameScene::Render()
 {
-	Renderer::SetBackroundColorAndClear({ 0.0f, 0.8f, 1.0f, 1.0f });
-
 	RendererClient::RenderWorld(WorldManager::BaseWorld);
 	RendererClient::RenderEntities();
 	RendererClient::RenderUI();
-
-	Renderer::SetPlayerView();
-	WorldManager::BaseWorld->Render();
-
-	Renderer::SetUIView();
-	ManagerUI::UpdateUI();
-
-	Renderer::SetPlayerView();
-	EntityManager::Render();
+	Renderer::Render();
 }
 
 void GameScene::End()

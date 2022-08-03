@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include "Math/Vector.h"
 class Entity
 {

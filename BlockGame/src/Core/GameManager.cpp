@@ -7,7 +7,6 @@
 #include "Scenes/GameScene.h"
 
 static Scene* scene;
-static std::thread* RenderingThread;
 
 void GameManager::Tick(double StepTime)
 {
@@ -24,7 +23,7 @@ void GameManager::Start()
 	scene = (Scene*)new MainMenuScene();
 	scene->Start();
 
-	RenderingThread = new std::thread([]() {Renderer::CreateWindow("GAME"); Renderer::Run(); });
+	Renderer::CreateWindow("GAME");
 }
 void GameManager::SetScene(Scene* s)
 {
@@ -40,6 +39,4 @@ void GameManager::Shutdown()
 {
 	scene->End();
 	delete scene;
-	RenderingThread->join();
-	delete RenderingThread;
 }

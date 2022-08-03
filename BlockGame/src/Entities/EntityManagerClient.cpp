@@ -19,13 +19,12 @@ void EntityManagerClient::CreateSelf(int PlayerId, Player* player)
 {
 	PlayerClient* playerClient = new PlayerClient();
 
-
 	*(Player*)playerClient = *player;
-
 
 	Players[PlayerId] = (Player*)playerClient;
 }
 
-void EntityManagerClient::CreatePlayer(int PlayerId)
+void EntityManagerClient::CreatePlayer(int PlayerId, Player* player)
 {
+	Players[PlayerId] = player;
 }

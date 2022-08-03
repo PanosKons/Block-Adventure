@@ -127,7 +127,6 @@
     <ClCompile Include="Common\Math\mat4.cpp" />
     <ClCompile Include="Common\Math\Noise.cpp" />
     <ClCompile Include="Common\Math\Ray.cpp" />
-    <ClCompile Include="Common\Math\StringConvertions.cpp" />
     <ClCompile Include="Common\World\Chunk.cpp" />
     <ClCompile Include="Common\World\Structure.cpp" />
     <ClCompile Include="Common\World\World.cpp" />

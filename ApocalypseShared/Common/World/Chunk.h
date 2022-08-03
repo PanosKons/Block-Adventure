@@ -16,7 +16,7 @@ public:
 	Block GetBlock(Vector3<int> RelativePosition) const;
 	Vector3<int> GetPosition() const { return Position; };
 
-	void SpawnStructure(Vector3<int> RelativePosition, std::string&& name);
+	//void SpawnStructure(Vector3<int> RelativePosition, std::string&& name);
 	void UpdateAllBlocks();
 	void UpdateBorderBlocks();
 	BlockArray* GetBlocks() { return blocks; }

@@ -1,6 +1,6 @@
-#include <Engine.h>
+#include "pch.h"
 #include "Noise.h"
-#include "../vendor/PerlinNoise.hpp"
+#include "../Engine/scr/vendor/PerlinNoise.hpp"
 constexpr double frequency = 8.0; //0.1 - 64.0
 constexpr int octaves = 8; // 1-16
 constexpr unsigned int seed = 12;

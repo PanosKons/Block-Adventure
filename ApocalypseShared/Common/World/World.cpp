@@ -3,6 +3,7 @@
 #include "World.h"
 #include "Math/EngineMath.h"
 #include "WorldManager.h"
+#include "Math/Noise.h"
 
 World::World(){}
 
@@ -46,13 +47,13 @@ void World::CreateChunk(Vector3<int> ChunkPosition, BlockArray* blocks)
 }
 void World::DestroyChunk(Vector3<int> ChunkPosition)
 {
-	Chunk* chunk = ChunkMap[WorldManager::GetChunkKey(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z)];
-	ChunkMap.erase(WorldManager::GetChunkKey(ChunkPosition.x, ChunkPosition.y, ChunkPosition.z));
+	Chunk* chunk = ChunkMap[WorldManager::GetChunkKey(ChunkPosition)];
+	ChunkMap.erase(WorldManager::GetChunkKey(ChunkPosition));
 	delete chunk;
 	//inform the others?
 }
 
-std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* CreateChunk(Vector3<int> ChunkPosition)
+BlockArray* CreateChunk(Vector3<int> ChunkPosition)
 {
 	std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks = new std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>();
 	srand(1);

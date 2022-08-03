@@ -80,7 +80,7 @@ void Player::MarkBlockToBreak()
 	Block block = GetFacingBlock();
 	if (block.data == nullptr) return;
 	IsBreakingBlock = true;
-	BreakingBlock = block;
+	BreakingBlockPosition = block.Position;
 	TimeToBreak = (float)block.GetBlockProperties().hardness;
 }
 void Player::Update()

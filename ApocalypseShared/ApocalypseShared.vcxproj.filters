@@ -119,9 +119,6 @@
     <ClCompile Include="Common\Math\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Math\StringConvertions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Common\World\WorldManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

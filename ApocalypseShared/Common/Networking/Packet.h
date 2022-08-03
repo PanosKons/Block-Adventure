@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Common/Math/Vector.h"
-#include "Common/Blocks/BlockData.h"
+#include "Common/Blocks/Block.h"
 #include "Common/World/WorldConstants.h"
 
 constexpr int StartPacketSize = 1000;

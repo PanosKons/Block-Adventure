@@ -1,7 +1,7 @@
 #pragma once
-#include "../vendor/glm/glm.hpp"
-#include "../vendor/glm/gtc/matrix_transform.hpp"
-#include "../vendor/glm/gtc/type_ptr.hpp"
+#include "../Engine/scr/vendor/glm/glm.hpp"
+#include "../Engine/scr/vendor/glm/gtc/matrix_transform.hpp"
+#include "../Engine/scr/vendor/glm/gtc/type_ptr.hpp"
 
 class Ray {
 public:

@@ -2,9 +2,9 @@
 #include "Common/Math/Vector.h"
 #include "Input.h"
 #include "Common/Blocks/Block.h"
-#include "Common/Blocks/BlockProperties.h"
 #include "Entities/EntityManagerClient.h"
 #include "Common/Math/EngineMath.h"
+#include "Common/World/WorldManager.h"
 
 void PlayerClient::CursorMoved(double xpos, double ypos)
 {
@@ -57,8 +57,8 @@ void PlayerClient::InputTick(double TimeStep)
 	//Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
 	if (IsBreakingBlock)
 	{
-		if (facingblock != BreakingBlock || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
-		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && BreakingBlock.GetBlockProperties().tool == TOOL::Pickaxe)
+		if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
+		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
 		{
 			TimeToBreak -= TimeStep * 60 * 12;
 		}
@@ -68,11 +68,11 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		if (TimeToBreak < 0)
 		{
-			int index = GetFirstAvaiableSlot((int)BreakingBlock.GetBlockId(), TYPE::BLOCK);
-			Inventory[index].id = (int)BreakingBlock.GetBlockId();
+			int index = GetFirstAvaiableSlot((int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), TYPE::BLOCK);
+			Inventory[index].id = (int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId();
 			Inventory[index].type = TYPE::BLOCK;
 			Inventory[index].count++;
-			BreakingBlock.OnBreak(BLOCK_ID::Air);
+			WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).OnBreak(BLOCK_ID::Air);
 			IsBreakingBlock = false;
 		}
 	}

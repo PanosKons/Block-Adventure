@@ -4,13 +4,13 @@
 #include "Common/World/World.h"
 #include "Server/Server.h"
 #include "Common/World/WorldManager.h"
-#include "Common/Entities/EntityManager.h"
+#include "EntityManagerServer.h"
 
 static std::thread* ListeningThread;
 
 void ServerManager::Start()
 {
-	EntityManager::Start();
+	EntityManagerServer::Start();
 	WorldManager::BaseWorld = new World();
 	ListeningThread = new std::thread(Networking::ListenForClients);
 }
@@ -22,7 +22,7 @@ void ServerManager::Tick()
 
 void ServerManager::Shutdown()
 {
-	EntityManager::ShutDown();
+	EntityManagerServer::ShutDown();
 	ListeningThread->join();
 	delete ListeningThread;
 	delete WorldManager::BaseWorld;

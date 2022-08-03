@@ -7,6 +7,6 @@ public:
 	static void Tick();
 	static PlayerClient& GetPlayer();
 	static void CreateSelf(int PlayerId, Player* player);
-	static void CreatePlayer(int PlayerId);
+	static void CreatePlayer(int PlayerId, Player* player);
 };
 

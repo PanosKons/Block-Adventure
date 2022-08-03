@@ -4,7 +4,7 @@
 #include "World.h"
 #include "Math/Noise.h"
 #include "WorldManager.h"
-
+/*
 void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 {
 	static Structure* structure = SavingData::LoadStructure(name.c_str());
@@ -23,6 +23,8 @@ void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
 		}
 	}
 }
+*/
+
 Chunk::Chunk(Vector3<int> Position, World* world,BlockArray* blocks)
 	:Position(Position), world(world), blocks(blocks) {}
 Chunk::~Chunk()
