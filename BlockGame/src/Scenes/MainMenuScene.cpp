@@ -19,15 +19,15 @@ void MainMenuScene::Update(float deltaTime)
 
 void MainMenuScene::Render()
 {
-	Renderer::SetBackroundColorAndClear({ 0.2f, 0.2f, 0.2f, 1.0f });
-	Renderer::SetUIView();
-	static VertexBuffer vb;
-	static IndexBuffer ib;
-	vb.Clear();
-	ib.Clear();
-	Renderer::DrawSquare(vb, ib, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 100.0f,100.0f }, { 1.0f,1.0f,1.0f,1.0f }, {0,0},{1,1}, -1);
-	vb.Bind();
-	vb.Allocate();
-	Renderer::DrawGeometry(vb, ib);
+	//Renderer::SetBackroundColorAndClear({ 0.2f, 0.2f, 0.2f, 1.0f });
+	//Renderer::SetUIView();
+	//static VertexBuffer vb;
+	//static IndexBuffer ib;
+	//vb.Clear();
+	//ib.Clear();
+	//Renderer::DrawSquare(vb, ib, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 100.0f,100.0f }, { 1.0f,1.0f,1.0f,1.0f }, {0,0},{1,1}, -1);
+	//vb.Bind();
+	//vb.Allocate();
+	//Renderer::DrawGeometry(vb, ib);
 }
 void MainMenuScene::End(){}
