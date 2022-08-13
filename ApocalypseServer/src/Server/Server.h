@@ -1,5 +1,5 @@
 #pragma once
-struct World;
+class World;
 namespace Server
 {
 	extern bool ShouldStop;

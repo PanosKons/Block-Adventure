@@ -21,7 +21,7 @@ public:
 		send(clientSocket, packet.GetPacket(), packet.GetPacketSize(), 0);
 	}
 	template<int TSize>
-	static const Packet<TSize>& GetPacketFromServer()
+	static Packet<TSize> GetPacketFromServer()
 	{
 		Packet<TSize> packet;
 		packet.InitMemory();

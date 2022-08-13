@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Common;</AdditionalIncludeDirectories>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -79,7 +79,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Common;</AdditionalIncludeDirectories>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -122,6 +122,7 @@
     <ClCompile Include="Common\Entities\EntityManager.cpp" />
     <ClCompile Include="Common\Entities\Inventory\ItemStack.cpp" />
     <ClCompile Include="Common\Entities\Player\Player.cpp" />
+    <ClCompile Include="Common\Log\Logger.cpp" />
     <ClCompile Include="Common\Math\Cuboid.cpp" />
     <ClCompile Include="Common\Math\EngineMath.cpp" />
     <ClCompile Include="Common\Math\mat4.cpp" />

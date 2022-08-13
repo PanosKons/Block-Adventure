@@ -148,15 +148,15 @@ void RendererClient::RenderWorld(World* world)
 			rd.Transparent.vertexBuffer.Allocate();
 		}
 		{
-			RenderCommand command;
-			command.view = View::Player;
+			Renderer::RenderCommand command;
+			command.view = Renderer::View::Player;
 			command.Depth = true;
 			command.renderData = &rd.Solid;
 			Renderer::AddCommand(command);
 		}
 		{
-			RenderCommand command;
-			command.view = View::Player;
+			Renderer::RenderCommand command;
+			command.view = Renderer::View::Player;
 			command.Depth = true;
 			command.renderData = &rd.Transparent;
 			Renderer::AddCommand(command);

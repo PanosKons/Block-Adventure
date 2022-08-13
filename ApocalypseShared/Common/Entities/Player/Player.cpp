@@ -45,7 +45,8 @@ Vector3<double> Player::GetLookPosition()
 }
 Block Player::GetFacingBlock()
 {
-	Ray ray(GetLookPosition(), Pitch, Yaw);
+	auto vec = GetLookPosition();
+	Ray ray({vec.x, vec.y, vec.z}, Pitch, Yaw);
 	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	while (true)
 	{
@@ -60,7 +61,8 @@ Block Player::GetFacingBlock()
 }
 Block Player::GetBlockToPlace()
 {
-	Ray ray(GetLookPosition(), Pitch, Yaw);
+	auto vec = GetLookPosition();
+	Ray ray({ vec.x, vec.y, vec.z }, Pitch, Yaw);
 	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	Block lastBlock = Block();
 	while (true)

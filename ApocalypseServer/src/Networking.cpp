@@ -20,6 +20,27 @@
 #endif
 namespace Networking {
 	static std::vector<SOCKET*> sockets;
+	template<int TSize>
+	void SendPacketToClient(unsigned char ClientId, Packet<TSize>& packet)
+	{
+		send(*sockets[ClientId], packet.GetPacket(), packet.GetPacketSize(), 0);
+	}
+	template<int TSize>
+	void SendAllClients(Packet<TSize>& packet)
+	{
+		for (int i = 0; i < sockets.size(); i++)
+		{
+			SendPacketToClient(i, packet);
+		}
+	}
+	template<int TSize>
+	Packet<TSize> GetPacketFromClient(unsigned char ClientId)
+	{
+		Packet<TSize> packet;
+		packet.InitMemory();
+		recv(*sockets[ClientId], packet.GetPacket(), packet.GetPacketSize(), 0);
+		return packet;
+	}
 	void HandleClientPacket(unsigned char ClientId)
 	{
 		while (true)
@@ -43,7 +64,7 @@ namespace Networking {
 				case PACKET_ID::RequestChunk:
 				{
 					Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
-					WorldManager::BaseWorld->CreateChunk(ChunkPosition);
+					//WorldManager::BaseWorld->CreateChunk(ChunkPosition);
 				}
 			}
 		}
@@ -95,7 +116,7 @@ namespace Networking {
 
 			std::cout << "Client with id: " << ClientId << " connected!" << std::endl;
 
-			std::thread work(HandleClientPacket, client, ClientId);
+			std::thread work(HandleClientPacket, ClientId);
 			work.detach();
 			ClientId++;
 		}

@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "Math/Vector.h"
+#include "Common/Math/Vector.h"
 class Entity
 {
 public:

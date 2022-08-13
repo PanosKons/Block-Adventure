@@ -12,7 +12,7 @@ Block World::GetBlock(Vector3<int> AbsolutePosition) const
 	int x = Math::Floor(AbsolutePosition.x / (float)ChunkSize);
 	int y = Math::Floor(AbsolutePosition.y / (float)ChunkSize);
 	int z = Math::Floor(AbsolutePosition.z / (float)ChunkSize);
-	auto it = ChunkMap.find(WorldManager::GetChunkKey(x, y, z));
+	auto it = ChunkMap.find(WorldManager::GetChunkKey({ x, y, z }));
 	if (it != ChunkMap.end())
 		return it->second->GetBlock({ (AbsolutePosition.x + BIG_NUMBER) % ChunkSize, (AbsolutePosition.y + BIG_NUMBER) % ChunkSize, (AbsolutePosition.z + BIG_NUMBER) % ChunkSize });
 	return Block();
@@ -22,7 +22,7 @@ Chunk* World::GetChunk(Vector3<int> Position) const
 	int x = Position.x / ChunkSize;
 	int y = Position.y / ChunkSize;
 	int z = Position.z / ChunkSize;
-	auto it = ChunkMap.find(WorldManager::GetChunkKey(x, y, z));
+	auto it = ChunkMap.find(WorldManager::GetChunkKey({ x, y, z }));
 	if (it != ChunkMap.end())
 		return it->second;
 	return nullptr;

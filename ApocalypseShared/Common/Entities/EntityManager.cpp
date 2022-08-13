@@ -23,7 +23,7 @@ bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hit
 		{
 			for (int z = Point1.z; z <= Point2.z; z++)
 			{
-				if (IsBlockSolid({ x,y,z }))
+				if (Block::IsBlockSolid({ x,y,z }))
 				{
 					return true;
 				}

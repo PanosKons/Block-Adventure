@@ -17,6 +17,5 @@ public:
 	static void RenderUI();
 	static void UpdateChunk(World* world, Chunk* chunk);
 private:
-	static std::unordered_map<uint64_t, ChunkRenderData> ChunkData;
+	inline static std::unordered_map<int64_t, ChunkRenderData> ChunkData;
 };
-

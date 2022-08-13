@@ -1,4 +1,3 @@
-#include <Engine.h>
 #include "Texture.h"
 #include "../vendor/stb_image.h"
 #include "glad/glad.h"

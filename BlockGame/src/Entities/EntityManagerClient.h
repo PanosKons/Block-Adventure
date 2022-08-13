@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include "Common\Entities\EntityManager.h"
 #include "Entities/PlayerClient.h"
 class EntityManagerClient : public EntityManager

@@ -5,6 +5,7 @@
 #include "Common/Blocks/Block.h"
 #include "Common/Networking/Packet.h"
 
+typedef std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize> BlockArray;
 class World;
 
 class Chunk {

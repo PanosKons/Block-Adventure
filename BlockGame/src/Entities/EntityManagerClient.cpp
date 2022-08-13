@@ -1,6 +1,7 @@
 #include "EntityManagerClient.h"
 #include "Common/Networking/Packet.h"
 #include "Networking/Networking.h"
+
 void EntityManagerClient::Tick()
 {
 	Packet<DefaultPacketSize> packet;

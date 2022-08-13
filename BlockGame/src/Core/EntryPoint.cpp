@@ -1,11 +1,13 @@
 #include "GameManager.h"
 #include "Client.h"
+#include "Common/Log/Logger.h"
 
 static auto Now = std::chrono::system_clock::now();
 static auto LastStep = std::chrono::system_clock::now();
 
 int Main()
 {
+	INFO("Starting client...");
 	GameManager::Start();
 	while (!Client::ShouldStop)
 	{
@@ -24,6 +26,7 @@ int Main()
 		}
 	}
 	GameManager::Shutdown();
+	INFO("Shutting client...");
 	return 0;
 }
 
@@ -35,6 +38,7 @@ int main()
 	return Main();
 }
 
+#define NOMINMAX
 #include <windows.h>
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PWSTR pCmdLine, int nCmdShow)
 {

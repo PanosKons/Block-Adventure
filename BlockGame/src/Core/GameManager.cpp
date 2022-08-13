@@ -10,7 +10,7 @@ static Scene* scene;
 
 void GameManager::Tick(double StepTime)
 {
-	scene->Update(StepTime);
+	scene->Update((float)StepTime);
 	scene->Render();
 }
 void GameManager::Start()

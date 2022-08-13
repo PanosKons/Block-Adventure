@@ -60,11 +60,11 @@ void PlayerClient::InputTick(double TimeStep)
 		if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
 		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
 		{
-			TimeToBreak -= TimeStep * 60 * 12;
+			TimeToBreak -= (float)TimeStep * 60 * 12;
 		}
 		else
 		{
-			TimeToBreak -= TimeStep * 60;
+			TimeToBreak -= (float)TimeStep * 60;
 		}
 		if (TimeToBreak < 0)
 		{
@@ -80,7 +80,7 @@ void PlayerClient::InputTick(double TimeStep)
 	{
 		MarkBlockToBreak();
 	}
-	BlockPlaceDelay -= TimeStep;
+	BlockPlaceDelay -= (float)TimeStep;
 	if (Input::GetMouseState(Mouse::Right) == Action::Press && IsGUIOpen && BlockPlaceDelay < 0)
 	{
 		Block block = GetBlockToPlace();
@@ -107,7 +107,7 @@ void PlayerClient::InputTick(double TimeStep)
 		stack.type = TYPE::BLOCK;
 	}
 
-	JumpCooldown -= TimeStep;
+	JumpCooldown -= (float)TimeStep;
 
 	if (!Godmode)
 	{

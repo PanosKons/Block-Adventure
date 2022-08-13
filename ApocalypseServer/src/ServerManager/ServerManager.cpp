@@ -5,6 +5,7 @@
 #include "Server/Server.h"
 #include "Common/World/WorldManager.h"
 #include "EntityManagerServer.h"
+#include "Common/Entities/Player/Player.h"
 
 static std::thread* ListeningThread;
 

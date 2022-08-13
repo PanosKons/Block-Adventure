@@ -41,57 +41,41 @@ template<int TSize>
 class Packet
 {
 public:
-	Packet();
+	Packet() {}
 	template<typename T>
-	const T& ExtractPacketData();
+	const T& ExtractPacketData()
+	{
+		LastIndex += sizeof(T);
+		return *(T*)(this->PacketData + LastIndex - sizeof(T));
+	}
 	template<typename T>
-	void AddPacketData(T Data);
+	void AddPacketData(T Data)
+	{
+		if (PacketData == nullptr)
+			InitMemory();
+		*(T*)(PacketData->data()) = Data;
+		LastIndex += sizeof(T);
+	}
 
-	char* GetPacket();
-	int GetPacketSize();
+	char* GetPacket()
+	{
+		return PacketData->data();
+	}
+	int GetPacketSize()
+	{
+		return sizeof(PacketData);
+	}
 
-	void SetPacket(std::array<char, TSize>* PacketData);
+	void SetPacket(std::array<char, TSize>* PacketData)
+	{
+		this->PacketData = PacketData;
+	}
 
-	void InitMemory();
+	void InitMemory()
+	{
+		PacketData = new std::array<char, TSize>();
+	}
 private:
 	std::array<char, TSize>* PacketData;
 	int LastIndex = 0;
 };
-template<int TSize>
-template<typename T>
-void Packet<TSize>::AddPacketData(T Data)
-{
-	if (PacketData == null)
-		InitMemory();
-	*(T*)(PacketData->data()) = Data;
-	LastIndex += sizeof(T);
-}
-template<int TSize>
-Packet<TSize>::Packet(){}
-template<int TSize>
-void Packet<TSize>::InitMemory()
-{
-	PacketData = new std::array<char, TSize>();
-}
-template<int TSize>
-template<typename T>
-const T& Packet<TSize>::ExtractPacketData()
-{
-	LastIndex += sizeof(T);
-	return (T*)(this->PacketData + LastIndex - sizeof(T));
-}
-template <int TSize>
-char* Packet<TSize>::GetPacket()
-{
-	return PacketData.data();
-}
-template <int TSize>
-int Packet<TSize>::GetPacketSize()
-{
-	return sizeof(PacketData);
-}
-template<int TSize>
-void Packet<TSize>::SetPacket(std::array<char, TSize>* PacketData)
-{
-	this->PacketData = PacketData;
-}

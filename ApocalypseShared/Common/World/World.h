@@ -5,8 +5,6 @@
 #include "Chunk.h"
 #include "WorldConstants.h"
 
-typedef std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize> BlockArray;
-
 class World
 {
 public:

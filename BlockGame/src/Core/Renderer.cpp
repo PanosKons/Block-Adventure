@@ -23,8 +23,6 @@ namespace Renderer {
 
 	int CreateWindow(const std::string& name)
 	{
-		std::ios_base::sync_with_stdio(false);
-
 		if (!glfwInit())
 			return -1;
 
@@ -111,7 +109,7 @@ namespace Renderer {
 				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 			}
 		}
-		RenderCommandQueue.empty();
+		RenderCommandQueue.clear();
 		glfwSwapBuffers(Client::ApplicationWindow);
 		glfwPollEvents();
 	}
