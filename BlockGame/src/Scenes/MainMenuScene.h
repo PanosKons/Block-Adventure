@@ -1,5 +1,7 @@
 #pragma once
 #include "Scene.h"
+#include "Rendering/RenderData.h"
+
 class MainMenuScene : Scene
 {
 public:
@@ -7,5 +9,7 @@ public:
 	void Update(float deltaTime) override;
 	void Render() override;
 	void End() override;
+private:
+	RenderData renderData;
 };
 

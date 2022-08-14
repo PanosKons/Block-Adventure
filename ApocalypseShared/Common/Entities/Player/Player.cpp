@@ -85,8 +85,6 @@ void Player::MarkBlockToBreak()
 	BreakingBlockPosition = block.Position;
 	TimeToBreak = (float)block.GetBlockProperties().hardness;
 }
-void Player::Update()
-{}
 /*
 #define WIDTH 0.02f
 #define OP_WIDTH 1.0f - WIDTH

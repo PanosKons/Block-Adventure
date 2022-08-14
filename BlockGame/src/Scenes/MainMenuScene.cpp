@@ -1,12 +1,17 @@
 #include "MainMenuScene.h"
 #include "Renderer.h"
-#include "Rendering/VertexBuffer.h"
-#include "Rendering/IndexBuffer.h"
 #include "Client.h"
 #include "Core/Input.h"
 #include "GameManager.h"
 #include "GameScene.h"
-void MainMenuScene::Start(){}
+#include "Logger.h"
+void MainMenuScene::Start()
+{
+	INFO("MainMenuScene Started");
+	RenderBuilder::Begin(renderData);
+	RenderBuilder::AddSquare(renderData, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 200.0f,200.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 15);
+	RenderBuilder::End(renderData);
+}
 
 void MainMenuScene::Update(float deltaTime)
 {
@@ -19,15 +24,10 @@ void MainMenuScene::Update(float deltaTime)
 
 void MainMenuScene::Render()
 {
-	//Renderer::SetBackroundColorAndClear({ 0.2f, 0.2f, 0.2f, 1.0f });
-	//Renderer::SetUIView();
-	//static VertexBuffer vb;
-	//static IndexBuffer ib;
-	//vb.Clear();
-	//ib.Clear();
-	//Renderer::DrawSquare(vb, ib, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 100.0f,100.0f }, { 1.0f,1.0f,1.0f,1.0f }, {0,0},{1,1}, -1);
-	//vb.Bind();
-	//vb.Allocate();
-	//Renderer::DrawGeometry(vb, ib);
+	Renderer::RenderCommand renderCommand;
+	renderCommand.view = Renderer::View::UI;
+	renderCommand.Depth = false;
+	renderCommand.renderData = &renderData;
+	Renderer::AddCommand(renderCommand);
 }
 void MainMenuScene::End(){}

@@ -11,7 +11,6 @@ class Player : public Entity
 public:
 
 	Player();
-	void Update();
 	~Player();
 
 	Block GetFacingBlock();

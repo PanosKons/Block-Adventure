@@ -7,17 +7,10 @@
 #include "Server/Server.h"
 #include "Common/World/World.h"
 #include "EntityManagerServer.h"
+#include "Logger.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
-
-#ifdef _DEBUG
-#define ASSERTEXITCODE(x) if(x) __debugbreak();
-#define ASSERT(x) if(x == 0 || x == -1) __debugbreak();
-#else
-#define ASSERTEXITCODE(x) if(x) std::cout << "ERROR" << std::endl;
-#define ASSERT(x) if(x == 0 || x == -1) std::cout << "ERROR" << std::endl;
-#endif
 namespace Networking {
 	static std::vector<SOCKET*> sockets;
 	template<int TSize>
@@ -64,7 +57,18 @@ namespace Networking {
 				case PACKET_ID::RequestChunk:
 				{
 					Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
-					//WorldManager::BaseWorld->CreateChunk(ChunkPosition);
+					WorldManager::BaseWorld->CreateChunk(ChunkPosition,WorldManager::GenerateChunk(ChunkPosition));
+					{
+						Packet<DefaultPacketSize> sPacket;
+						sPacket.InitMemory();
+						sPacket.AddPacketData(PACKET_ID::NewChunk);
+						SendPacketToClient(ClientId, sPacket);
+					}
+					{
+						Packet<ChunkPacketSize> sPacket;
+						sPacket.SetPacket((std::array<char,ChunkPacketSize>*)WorldManager::BaseWorld->GetChunk(ChunkPosition)->GetBlocks());
+						SendPacketToClient(ClientId, sPacket);
+					}
 				}
 			}
 		}
@@ -78,29 +82,33 @@ namespace Networking {
 		//Start dll
 		WSADATA wsaData;
 		WORD wVersionRequested = MAKEWORD(2, 2);
-		int err = WSAStartup(wVersionRequested, &wsaData);
-		ASSERTEXITCODE(err);
+		int result = WSAStartup(wVersionRequested, &wsaData);
+		ASSERT(!result, "Networking dll failed to initialize");
 
 		//Make a socket
 		SOCKET serverSocket = INVALID_SOCKET;
 		serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		ASSERT(serverSocket);
+		ASSERT(serverSocket, "ServerSocket is invalid");
 
 		//Bind socket
 		sockaddr_in service;
 		service.sin_family = AF_INET;
 		InetPton(AF_INET, L"127.0.0.1", &service.sin_addr.s_addr);
 		service.sin_port = htons(25555);
-		ASSERTEXITCODE(bind(serverSocket, (SOCKADDR*)&service, sizeof(service)));
+		int bindResult = bind(serverSocket, (SOCKADDR*)&service, sizeof(service));
+		ASSERT(!bindResult, "Failed to bind serverSocket");
+
 		//Listen socket
-		ASSERTEXITCODE(listen(serverSocket, MAX_PLAYERS));
+		int listenResult = listen(serverSocket, MAX_PLAYERS);
+		ASSERT(!listenResult, "Failed to configure serverSocket to listen");
 
 		//Wait for clients
 		while (!Server::ShouldStop)
 		{
 			static int ClientId = 0;
+			INFO("Listening for clients...");
 			SOCKET* client = new SOCKET(accept(serverSocket, nullptr, nullptr));
-			ASSERT(*client);
+			ASSERT(*client, "Client failed to connect");
 
 			std::mutex mutex;
 			mutex.lock();
@@ -112,9 +120,11 @@ namespace Networking {
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<int>(ClientId);
-			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(ClientId));
+			auto a = EntityManagerServer::GetPlayer(ClientId);
+			StartPacket.AddPacketData<Player>(*a);
+			SendPacketToClient(ClientId, StartPacket);
 
-			std::cout << "Client with id: " << ClientId << " connected!" << std::endl;
+			INFO("Client with id: ", ClientId, " connected to the server");
 
 			std::thread work(HandleClientPacket, ClientId);
 			work.detach();

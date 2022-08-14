@@ -17,7 +17,7 @@ public:
 	void CreateChunk(Vector3<int> ChunkPosition, BlockArray* blocks);
 	void DestroyChunk(Vector3<int> ChunkPosition);
 
-	std::unordered_map<int64_t, Chunk*>* GetChunkMap() { return &ChunkMap; }
+	std::unordered_map<int64_t, Chunk*> const * GetChunkMap() { return &ChunkMap; }
 private:
 	std::unordered_map<int64_t, Chunk*> ChunkMap;
 };

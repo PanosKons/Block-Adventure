@@ -4,6 +4,9 @@
 #include "GameManager.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
+#include "Logger.h"
+#include "World/WorldManagerClient.h"
+
 void HandleMessage()
 {
 	while (Client::ShouldStop == false)
@@ -25,6 +28,9 @@ void HandleMessage()
 		}
 		case PACKET_ID::NewChunk:
 		{
+			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
+			Packet<ChunkPacketSize> sPacket = Networking::GetPacketFromServer<ChunkPacketSize>();
+			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)sPacket.GetPacket());
 			break;
 		}
 		}
@@ -35,38 +41,33 @@ void Networking::Connect()
 	//Start dll
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD(2, 2);
-	int err = WSAStartup(wVersionRequested, &wsaData);
-	if (err != 0) {
-		std::cout << "fail" << std::endl;
-	}
+	int result = WSAStartup(wVersionRequested, &wsaData);
+	ASSERT(!result, "Networking dll failed to initialize");
 
 	//Make a socket
 	clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (clientSocket == INVALID_SOCKET)
-	{
-		std::cout << "error" << std::endl;
-	}
+	ASSERT(clientSocket, "ClientSocket is invalid");
 	sockaddr_in service;
 	service.sin_family = AF_INET;
 	InetPton(AF_INET, Client::ip.c_str(), &service.sin_addr.s_addr);
 	service.sin_port = htons(Client::port);
-	if (connect(clientSocket, (SOCKADDR*)&service, sizeof(service)) == SOCKET_ERROR)
-	{
-		std::cout << "error" << std::endl;
-	}
+	INFO("Connecting to the server...");
+	int connectionResult = connect(clientSocket, (SOCKADDR*)&service, sizeof(service));
+	ASSERT(!connectionResult, "Failed to connect to the server");
 
 	Packet<StartPacketSize> StartPacket;
 	StartPacket = Networking::GetPacketFromServer<StartPacketSize>();
 	Player_id = StartPacket.ExtractPacketData<int>();
 	Player player = StartPacket.ExtractPacketData<Player>();
 	EntityManagerClient::CreateSelf(Networking::Player_id, &player);
-	std::cout << "Connected to the server with id: " << Player_id << std::endl;
+	INFO("Connected to the server with id: ", Player_id);
 
 	std::thread worker(HandleMessage);
 	worker.detach();
 }
 void Networking::ShutDown()
 {
+	INFO("Disconnected from the server");
 	closesocket(clientSocket);
 	WSACleanup();
 }

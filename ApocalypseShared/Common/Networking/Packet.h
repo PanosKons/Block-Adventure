@@ -34,7 +34,7 @@ enum class PACKET_ID
 	RequestChunk,
 	//Sender: server
 	//Data: Vector3<int> ChunkPosition
-	//		std::array<std::array<std::array<BlockData,ChunkSize>,ChunkSize>,ChunkSize> ChunkData
+	//		BlockArray ChunkData
 	NewChunk,
 };
 template<int TSize>
@@ -53,7 +53,7 @@ public:
 	{
 		if (PacketData == nullptr)
 			InitMemory();
-		*(T*)(PacketData->data()) = Data;
+		*(T*)((char*)PacketData->data() + LastIndex) = Data;
 		LastIndex += sizeof(T);
 	}
 

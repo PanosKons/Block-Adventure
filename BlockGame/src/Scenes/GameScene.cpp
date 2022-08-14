@@ -8,22 +8,22 @@
 #include "Networking/Networking.h"
 #include "Entities/EntityManagerClient.h"
 #include "Client.h"
-#include "Common/World/WorldManager.h"
+#include "World/WorldManagerClient.h"
 #include "RendererClient.h"
+#include "Logger.h"
 
 void GameScene::Start()
 {
+	INFO("GameScene Started");
 	EntityManagerClient::Start();
 	WorldManager::BaseWorld = new World();
-
 	Networking::Connect();
-
-	ManagerUI::Init();
 }
 
 void GameScene::Update(float deltaTime)
 {
-	EntityManagerClient::GetPlayer().Update();
+	WorldManagerClient::RequestNewChunks();
+	EntityManagerClient::GetPlayer().InputTick(deltaTime);
 }
 
 void GameScene::Render()
@@ -31,7 +31,6 @@ void GameScene::Render()
 	RendererClient::RenderWorld(WorldManager::BaseWorld);
 	RendererClient::RenderEntities();
 	RendererClient::RenderUI();
-	Renderer::Render();
 }
 
 void GameScene::End()

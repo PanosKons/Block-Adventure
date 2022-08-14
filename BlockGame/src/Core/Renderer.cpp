@@ -41,7 +41,7 @@ namespace Renderer {
 
 		glfwMakeContextCurrent(Client::ApplicationWindow);
 		glfwSwapInterval(1);
-		glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		//glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return -1;
@@ -127,9 +127,33 @@ namespace Renderer {
 	{
 		RenderCommandQueue.push_back(renderCommand);
 	}
-
-	/*
-	void DrawText(VertexBuffer& vb, IndexBuffer& ib, std::string Text, Vector3<float> position)
+}
+namespace RenderBuilder {
+	void Begin(RenderData& renderData)
+	{
+		renderData.vertexBuffer.Clear();
+		renderData.indexBuffer.Clear();
+	}
+	void AddSquare(RenderData& renderData, Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID)
+	{
+		Vertex vertex;
+		vertex.color = Color;
+		vertex.texId = TextureID;
+		vertex.texCords = TexCords;
+		vertex.position = { Position.x,Position.y,0.0f };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.texCords.y += TexSize.y;
+		vertex.position.y += Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.texCords.x += TexSize.x;
+		vertex.position.x += Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.texCords.y = TexCords.y;
+		vertex.position.y -= Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
+	}
+	void AddText(RenderData& renderData, std::string_view Text, Vector3<float> position)
 	{
 		Vertex a;
 		a.color = { 1,1,1,1 };
@@ -141,38 +165,23 @@ namespace Renderer {
 			int y = digit / 16;
 			y++;
 			a.texCords = { x / 16.0f,1 - (y / 16.0f) };
-			vb.Add(a);
-			a.position.y += charHeight;
+			renderData.vertexBuffer.Add(a);
+			a.position.y += Client::charHeight;
 			a.texCords.y += 1 / 16.0f;
-			vb.Add(a);
-			a.position.x += charWidth;
+			renderData.vertexBuffer.Add(a);
+			a.position.x += Client::charWidth;
 			a.texCords.x += 1 / 16.0f;
-			vb.Add(a);
-			a.position.y -= charHeight;
+			renderData.vertexBuffer.Add(a);
+			a.position.y -= Client::charHeight;
 			a.texCords.y -= 1 / 16.0f;
-			vb.Add(a);
-			ib.AddRectangle();
-			a.position.x -= charWidth - charWidthOffset;
+			renderData.vertexBuffer.Add(a);
+			renderData.indexBuffer.AddRectangle();
+			a.position.x -= Client::charWidth - Client::charWidthOffset;
 		}
 	}
-	void DrawSquare(VertexBuffer& vb, IndexBuffer& ib, Vector3<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID)
+	void End(RenderData& renderData)
 	{
-		Vertex a;
-		a.color = Color;
-		a.texId = TextureID;
-		a.texCords = TexCords;
-		a.position = Position;
-		vb.Add(a);
-		a.texCords.y += TexSize.y;
-		a.position.y += Size.y;
-		vb.Add(a);
-		a.texCords.x += TexSize.x;
-		a.position.x += Size.x;
-		vb.Add(a);
-		a.texCords.y = TexCords.y;
-		a.position.y -= Size.y;
-		vb.Add(a);
-		ib.AddRectangle();
+		renderData.vertexBuffer.Bind();
+		renderData.vertexBuffer.Allocate();
 	}
-	*/
-}
+};

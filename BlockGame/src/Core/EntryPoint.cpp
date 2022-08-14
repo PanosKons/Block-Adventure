@@ -1,6 +1,6 @@
 #include "GameManager.h"
 #include "Client.h"
-#include "Common/Log/Logger.h"
+#include "Logger.h"
 
 static auto Now = std::chrono::system_clock::now();
 static auto LastStep = std::chrono::system_clock::now();

@@ -12,6 +12,7 @@ void GameManager::Tick(double StepTime)
 {
 	scene->Update((float)StepTime);
 	scene->Render();
+	Renderer::Render();
 }
 void GameManager::Start()
 {
@@ -20,10 +21,10 @@ void GameManager::Start()
 	Client::ScreenWidth = 1920;
 	Client::ScreenHeight = 1080;
 
+	Renderer::CreateWindow("GAME");
+
 	scene = (Scene*)new MainMenuScene();
 	scene->Start();
-
-	Renderer::CreateWindow("GAME");
 }
 void GameManager::SetScene(Scene* s)
 {
