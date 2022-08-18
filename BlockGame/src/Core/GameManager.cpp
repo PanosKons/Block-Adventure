@@ -8,10 +8,10 @@
 
 static Scene* scene;
 
-void GameManager::Tick(double StepTime)
+void GameManager::Tick(double TimeStep)
 {
-	scene->Update((float)StepTime);
-	scene->Render();
+	scene->Update(TimeStep);
+	scene->Render(TimeStep);
 	Renderer::Render();
 }
 void GameManager::Start()

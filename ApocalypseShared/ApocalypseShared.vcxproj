@@ -115,6 +115,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Common\World\WorldManager.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Blocks\Block.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Common\World\WorldManager.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

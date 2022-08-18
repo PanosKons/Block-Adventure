@@ -3,6 +3,7 @@
 #include "Entities/EntityManagerClient.h"
 #include "Common/Networking/Packet.h"
 #include "Networking/Networking.h"
+#include "Logger.h"
 
 void WorldManagerClient::RequestNewChunks()
 {

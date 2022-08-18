@@ -6,8 +6,8 @@ class MainMenuScene : Scene
 {
 public:
 	void Start() override;
-	void Update(float deltaTime) override;
-	void Render() override;
+	void Update(double TimeStep) override;
+	void Render(double TimeStep) override;
 	void End() override;
 private:
 	RenderData renderData;

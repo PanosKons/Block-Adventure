@@ -99,12 +99,12 @@ namespace Renderer {
 			layout.Calculate();
 			if (renderCommand.Depth == true)
 			{
-				glDepthFunc(GL_ALWAYS);
+				//glDepthFunc(GL_ALWAYS);
 				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 			}
 			else
 			{
-				glDepthFunc(GL_LEQUAL);
+				//glDepthFunc(GL_LEQUAL);
 				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 			}
 		}

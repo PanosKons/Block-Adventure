@@ -14,7 +14,7 @@ class RendererClient
 public:
 	static void RenderWorld(World* world);
 	static void RenderEntities();
-	static void RenderUI();
+	static void RenderUI(double TimeStep);
 	static void UpdateChunk(World* world, Chunk* chunk);
 private:
 	inline static std::unordered_map<int64_t, ChunkRenderData> ChunkData;

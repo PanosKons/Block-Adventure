@@ -98,7 +98,6 @@
     <ClInclude Include="scr\Rendering\Texture.h" />
     <ClInclude Include="scr\Rendering\VertexBuffer.h" />
     <ClInclude Include="scr\Rendering\VertexBufferLayout.h" />
-    <ClInclude Include="scr\Timer.h" />
     <ClInclude Include="scr\vendor\PerlinNoise.hpp" />
     <ClInclude Include="scr\vendor\stb_image.h" />
   </ItemGroup>
@@ -108,7 +107,6 @@
     <ClCompile Include="scr\Rendering\Texture.cpp" />
     <ClCompile Include="scr\Rendering\VertexBuffer.cpp" />
     <ClCompile Include="scr\Rendering\VertexBufferLayout.cpp" />
-    <ClCompile Include="scr\Timer.cpp" />
     <ClCompile Include="scr\vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>

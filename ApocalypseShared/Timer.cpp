@@ -1,5 +1,7 @@
+#include "pch.h"
 #include "Timer.h"
-Timer::Timer(int id)
+#include "Logger.h"
+Timer::Timer(const std::string& id)
 :id(id)
 {
 	start = std::chrono::high_resolution_clock::now();
@@ -8,5 +10,5 @@ Timer::~Timer()
 {
 	end = std::chrono::high_resolution_clock::now();
 	duration = end - start;
-	std::cout << "Timer " << id << " took: " << duration.count() * 1000.0f << "ms\n";
+	INFO("Function: " , id , " took: " , duration.count() * 1000.0f , "ms\n");
 }

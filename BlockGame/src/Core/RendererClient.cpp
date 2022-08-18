@@ -4,6 +4,7 @@
 #include "Entities/EntityManagerClient.h"
 #include "Common/Math/StringConvertions.h"
 #include "Logger.h"
+#include "Client.h"
 #define ONEOVER16 0.0625f
 void RendererClient::RenderWorld(World* world)
 {
@@ -174,12 +175,13 @@ void RendererClient::RenderEntities()
 
 }
 
-void RendererClient::RenderUI()
+void RendererClient::RenderUI(double TimeStep)
 {
 	RenderBuilder::Begin(UIRenderData);
 	RenderBuilder::AddSquare(UIRenderData, { 100.0f,100.0f }, { 100.0f,100.0f }, { 0.8f,0.6f,0.3f,1.0f }, { 0,0 }, {1,1}, -1);
 	Vector3<double>& PlayerPosition = EntityManagerClient::GetPlayer().Position;
-	RenderBuilder::AddText(UIRenderData, "Position:" + StringConvertions::ToString(PlayerPosition.x) + "," + StringConvertions::ToString(PlayerPosition.y) + "," + StringConvertions::ToString(PlayerPosition.z), {200.0f,200.0f});
+	RenderBuilder::AddText(UIRenderData, "Position:" + StringConvertions::ToString(PlayerPosition.x) + "," + StringConvertions::ToString(PlayerPosition.y) + "," + StringConvertions::ToString(PlayerPosition.z), {0.0f,Client::ScreenHeight - 40.0f});
+	RenderBuilder::AddText(UIRenderData, "FPS: " + StringConvertions::ToString((int)(1 / TimeStep)), {0.0f,Client::ScreenHeight - 70.0f});
 	RenderBuilder::End(UIRenderData);
 	Renderer::RenderCommand command;
 	command.view = Renderer::View::UI;

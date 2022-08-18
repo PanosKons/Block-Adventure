@@ -58,6 +58,46 @@ glm::vec3 PlayerClient::GetCameraPosition()
 
 void PlayerClient::InputTick(double TimeStep)
 {
+	if (Input::GetKeyState(Key::W) == Action::Press && !IsGUIOpen)
+	{
+		Velocity.x = Speed * cos(Math::Radians(Yaw));
+		Velocity.z = Speed * sin(Math::Radians(Yaw));
+	}
+	else if (Input::GetKeyState(Key::S) == Action::Press && !IsGUIOpen)
+	{
+		Velocity.x = -Speed * cos(Math::Radians(Yaw));
+		Velocity.z = -Speed * sin(Math::Radians(Yaw));
+	}
+	else if (Input::GetKeyState(Key::D) == Action::Press && !IsGUIOpen)
+	{
+		Velocity.x = Speed * cos(Math::Radians(Yaw + 90));
+		Velocity.z = Speed * sin(Math::Radians(Yaw + 90));
+	}
+	else if (Input::GetKeyState(Key::A) == Action::Press && !IsGUIOpen)
+	{
+		Velocity.x = -Speed * cos(Math::Radians(Yaw + 90));
+		Velocity.z = -Speed * sin(Math::Radians(Yaw + 90));
+	}
+	else
+	{
+		Velocity.x = 0;
+		Velocity.z = 0;
+	}
+	if (Input::GetKeyState(Key::Space) == Action::Press && !IsGUIOpen)
+	{
+		Velocity.y = Speed;
+	}
+	else if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
+	{
+		Velocity.y = -Speed;
+	}
+	else
+	{
+		Velocity.y = 0.0;
+	}
+
+	Position += Velocity * TimeStep;
+	/*
 	Block facingblock = GetFacingBlock();
 	//DrawPlayer(facingblock);
 	//Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
@@ -82,12 +122,12 @@ void PlayerClient::InputTick(double TimeStep)
 			IsBreakingBlock = false;
 		}
 	}
-	else if (Input::GetMouseState(Mouse::Left) == Action::Press && IsGUIOpen)
+	else if (Input::GetMouseState(Mouse::Left) == Action::Press && !IsGUIOpen)
 	{
 		MarkBlockToBreak();
 	}
 	BlockPlaceDelay -= (float)TimeStep;
-	if (Input::GetMouseState(Mouse::Right) == Action::Press && IsGUIOpen && BlockPlaceDelay < 0)
+	if (Input::GetMouseState(Mouse::Right) == Action::Press && !IsGUIOpen && BlockPlaceDelay < 0)
 	{
 		Block block = GetBlockToPlace();
 		if (block.data == nullptr) return;
@@ -100,12 +140,12 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		BlockPlaceDelay = 0.3f;
 	}
-	if (Input::GetKeyState(Key::G) == Action::Press && IsGUIOpen)
+	if (Input::GetKeyState(Key::G) == Action::Press && !IsGUIOpen)
 	{
 		Godmode = !Godmode;
 	}
 
-	if (Input::GetMouseState(Mouse::Middle) == Action::Press && IsGUIOpen && Godmode)
+	if (Input::GetMouseState(Mouse::Middle) == Action::Press && !IsGUIOpen && Godmode)
 	{
 		ItemStack& stack = Inventory[GetFirstAvaiableSlot((int)facingblock.GetBlockId(), TYPE::BLOCK)];
 		stack.id = (int)facingblock.GetBlockId();
@@ -125,12 +165,12 @@ void PlayerClient::InputTick(double TimeStep)
 		if (Velocity.y < 0) Velocity.y = 0;
 	}
 	Crouch = false;
-	if (Input::GetKeyState(Key::Shift) == Action::Press && IsGUIOpen)
+	if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
 	{
 		Speed = 2.0f;
 		Crouch = true;
 	}
-	else if (Input::GetKeyState(Key::Control) == Action::Press && IsGUIOpen)
+	else if (Input::GetKeyState(Key::Control) == Action::Press && !IsGUIOpen)
 	{
 		Speed = 6.0f;
 		if (Godmode) Speed = 28.0f;
@@ -139,33 +179,8 @@ void PlayerClient::InputTick(double TimeStep)
 	{
 		Speed = 4.0f;
 	}
-	if (Input::GetKeyState(Key::W) == Action::Press && IsGUIOpen)
-	{
-		Velocity.x = Speed * cos(Math::Radians(Yaw));
-		Velocity.z = Speed * sin(Math::Radians(Yaw));
-	}
-	else if (Input::GetKeyState(Key::S) == Action::Press && IsGUIOpen)
-	{
-		Velocity.x = -Speed * cos(Math::Radians(Yaw));
-		Velocity.z = -Speed * sin(Math::Radians(Yaw));
-	}
-	else if (Input::GetKeyState(Key::D) == Action::Press && IsGUIOpen)
-	{
-		Velocity.x = Speed * cos(Math::Radians(Yaw + 90));
-		Velocity.z = Speed * sin(Math::Radians(Yaw + 90));
-	}
-	else if (Input::GetKeyState(Key::A) == Action::Press && IsGUIOpen)
-	{
-		Velocity.x = -Speed * cos(Math::Radians(Yaw + 90));
-		Velocity.z = -Speed * sin(Math::Radians(Yaw + 90));
-	}
-	else
-	{
-		Velocity.x = 0;
-		Velocity.z = 0;
-	}
 
-	if (Input::GetKeyState(Key::Space) == Action::Press && (Grounded || Godmode) && IsGUIOpen && JumpCooldown <= 0)
+	if (Input::GetKeyState(Key::Space) == Action::Press && (Grounded || Godmode) && !IsGUIOpen && JumpCooldown <= 0)
 	{
 		Crouch = false;
 		Velocity.y = 7.2f;
@@ -196,7 +211,5 @@ void PlayerClient::InputTick(double TimeStep)
 	{
 		Velocity.z = 0;
 	}
-
-	//Apply the velocity to the position
-	Position += Velocity * TimeStep;
+	*/
 }

@@ -13,7 +13,7 @@ void MainMenuScene::Start()
 	RenderBuilder::End(renderData);
 }
 
-void MainMenuScene::Update(float deltaTime)
+void MainMenuScene::Update(double TimeStep)
 {
 	if (Input::GetMouseState(Mouse::Left) == Action::Press)
 	{
@@ -22,7 +22,7 @@ void MainMenuScene::Update(float deltaTime)
 	}
 }
 
-void MainMenuScene::Render()
+void MainMenuScene::Render(double TimeStep)
 {
 	Renderer::RenderCommand renderCommand;
 	renderCommand.view = Renderer::View::UI;

@@ -21,17 +21,17 @@ void GameScene::Start()
 	Renderer::HideCursor(true);
 }
 
-void GameScene::Update(float deltaTime)
+void GameScene::Update(double TimeStep)
 {
 	WorldManagerClient::RequestNewChunks();
-	//EntityManagerClient::GetPlayer().InputTick(deltaTime);
+	EntityManagerClient::GetPlayer().InputTick(TimeStep);
 }
 
-void GameScene::Render()
+void GameScene::Render(double TimeStep)
 {
 	RendererClient::RenderWorld(WorldManager::BaseWorld);
 	RendererClient::RenderEntities();
-	RendererClient::RenderUI();
+	RendererClient::RenderUI(TimeStep);
 }
 
 void GameScene::End()
