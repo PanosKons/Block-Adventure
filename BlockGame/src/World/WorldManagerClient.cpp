@@ -6,13 +6,23 @@
 
 void WorldManagerClient::RequestNewChunks()
 {
-	if (WorldManager::BaseWorld->GetChunk(Vector::IntVector(EntityManagerClient::GetPlayer().Position)) == nullptr)
+	static int RenderDistance = 1;
+	Vector3<int> ChunkPosition = Vector::IntVector(EntityManagerClient::GetPlayer().Position) / ChunkSize;
+	for (int x = ChunkPosition.x - RenderDistance; x <= ChunkPosition.x + RenderDistance; x++)
 	{
-		Vector3<int> ChunkPosition = Vector::IntVector(EntityManagerClient::GetPlayer().Position) / ChunkSize;
-		Packet<DefaultPacketSize> packet;
-		packet.InitMemory();
-		packet.AddPacketData(PACKET_ID::RequestChunk);
-		packet.AddPacketData(ChunkPosition);
-		Networking::SendPacketToServer(packet);
+		for (int y = ChunkPosition.y - RenderDistance; y <= ChunkPosition.y + RenderDistance; y++)
+		{
+			for (int z = ChunkPosition.z - RenderDistance; z <= ChunkPosition.z + RenderDistance; z++)
+			{
+				if (WorldManager::BaseWorld->GetChunkDirect({x,y,z}) == nullptr)
+				{
+					Packet<DefaultPacketSize> packet;
+					packet.InitMemory();
+					packet.AddPacketData(PACKET_ID::RequestChunk);
+					packet.AddPacketData<Vector3<int>>({ x,y,z });
+					Networking::SendPacketToServer(packet);
+				}
+			}
+		}
 	}
 }

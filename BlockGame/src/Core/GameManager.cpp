@@ -18,8 +18,8 @@ void GameManager::Start()
 {
 	std::wcin >> Client::ip;
 	std::cin >> Client::port;
-	Client::ScreenWidth = 1920;
-	Client::ScreenHeight = 1080;
+	Client::ScreenWidth = 1920 / 2;
+	Client::ScreenHeight = 1080 / 2;
 
 	Renderer::CreateWindow("GAME");
 

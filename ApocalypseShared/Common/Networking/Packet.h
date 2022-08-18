@@ -46,7 +46,7 @@ public:
 	const T& ExtractPacketData()
 	{
 		LastIndex += sizeof(T);
-		return *(T*)(this->PacketData + LastIndex - sizeof(T));
+		return *(T*)(this->PacketData->data() + LastIndex - sizeof(T));
 	}
 	template<typename T>
 	void AddPacketData(T Data)
@@ -63,7 +63,7 @@ public:
 	}
 	int GetPacketSize()
 	{
-		return sizeof(PacketData);
+		return sizeof(*PacketData);
 	}
 
 	void SetPacket(std::array<char, TSize>* PacketData)
@@ -76,6 +76,6 @@ public:
 		PacketData = new std::array<char, TSize>();
 	}
 private:
-	std::array<char, TSize>* PacketData;
+	std::array<char, TSize>* PacketData = nullptr;
 	int LastIndex = 0;
 };

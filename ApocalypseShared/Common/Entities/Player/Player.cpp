@@ -12,8 +12,8 @@ Player::Player()
 	MaxHealth = 100.0f;
 	Health = 100.0f;
 	Speed = 5.0f;
-	Pitch = 30.0f;
-	Yaw = 30.0f;
+	Pitch = -24.0f;
+	Yaw = -1.0f;
 	Grounded = false;
 	ActiveSlot = 0;
 	Inventory = {};

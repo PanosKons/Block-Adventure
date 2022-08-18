@@ -94,7 +94,6 @@
     <ClCompile Include="src\Networking\Networking.cpp" />
     <ClCompile Include="src\Scenes\GameScene.cpp" />
     <ClCompile Include="src\Scenes\MainMenuScene.cpp" />
-    <ClCompile Include="src\UI\Commands.cpp" />
     <ClCompile Include="src\Core\EntryPoint.cpp" />
     <ClCompile Include="src\Core\GameManager.cpp" />
     <ClCompile Include="src\Core\Client.cpp" />
@@ -112,7 +111,6 @@
     <ClInclude Include="src\Scenes\GameScene.h" />
     <ClInclude Include="src\Scenes\MainMenuScene.h" />
     <ClInclude Include="src\Scenes\Scene.h" />
-    <ClInclude Include="src\UI\Commands.h" />
     <ClInclude Include="src\Core\GameManager.h" />
     <ClInclude Include="src\Core\Client.h" />
     <ClInclude Include="src\UI\ManagerUI.h" />

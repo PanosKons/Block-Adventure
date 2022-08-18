@@ -62,11 +62,12 @@ namespace Networking {
 						Packet<DefaultPacketSize> sPacket;
 						sPacket.InitMemory();
 						sPacket.AddPacketData(PACKET_ID::NewChunk);
+						sPacket.AddPacketData(ChunkPosition);
 						SendPacketToClient(ClientId, sPacket);
 					}
 					{
 						Packet<ChunkPacketSize> sPacket;
-						sPacket.SetPacket((std::array<char,ChunkPacketSize>*)WorldManager::BaseWorld->GetChunk(ChunkPosition)->GetBlocks());
+						sPacket.SetPacket((std::array<char,ChunkPacketSize>*)WorldManager::BaseWorld->GetChunkDirect(ChunkPosition)->GetBlocks());
 						SendPacketToClient(ClientId, sPacket);
 					}
 				}
@@ -120,8 +121,7 @@ namespace Networking {
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<int>(ClientId);
-			auto a = EntityManagerServer::GetPlayer(ClientId);
-			StartPacket.AddPacketData<Player>(*a);
+			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(ClientId));
 			SendPacketToClient(ClientId, StartPacket);
 
 			INFO("Client with id: ", ClientId, " connected to the server");

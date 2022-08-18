@@ -154,10 +154,3 @@ void TextInput(unsigned int codepoint)
 	//	chatbox += (char)codepoint;
 	//}
 }
-void ManagerUI::Init()
-{
-	//m_VertexBuffer = std::make_unique<VertexBuffer>();
-	//m_IndexBuffer = std::make_unique<IndexBuffer>();
-	//Input::SetKeyCallback([](GLFWwindow* window, int key, int actioncode, int action, int mods) { ToggleStates(key, action); });
-	//Input::SetCharCallback([](GLFWwindow* window, unsigned int key) {TextInput(key); });
-}

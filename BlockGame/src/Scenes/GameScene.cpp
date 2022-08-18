@@ -18,12 +18,13 @@ void GameScene::Start()
 	EntityManagerClient::Start();
 	WorldManager::BaseWorld = new World();
 	Networking::Connect();
+	Renderer::HideCursor(true);
 }
 
 void GameScene::Update(float deltaTime)
 {
 	WorldManagerClient::RequestNewChunks();
-	EntityManagerClient::GetPlayer().InputTick(deltaTime);
+	//EntityManagerClient::GetPlayer().InputTick(deltaTime);
 }
 
 void GameScene::Render()

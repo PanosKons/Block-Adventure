@@ -18,4 +18,5 @@ public:
 	static void UpdateChunk(World* world, Chunk* chunk);
 private:
 	inline static std::unordered_map<int64_t, ChunkRenderData> ChunkData;
+	inline static RenderData UIRenderData;
 };

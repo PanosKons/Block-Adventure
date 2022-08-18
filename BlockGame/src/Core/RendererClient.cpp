@@ -1,6 +1,9 @@
 #include "RendererClient.h"
 #include "Common/World/WorldManager.h"
 #include "Renderer.h"
+#include "Entities/EntityManagerClient.h"
+#include "Common/Math/StringConvertions.h"
+#include "Logger.h"
 #define ONEOVER16 0.0625f
 void RendererClient::RenderWorld(World* world)
 {
@@ -20,13 +23,14 @@ void RendererClient::RenderWorld(World* world)
 				{
 					for (int z = 0; z < ChunkSize; z++)
 					{
-						Block block = world->GetBlock({ x, y, z });
+						Block block = chunk->GetBlock({ x, y, z });
+						block.data->RenderedSides = 63; // TEMPORARY
 						VertexBuffer* vertexBuffer;
-						block.GetTransparent() ? vertexBuffer = &rd.Solid.vertexBuffer : vertexBuffer = &rd.Transparent.vertexBuffer;
+						block.GetTransparent() ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
 						IndexBuffer* indexBuffer;
-						block.GetTransparent() ? indexBuffer = &rd.Solid.indexBuffer : indexBuffer = &rd.Transparent.indexBuffer;
+						block.GetTransparent() ? indexBuffer = &rd.Transparent.indexBuffer : indexBuffer = &rd.Solid.indexBuffer;
 						std::array<unsigned char, 6> arr = block.GetBlockProperties().textureSides;
-						if (arr[0] == INVALID) return;
+						if (arr[0] == INVALID) continue;
 						Vertex a;
 						a.texId = 0.0f;
 						float alpha = 1.0f;
@@ -147,6 +151,7 @@ void RendererClient::RenderWorld(World* world)
 			rd.Transparent.vertexBuffer.Bind();
 			rd.Transparent.vertexBuffer.Allocate();
 		}
+		rd.Populated = true;
 		{
 			Renderer::RenderCommand command;
 			command.view = Renderer::View::Player;
@@ -171,7 +176,16 @@ void RendererClient::RenderEntities()
 
 void RendererClient::RenderUI()
 {
-
+	RenderBuilder::Begin(UIRenderData);
+	RenderBuilder::AddSquare(UIRenderData, { 100.0f,100.0f }, { 100.0f,100.0f }, { 0.8f,0.6f,0.3f,1.0f }, { 0,0 }, {1,1}, -1);
+	Vector3<double>& PlayerPosition = EntityManagerClient::GetPlayer().Position;
+	RenderBuilder::AddText(UIRenderData, "Position:" + StringConvertions::ToString(PlayerPosition.x) + "," + StringConvertions::ToString(PlayerPosition.y) + "," + StringConvertions::ToString(PlayerPosition.z), {200.0f,200.0f});
+	RenderBuilder::End(UIRenderData);
+	Renderer::RenderCommand command;
+	command.view = Renderer::View::UI;
+	command.Depth = false;
+	command.renderData = &UIRenderData;
+	Renderer::AddCommand(command);
 }
 
 void RendererClient::UpdateChunk(World* world, Chunk* chunk)

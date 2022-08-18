@@ -5,10 +5,16 @@
 #include "Entities/EntityManagerClient.h"
 #include "Common/Math/EngineMath.h"
 #include "Common/World/WorldManager.h"
+#include "Logger.h"
+
+PlayerClient::PlayerClient()
+{
+	Input::SetCursorCallback([](double xpos,double ypos) {EntityManagerClient::GetPlayer().CursorMoved(xpos,ypos); });
+}
 
 void PlayerClient::CursorMoved(double xpos, double ypos)
 {
-	if (!IsGUIOpen) return;
+	if (IsGUIOpen) return;
 	if (firstMouse)
 	{
 		lastX = (float)xpos;

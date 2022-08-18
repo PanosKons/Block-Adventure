@@ -11,7 +11,8 @@ public:
 
 	World();
 
-	Chunk* GetChunk(Vector3<int> AbsolutePosition) const;
+	Chunk* GetChunkAbsolute(Vector3<int> AbsolutePosition) const;
+	Chunk* GetChunkDirect(Vector3<int> ChunkPosition) const;
 	Block GetBlock(Vector3<int> AbsolutePosition) const;
 
 	void CreateChunk(Vector3<int> ChunkPosition, BlockArray* blocks);

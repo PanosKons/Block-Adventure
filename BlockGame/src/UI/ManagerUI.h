@@ -6,7 +6,6 @@
 class ManagerUI
 {
 public:
-	static void Init();
 	static void UpdateUI();
 	static std::string ToString(bool value);
 	static void PrintString(std::string Text, Vector3<float> position);

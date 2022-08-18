@@ -52,7 +52,7 @@ BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 				int level = HeightMap[x + z * ChunkSize];
 				if (ylevel > level && ylevel <= 30)
 				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Water;
+					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Air; // WATER
 				}
 				else if (ylevel == level)
 				{

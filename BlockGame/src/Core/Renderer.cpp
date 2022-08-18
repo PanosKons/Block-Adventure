@@ -41,7 +41,6 @@ namespace Renderer {
 
 		glfwMakeContextCurrent(Client::ApplicationWindow);
 		glfwSwapInterval(1);
-		//glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			return -1;
@@ -127,6 +126,13 @@ namespace Renderer {
 	{
 		RenderCommandQueue.push_back(renderCommand);
 	}
+	void HideCursor(bool value)
+	{
+		if(value == true)
+			glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		else
+			glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
 }
 namespace RenderBuilder {
 	void Begin(RenderData& renderData)
@@ -153,30 +159,30 @@ namespace RenderBuilder {
 		renderData.vertexBuffer.Add(vertex);
 		renderData.indexBuffer.AddRectangle();
 	}
-	void AddText(RenderData& renderData, std::string_view Text, Vector3<float> position)
+	void AddText(RenderData& renderData, std::string_view Text, Vector2<float> Position)
 	{
-		Vertex a;
-		a.color = { 1,1,1,1 };
-		a.texId = 13;
-		a.position = position;
+		Vertex vertex;
+		vertex.color = { 1,1,1,1 };
+		vertex.texId = 13;
+		vertex.position = { Position.x,Position.y,0.0f};
 		for (char digit : Text)
 		{
 			int x = digit % 16;
 			int y = digit / 16;
 			y++;
-			a.texCords = { x / 16.0f,1 - (y / 16.0f) };
-			renderData.vertexBuffer.Add(a);
-			a.position.y += Client::charHeight;
-			a.texCords.y += 1 / 16.0f;
-			renderData.vertexBuffer.Add(a);
-			a.position.x += Client::charWidth;
-			a.texCords.x += 1 / 16.0f;
-			renderData.vertexBuffer.Add(a);
-			a.position.y -= Client::charHeight;
-			a.texCords.y -= 1 / 16.0f;
-			renderData.vertexBuffer.Add(a);
+			vertex.texCords = { x / 16.0f,1 - (y / 16.0f) };
+			renderData.vertexBuffer.Add(vertex);
+			vertex.position.y += Client::charHeight;
+			vertex.texCords.y += 1 / 16.0f;
+			renderData.vertexBuffer.Add(vertex);
+			vertex.position.x += Client::charWidth;
+			vertex.texCords.x += 1 / 16.0f;
+			renderData.vertexBuffer.Add(vertex);
+			vertex.position.y -= Client::charHeight;
+			vertex.texCords.y -= 1 / 16.0f;
+			renderData.vertexBuffer.Add(vertex);
 			renderData.indexBuffer.AddRectangle();
-			a.position.x -= Client::charWidth - Client::charWidthOffset;
+			vertex.position.x -= Client::charWidth - Client::charWidthOffset;
 		}
 	}
 	void End(RenderData& renderData)
