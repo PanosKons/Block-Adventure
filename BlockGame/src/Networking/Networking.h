@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/Networking/Packet.h"
 #include "pch.h"
+#include "Logger.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -18,14 +19,22 @@ public:
 	template<int TSize>
 	static void SendPacketToServer(Packet<TSize>& packet)
 	{
-		send(clientSocket, packet.GetPacket(), packet.GetPacketSize(), 0);
+		int BytesSent = send(clientSocket, packet.GetPacket(), packet.GetPacketSize(), 0);
+		ASSERT((BytesSent == packet.GetPacketSize()), "Data loss");
 	}
 	template<int TSize>
 	static Packet<TSize> GetPacketFromServer()
 	{
 		Packet<TSize> packet;
 		packet.InitMemory();
-		recv(clientSocket, packet.GetPacket(), packet.GetPacketSize(), 0);
+
+		int TotalReceivedBytes = 0;
+		do
+		{
+			int ReceivedBytes = recv(clientSocket, packet.GetPacket() + TotalReceivedBytes, packet.GetPacketSize() - TotalReceivedBytes, 0);
+			TotalReceivedBytes += ReceivedBytes;
+		} while (TotalReceivedBytes != packet.GetPacketSize());
+
 		return packet;
 	}
 };

@@ -1,3 +1,4 @@
+#pragma once
 #include "pch.h"
 #include <ctime>
 #include "Timer.h"
@@ -9,7 +10,7 @@
 #define INFO(...) Logger::SetConsoleColor(Logger::Gray); Logger::Log(__VA_ARGS__)
 #define WARN(...) Logger::SetConsoleColor(Logger::Yellow); Logger::Log(__VA_ARGS__)
 #define ERR(...) Logger::SetConsoleColor(Logger::Red); Logger::Log(__VA_ARGS__)
-#define ASSERT(x,y) if(x==0) { DebugBreak(); }
+#define ASSERT(x,y) if(x==0) { __debugbreak(); }
 #elif defined LOG_ENABLED
 #define TRACE(...)
 #define INFO(...) Logger::SetConsoleColor(Logger::Gray); Logger::Log(__VA_ARGS__)

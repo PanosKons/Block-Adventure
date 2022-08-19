@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "WorldManager.h"
 #include "Math/Noise.h"
+#include "Logger.h"
 
 Block WorldManager::GetBlock(BlockData* data, Vector3<int> WorldPosition)
 {
@@ -96,6 +97,7 @@ BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 				{
 					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Air;
 				}
+				ASSERT((*blocks)[x][y][z].blockId, "Invalid block id in chunk generation");
 			}
 		}
 	}

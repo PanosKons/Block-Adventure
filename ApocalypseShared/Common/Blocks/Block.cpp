@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Block.h"
 #include "World/WorldManager.h"
+#include "Logger.h"
 
 #define BLOCK_NUMBER 1024
 static std::unordered_map<int, std::array<unsigned char, 6>> Textures =
@@ -110,6 +111,7 @@ BlockProperties Block::GetBlockProperties()
 	case BLOCK_ID::Water:
 		return { 20,TOOL::None,0,{14,14,14,14,14,14} };
 	};
+	ERR("Invalid block properties for block: ", Position.x, ", ", Position.y, ", ", Position.z, " with id: ", data->blockId);
 	return {};
 }
 void Block::Update()

@@ -16,7 +16,8 @@ namespace Networking {
 	template<int TSize>
 	void SendPacketToClient(unsigned char ClientId, Packet<TSize>& packet)
 	{
-		send(*sockets[ClientId], packet.GetPacket(), packet.GetPacketSize(), 0);
+		int BytesSent = send(*sockets[ClientId], packet.GetPacket(), packet.GetPacketSize(), 0);
+		ASSERT((BytesSent == packet.GetPacketSize()), "Data loss");
 	}
 	template<int TSize>
 	void SendAllClients(Packet<TSize>& packet)
@@ -31,7 +32,8 @@ namespace Networking {
 	{
 		Packet<TSize> packet;
 		packet.InitMemory();
-		recv(*sockets[ClientId], packet.GetPacket(), packet.GetPacketSize(), 0);
+		int ReceivedBytes = recv(*sockets[ClientId], packet.GetPacket(), packet.GetPacketSize(), 0);
+		ASSERT((ReceivedBytes == packet.GetPacketSize()), "Data loss");
 		return packet;
 	}
 	void HandleClientPacket(unsigned char ClientId)
