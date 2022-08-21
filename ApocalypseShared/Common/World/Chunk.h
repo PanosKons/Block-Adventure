@@ -14,17 +14,13 @@ public:
 	Chunk(Vector3<int> ChunkPosition,World* world, BlockArray* blocks);
 	~Chunk();
 
+	void Refresh();
+	void RefreshBorders();
+
 	Block GetBlock(Vector3<int> RelativePosition) const;
 	Vector3<int> GetPosition() const { return Position; };
-
-	//void SpawnStructure(Vector3<int> RelativePosition, std::string&& name);
-	void UpdateAllBlocks();
-	void UpdateBorderBlocks();
 	BlockArray* GetBlocks() { return blocks; }
-
-	bool Changed = true;
-	bool ShouldUpdate = true;
-	bool ShouldUpdateBorders = true;
+	bool MeshChanged = true;
 private:
 	World* world;
 	Vector3<int> Position;

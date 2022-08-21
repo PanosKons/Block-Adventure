@@ -60,6 +60,7 @@ namespace Networking {
 				{
 					Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
 					WorldManager::BaseWorld->CreateChunk(ChunkPosition,WorldManager::GenerateChunk(ChunkPosition));
+					WorldManager::BaseWorld->GetChunkDirect(ChunkPosition)->Refresh();
 					{
 						Packet<DefaultPacketSize> sPacket;
 						sPacket.InitMemory();

@@ -40,18 +40,6 @@ void World::CreateChunk(Vector3<int> ChunkPosition, BlockArray* blocks)
 {
 	Chunk* chunk = new Chunk(ChunkPosition, this, blocks);
 	ChunkMap.emplace(WorldManager::GetChunkKey(chunk->GetPosition()),chunk);
-	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
-	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)) != ChunkMap.end())
-	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)) != ChunkMap.end())
-	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)) != ChunkMap.end())
-	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z)]->ShouldUpdateBorders = true;
-	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)) != ChunkMap.end())
-	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1)]->ShouldUpdateBorders = true;
-	//if (ChunkMap.find(WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)) != ChunkMap.end())
-	//	ChunkMap[WorldManager::GetChunkKey(chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1)]->ShouldUpdateBorders = true;
 }
 void World::DestroyChunk(Vector3<int> ChunkPosition)
 {

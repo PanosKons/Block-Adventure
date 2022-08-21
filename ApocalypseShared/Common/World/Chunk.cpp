@@ -4,34 +4,13 @@
 #include "World.h"
 #include "Math/Noise.h"
 #include "WorldManager.h"
-/*
-void Chunk::SpawnStructure(Vector3<int> RelativePosition, std::string&& name)
-{
-	static Structure* structure = SavingData::LoadStructure(name.c_str());
-	for (int x = 0; x < StructureSize; x++)
-	{
-		for (int y = 0; y < StructureSize; y++)
-		{
-			for (int z = 0; z < StructureSize; z++)
-			{
-				if (structure->data[x + y * StructureSize + z * StructureSize * StructureSize] == BLOCK_ID::Air) continue;
-				if (RelativePosition.x + x < ChunkSize && RelativePosition.y + y < ChunkSize && RelativePosition.z + z < ChunkSize)
-				{
-					(*blocks)[RelativePosition.x + x][RelativePosition.y + y][RelativePosition.z + z].blockId = (unsigned short)structure->data[x + y * StructureSize + z * StructureSize * StructureSize];
-				}
-			}
-		}
-	}
-}
-*/
-
 Chunk::Chunk(Vector3<int> Position, World* world,BlockArray* blocks)
 	:Position(Position), world(world), blocks(blocks) {}
 Chunk::~Chunk()
 {
 	delete blocks;
 }
-void UpdateAllBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks,Chunk* chunk)
+void Chunk::Refresh()
 {
 	for (int x = 0; x < ChunkSize; x++)
 	{
@@ -39,12 +18,13 @@ void UpdateAllBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSize>
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				chunk->GetBlock({ x,y,z }).Update();
+				GetBlock({ x,y,z }).Update();
 			}
 		}
 	}
+	MeshChanged = false;
 }
-void UpdateBorderBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize>* blocks, Chunk* chunk)
+void Chunk::RefreshBorders()
 {
 	for (int x = 0; x < ChunkSize; x += ChunkSize - 1)
 	{
@@ -52,7 +32,7 @@ void UpdateBorderBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSi
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				chunk->GetBlock({ x,y,z }).Update();
+				GetBlock({ x,y,z }).Update();
 			}
 		}
 	}
@@ -62,7 +42,7 @@ void UpdateBorderBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSi
 		{
 			for (int z = 1; z < ChunkSize; z += ChunkSize - 2)
 			{
-				chunk->GetBlock({ x,y,z }).Update();
+				GetBlock({ x,y,z }).Update();
 			}
 		}
 	}
@@ -72,20 +52,10 @@ void UpdateBorderBlocksAsync(std::array<std::array<std::array<BlockData, ChunkSi
 		{
 			for (int z = 1; z < ChunkSize - 1; z++)
 			{
-				chunk->GetBlock({ x,y,z }).Update();
+				GetBlock({ x,y,z }).Update();
 			}
 		}
 	}
-}
-void Chunk::UpdateAllBlocks()
-{
-	std::thread worker(UpdateAllBlocksAsync,blocks,this);
-	worker.detach();
-}
-void Chunk::UpdateBorderBlocks()
-{
-	std::thread worker(UpdateBorderBlocksAsync, blocks,this);
-	worker.detach();
 }
 
 Block Chunk::GetBlock(Vector3<int> RelativePosition) const

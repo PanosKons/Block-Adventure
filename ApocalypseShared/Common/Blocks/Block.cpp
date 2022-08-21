@@ -62,7 +62,7 @@ void Block::OnBreak(BLOCK_ID id)
 	Update();
 	StateChanged();
 	Chunk* chunk = WorldManager::BaseWorld->GetChunkAbsolute(this->Position);
-	if (chunk != nullptr) chunk->Changed = true;
+	if (chunk != nullptr) chunk->MeshChanged = true;
 }
 Block::Block()
 	:data(nullptr)
@@ -185,6 +185,6 @@ void Block::Update()
 	if (oldSides != data->RenderedSides)
 	{
 		Chunk* chunk = WorldManager::BaseWorld->GetChunkAbsolute(this->Position);
-		if (chunk != nullptr) chunk->Changed = true;
+		if (chunk != nullptr) chunk->MeshChanged = true;
 	}
 }

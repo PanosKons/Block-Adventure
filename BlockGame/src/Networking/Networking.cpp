@@ -32,6 +32,7 @@ void HandleMessage()
 			Packet<ChunkPacketSize> sPacket = Networking::GetPacketFromServer<ChunkPacketSize>();
 			BlockArray* blocks = (BlockArray*)sPacket.GetPacket();
 			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)sPacket.GetPacket());
+			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld,ChunkPosition);
 			break;
 		}
 		}

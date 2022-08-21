@@ -58,6 +58,14 @@ glm::vec3 PlayerClient::GetCameraPosition()
 
 void PlayerClient::InputTick(double TimeStep)
 {
+	if (Input::GetKeyState(Key::K) == Action::Press && !IsGUIOpen)
+	{
+		for (auto [key,chunk] : *WorldManager::BaseWorld->GetChunkMap())
+		{
+			chunk->Refresh();
+		}
+	}
+
 	if (Input::GetKeyState(Key::W) == Action::Press && !IsGUIOpen)
 	{
 		Velocity.x = Speed * cos(Math::Radians(Yaw));

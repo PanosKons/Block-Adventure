@@ -27,3 +27,20 @@ void WorldManagerClient::RequestNewChunks()
 		}
 	}
 }
+
+void WorldManagerClient::RefreshBorderChunks(World* world, Vector3<int> ChunkPosition)
+{
+	Chunk* chunk = world->GetChunkDirect(ChunkPosition);
+	if (world->GetChunkMap()->find(WorldManager::GetChunkKey({ chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z })) != world->GetChunkMap()->end())
+		world->GetChunkMap()->at(WorldManager::GetChunkKey({ chunk->GetPosition().x + 1, chunk->GetPosition().y, chunk->GetPosition().z }))->RefreshBorders();
+	if (world->GetChunkMap()->find(WorldManager::GetChunkKey({ chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z })) != world->GetChunkMap()->end())
+		world->GetChunkMap()->at(WorldManager::GetChunkKey({ chunk->GetPosition().x - 1, chunk->GetPosition().y, chunk->GetPosition().z }))->RefreshBorders();
+	if (world->GetChunkMap()->find(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z })) != world->GetChunkMap()->end())
+		world->GetChunkMap()->at(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y + 1, chunk->GetPosition().z }))->RefreshBorders();
+	if (world->GetChunkMap()->find(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z })) != world->GetChunkMap()->end())
+		world->GetChunkMap()->at(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y - 1, chunk->GetPosition().z }))->RefreshBorders();
+	if (world->GetChunkMap()->find(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1})) != world->GetChunkMap()->end())
+		world->GetChunkMap()->at(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z + 1}))->RefreshBorders();
+	if (world->GetChunkMap()->find(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1})) != world->GetChunkMap()->end())
+		world->GetChunkMap()->at(WorldManager::GetChunkKey({ chunk->GetPosition().x, chunk->GetPosition().y, chunk->GetPosition().z - 1}))->RefreshBorders();
+}

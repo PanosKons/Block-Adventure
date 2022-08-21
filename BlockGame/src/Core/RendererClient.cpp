@@ -25,7 +25,6 @@ void RendererClient::RenderWorld(World* world)
 					for (int z = 0; z < ChunkSize; z++)
 					{
 						Block block = chunk->GetBlock({ x, y, z });
-						block.data->RenderedSides = 63; // TEMPORARY
 						VertexBuffer* vertexBuffer;
 						block.GetTransparent() ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
 						IndexBuffer* indexBuffer;
