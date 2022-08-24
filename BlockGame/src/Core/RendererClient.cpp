@@ -12,7 +12,7 @@ void RendererClient::RenderWorld(World* world)
 	for (auto [key, chunk] : ChunkMap)
 	{
 		ChunkRenderData& rd = ChunkData[WorldManager::GetChunkKey(chunk->GetPosition())];
-		if (rd.Populated == false)
+		if (rd.Populated == false || chunk->MeshChanged == true)
 		{
 			rd.Solid.vertexBuffer.Clear();
 			rd.Solid.indexBuffer.Clear();
@@ -152,6 +152,7 @@ void RendererClient::RenderWorld(World* world)
 			rd.Transparent.vertexBuffer.Allocate();
 		}
 		rd.Populated = true;
+		chunk->MeshChanged = false;
 		{
 			Renderer::RenderCommand command;
 			command.view = Renderer::View::Player;
@@ -187,9 +188,4 @@ void RendererClient::RenderUI(double TimeStep)
 	command.Depth = false;
 	command.renderData = &UIRenderData;
 	Renderer::AddCommand(command);
-}
-
-void RendererClient::UpdateChunk(World* world, Chunk* chunk)
-{
-	ChunkData[WorldManager::GetChunkKey(chunk->GetPosition())].Populated = false;
 }

@@ -26,19 +26,22 @@ struct BlockData
 };
 
 #define INVALID 255
-class Block //Base class all blocks derive from
+class Block
 {
 public:
-	bool operator!=(Block& other);
 	Block();
 	Block(Vector3<int> Position, BlockData* data);
-	BLOCK_ID GetBlockId() const; //Each block overrides this method and returns its own id
-	bool GetTransparent();
-	BlockProperties GetBlockProperties();
+	~Block();
+
 	void Update();
 	void OnBreak(BLOCK_ID id);
-	void StateChanged();
+	void UpdateSurroundingBlocks();
 
+	BLOCK_ID GetBlockId() const;
+	bool GetTransparent();
+	BlockProperties GetBlockProperties();
+
+	bool operator!=(Block& other);
 
 	Vector3<int> Position;
 	BlockData* data;
