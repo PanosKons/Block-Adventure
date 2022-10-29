@@ -23,6 +23,7 @@ void GameScene::Start()
 
 void GameScene::Update(double TimeStep)
 {
+	WorldManagerClient::DeleteOldChunks();
 	WorldManagerClient::RequestNewChunks();
 	EntityManagerClient::GetPlayer().InputTick(TimeStep);
 }

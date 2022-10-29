@@ -19,8 +19,12 @@ public:
 	template<int TSize>
 	static void SendPacketToServer(Packet<TSize>& packet)
 	{
-		int BytesSent = send(clientSocket, packet.GetPacket(), packet.GetPacketSize(), 0);
-		ASSERT((BytesSent == packet.GetPacketSize()), "Data loss");
+		int TotalSentBytes = 0;
+		do
+		{
+			int SentBytes = send(clientSocket, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes, 0);
+			TotalSentBytes += SentBytes;
+		} while (TotalSentBytes != packet.GetPacketSize());
 	}
 	template<int TSize>
 	static Packet<TSize> GetPacketFromServer()

@@ -58,11 +58,19 @@ glm::vec3 PlayerClient::GetCameraPosition()
 
 void PlayerClient::InputTick(double TimeStep)
 {
-	if (Input::GetKeyState(Key::K) == Action::Press && !IsGUIOpen)
 	{
-		for (auto [key,chunk] : *WorldManager::BaseWorld->GetChunkMap())
+		static Action lastState = Action::Release;
+		if (Input::GetKeyState(Key::K) == Action::Press && !IsGUIOpen)
 		{
-			chunk->Refresh();
+			if (lastState == Action::Release)
+			{
+				Godmode = !Godmode;
+				lastState = Action::Press;
+			}
+		}
+		else
+		{
+			lastState = Action::Release;
 		}
 	}
 
@@ -91,24 +99,48 @@ void PlayerClient::InputTick(double TimeStep)
 		Velocity.x = 0;
 		Velocity.z = 0;
 	}
-	if (Input::GetKeyState(Key::Space) == Action::Press && !IsGUIOpen)
+	if (Godmode == true)
 	{
-		Velocity.y = Speed;
-	}
-	else if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
-	{
-		Velocity.y = -Speed;
+		if (Input::GetKeyState(Key::Space) == Action::Press && !IsGUIOpen)
+		{
+			Velocity.y = Speed;
+		}
+		else if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
+		{
+			Velocity.y = -Speed;
+		}
+		else
+		{
+			Velocity.y = 0.0;
+		}
 	}
 	else
 	{
-		Velocity.y = 0.0;
+		Velocity.y -= GravityConstant * TimeStep;
+	}
+
+	if (EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y, Position.z }, Hitbox))
+	{
+		Velocity.x = 0;
+	}
+	if (EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
+	{
+		if (Velocity.y <= -6.0f) Health -= -(float)Velocity.y / 3.0f;
+		Velocity.y = 0;
+		Grounded = true;
+	}
+	else
+	{
+		Grounded = false;
+	}
+	if (EntityManagerClient::CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * TimeStep }, Hitbox))
+	{
+		Velocity.z = 0;
 	}
 
 	Position += Velocity * TimeStep;
 	/*
 	Block facingblock = GetFacingBlock();
-	//DrawPlayer(facingblock);
-	//Renderer::DrawGeometry(*m_VertexBuffer, *m_IndexBuffer);
 	if (IsBreakingBlock)
 	{
 		if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
@@ -205,19 +237,6 @@ void PlayerClient::InputTick(double TimeStep)
 		{
 			Velocity.z = 0;
 		}
-	}
-	if (EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y, Position.z }, Hitbox))
-	{
-		Velocity.x = 0;
-	}
-	if (EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
-	{
-		if (Velocity.y <= -6.0f) Health -= -(float)Velocity.y / 3.0f;
-		Velocity.y = 0;
-	}
-	if (EntityManagerClient::CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * TimeStep }, Hitbox))
-	{
-		Velocity.z = 0;
 	}
 	*/
 }

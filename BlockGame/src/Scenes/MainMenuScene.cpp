@@ -8,17 +8,16 @@
 void MainMenuScene::Start()
 {
 	INFO("MainMenuScene Started");
-	RenderBuilder::Begin(renderData);
-	RenderBuilder::AddSquare(renderData, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 200.0f,200.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 15);
-	RenderBuilder::End(renderData);
+	RenderBuilder::Begin(m_RenderData);
+	RenderBuilder::AddSquare(m_RenderData, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 200.0f,200.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 15);
+	RenderBuilder::End(m_RenderData);
 }
 
 void MainMenuScene::Update(double TimeStep)
 {
 	if (Input::GetMouseState(Mouse::Left) == Action::Press)
 	{
-		Scene* scene = (Scene*)new GameScene();
-		GameManager::SetScene(scene);
+		GameManager::SetScene((Scene*)new GameScene());
 	}
 }
 
@@ -27,7 +26,7 @@ void MainMenuScene::Render(double TimeStep)
 	Renderer::RenderCommand renderCommand;
 	renderCommand.view = Renderer::View::UI;
 	renderCommand.Depth = false;
-	renderCommand.renderData = &renderData;
+	renderCommand.renderData = &m_RenderData;
 	Renderer::AddCommand(renderCommand);
 }
 void MainMenuScene::End(){}

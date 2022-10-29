@@ -5,6 +5,7 @@
 #include "Common/Math/StringConvertions.h"
 #include "Logger.h"
 #include "Client.h"
+#include "Entities/EntityManagerClient.h"
 #define ONEOVER16 0.0625f
 void RendererClient::RenderWorld(World* world)
 {
@@ -178,10 +179,13 @@ void RendererClient::RenderEntities()
 void RendererClient::RenderUI(double TimeStep)
 {
 	RenderBuilder::Begin(UIRenderData);
-	RenderBuilder::AddSquare(UIRenderData, { 100.0f,100.0f }, { 100.0f,100.0f }, { 0.8f,0.6f,0.3f,1.0f }, { 0,0 }, {1,1}, -1);
+	RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth/2, (float)Client::ScreenHeight/2}, { 20.0f,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 12);
 	Vector3<double>& PlayerPosition = EntityManagerClient::GetPlayer().Position;
 	RenderBuilder::AddText(UIRenderData, "Position:" + StringConvertions::ToString((int)PlayerPosition.x) + "," + StringConvertions::ToString((int)PlayerPosition.y) + "," + StringConvertions::ToString((int)PlayerPosition.z), {0.0f,Client::ScreenHeight - 40.0f});
 	RenderBuilder::AddText(UIRenderData, "FPS:" + StringConvertions::ToString((int)(1 / TimeStep)), {0.0f,Client::ScreenHeight - 70.0f});
+	Block LookBlock = EntityManagerClient::GetPlayer().GetFacingBlock();
+	if(LookBlock.data != nullptr)
+		RenderBuilder::AddText(UIRenderData, "Facing block:" + StringConvertions::ToString(LookBlock.Position.x) + "," + StringConvertions::ToString(LookBlock.Position.y) + "," + StringConvertions::ToString(LookBlock.Position.z), {0.0f,Client::ScreenHeight - 100.0f});
 	RenderBuilder::End(UIRenderData);
 	Renderer::RenderCommand command;
 	command.view = Renderer::View::UI;

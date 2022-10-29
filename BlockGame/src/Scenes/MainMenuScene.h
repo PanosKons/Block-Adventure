@@ -10,6 +10,6 @@ public:
 	void Render(double TimeStep) override;
 	void End() override;
 private:
-	RenderData renderData;
+	RenderData m_RenderData;
 };
 

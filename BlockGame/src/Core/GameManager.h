@@ -8,5 +8,5 @@ public:
 	static void Tick(double StepTime);
 	static void Start();
 	static void Shutdown();
-	static void SetScene(Scene* s);
+	static void SetScene(Scene* scene);
 };

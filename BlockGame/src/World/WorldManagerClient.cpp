@@ -4,7 +4,20 @@
 #include "Common/Networking/Packet.h"
 #include "Networking/Networking.h"
 #include "Logger.h"
+#include "Common/Math/EngineMath.h"
+void WorldManagerClient::DeleteOldChunks()
+{
+	static int RenderDistance = 3;
+	Vector3<int> ChunkPosition = Vector::IntVector(EntityManagerClient::GetPlayer().Position) / ChunkSize;
 
+	for (auto [key, chunk] : *WorldManager::BaseWorld->GetChunkMap())
+	{
+		if (Math::Abs(chunk->GetPosition().x - ChunkPosition.x) >= 3 || Math::Abs(chunk->GetPosition().y - ChunkPosition.y) >= 3 || Math::Abs(chunk->GetPosition().z - ChunkPosition.z) >= 3)
+		{
+			WorldManager::BaseWorld->DestroyChunk(chunk->GetPosition());
+		}
+	}
+}
 void WorldManagerClient::RequestNewChunks()
 {
 	static int RenderDistance = 1;

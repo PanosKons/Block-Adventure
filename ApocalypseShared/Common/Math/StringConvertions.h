@@ -12,4 +12,5 @@ public:
 		os << value;
 		return os.str();
 	}
+
 };
