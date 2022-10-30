@@ -55,12 +55,15 @@ namespace Networking {
 			{
 				case PACKET_ID::PlayerPosition:
 				{
+					Vector3<double> PlayerPosition = packet.ExtractPacketData<Vector3<double>>();
+					EntityManagerServer::GetPlayer(ClientId)->Position = PlayerPosition;
 					Packet<DefaultPacketSize> sPacket;
 					sPacket.InitMemory();
 					sPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
 					sPacket.AddPacketData<int>(ClientId);
-					sPacket.AddPacketData<Vector3<double>>(packet.ExtractPacketData<Vector3<double>>());
+					sPacket.AddPacketData<Vector3<double>>(PlayerPosition);
 					SendAllClients(sPacket);
+					sPacket.DeletePacket();
 				}
 				case PACKET_ID::BreakBlock:
 				{
@@ -82,9 +85,11 @@ namespace Networking {
 						Packet<ChunkPacketSize> sPacket;
 						sPacket.SetPacket((std::array<char,ChunkPacketSize>*)WorldManager::BaseWorld->GetChunkDirect(ChunkPosition)->GetBlocks());
 						SendPacketToClient(ClientId, sPacket);
+						sPacket.SetPacket(nullptr);
 					}
 				}
 			}
+			packet.DeletePacket();
 		}
 	}
 	void Shutdown()

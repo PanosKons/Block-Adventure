@@ -5,7 +5,7 @@
 #include "Common/World/WorldConstants.h"
 
 constexpr int StartPacketSize = 1000;
-constexpr int DefaultPacketSize = 128;
+constexpr int DefaultPacketSize = 64;
 constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
 constexpr int MAX_PLAYERS = 20;
 
@@ -74,6 +74,10 @@ public:
 	void InitMemory()
 	{
 		PacketData = new std::array<char, TSize>();
+	}
+	void DeletePacket()
+	{
+		delete PacketData;
 	}
 private:
 	std::array<char, TSize>* PacketData = nullptr;

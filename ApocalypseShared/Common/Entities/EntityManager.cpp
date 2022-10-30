@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "EntityManager.h"
 #include "Common/Networking/Packet.h"
-//static std::unique_ptr<VertexBuffer> vb;
-//static std::unique_ptr<IndexBuffer> ib;
 void EntityManager::Start()
 {
 	Players.reserve(MAX_PLAYERS);
@@ -10,8 +8,6 @@ void EntityManager::Start()
 	{
 		Players.push_back(nullptr);
 	}
-	//vb = std::make_unique<VertexBuffer>();
-	//ib = std::make_unique<IndexBuffer>();
 }
 bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox)
 {
@@ -174,7 +170,6 @@ void EntityManager::ShutDown()
 		delete player;
 	}
 }
-
 Player* EntityManager::GetPlayer(int PlayerId)
 {
 	return Players[PlayerId];

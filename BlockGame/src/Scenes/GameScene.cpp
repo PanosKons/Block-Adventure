@@ -26,6 +26,21 @@ void GameScene::Update(double TimeStep)
 	WorldManagerClient::DeleteOldChunks();
 	WorldManagerClient::RequestNewChunks();
 	EntityManagerClient::GetPlayer().InputTick(TimeStep);
+	static int tick = 0;
+	if (tick >= 100)
+	{
+		Packet<DefaultPacketSize> packet;
+		packet.InitMemory();
+		packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
+		packet.AddPacketData<Vector3<double>>(EntityManagerClient::GetPlayer().Position);
+		//Networking::SendPacketToServer(packet);
+		packet.DeletePacket();
+		tick = 0;
+	}
+	else
+	{
+		tick++;
+	}
 }
 
 void GameScene::Render(double TimeStep)

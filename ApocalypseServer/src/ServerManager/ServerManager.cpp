@@ -20,7 +20,22 @@ void ServerManager::Start()
 
 void ServerManager::Tick()
 {
-
+	static int tick = 0;
+	if (tick >= 500)
+	{
+		for (Player* player : EntityManagerServer::Players)
+		{
+			if (player != nullptr)
+			{
+				INFO("Positions");
+				INFO(player->Position.x);
+				INFO(player->Position.y);
+				INFO(player->Position.z);
+			}
+		}
+		tick = 0;
+	}
+	tick++;
 }
 
 void ServerManager::Shutdown()

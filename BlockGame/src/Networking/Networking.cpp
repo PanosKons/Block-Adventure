@@ -18,8 +18,8 @@ void HandleMessage()
 		{
 			int PlayerId = packet.ExtractPacketData<int>();
 			Vector3<double> Position = packet.ExtractPacketData<Vector3<double>>();
-			if(PlayerId != Networking::Player_id)
-				EntityManagerClient::Players[PlayerId]->Position = Position;
+			//if(PlayerId != Networking::Player_id)
+			//	EntityManagerClient::Players[PlayerId]->Position = Position;
 			break;
 		}
 		case PACKET_ID::BreakBlock:
@@ -33,6 +33,7 @@ void HandleMessage()
 			BlockArray* blocks = (BlockArray*)sPacket.GetPacket();
 			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)sPacket.GetPacket());
 			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld,ChunkPosition);
+			sPacket.SetPacket(nullptr);
 			break;
 		}
 		}
