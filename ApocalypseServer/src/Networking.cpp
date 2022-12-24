@@ -36,7 +36,6 @@ namespace Networking {
 	{
 		Packet<TSize> packet;
 		packet.InitMemory();
-
 		int TotalReceivedBytes = 0;
 		do
 		{
@@ -48,6 +47,7 @@ namespace Networking {
 	}
 	void HandleClientPacket(unsigned char ClientId)
 	{
+		INFO("Thread with id:", std::this_thread::get_id(), " started!");
 		while (true)
 		{
 			Packet<DefaultPacketSize> packet = GetPacketFromClient<DefaultPacketSize>(ClientId);

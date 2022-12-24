@@ -45,7 +45,7 @@ void World::DestroyChunk(Vector3<int> ChunkPosition)
 {
 	Chunk* chunk = ChunkMap[WorldManager::GetChunkKey(ChunkPosition)];
 	ChunkMap.erase(WorldManager::GetChunkKey(ChunkPosition));
-	delete chunk;
+	//delete chunk; <------------- PROBLEM
 }
 
 //void World::SubmitChunkChanges()

@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Logger.h"
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/Block.h"
 #include "Common/World/WorldConstants.h"
@@ -73,10 +74,16 @@ public:
 
 	void InitMemory()
 	{
+		static std::atomic<int> PacketCount = 0;
+		PacketCount++;
+		INFO("Total packets created: ", PacketCount.load());
 		PacketData = new std::array<char, TSize>();
 	}
 	void DeletePacket()
 	{
+		static std::atomic<int> DeletePacketCount = 0;
+		DeletePacketCount++;
+		INFO("Total packets deleted: ", DeletePacketCount.load());
 		delete PacketData;
 	}
 private:

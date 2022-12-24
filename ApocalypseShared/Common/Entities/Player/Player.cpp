@@ -11,7 +11,7 @@ Player::Player()
 	Velocity = { 0,0,0 };
 	MaxHealth = 100.0f;
 	Health = 100.0f;
-	Speed = 5.0f;
+	Speed = 125.0f;
 	Pitch = -24.0f;
 	Yaw = -1.0f;
 	Grounded = false;
