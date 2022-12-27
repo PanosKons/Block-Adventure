@@ -37,6 +37,9 @@ enum class PACKET_ID
 	//Data: Vector3<int> ChunkPosition
 	//		BlockArray ChunkData
 	NewChunk,
+	//Sender: client
+	//Data: Vector3<int> ChunkPosition
+	DeleteChunk,
 };
 template<int TSize>
 class Packet

@@ -80,6 +80,7 @@ namespace Networking {
 						sPacket.AddPacketData(PACKET_ID::NewChunk);
 						sPacket.AddPacketData(ChunkPosition);
 						SendPacketToClient(ClientId, sPacket);
+						sPacket.DeletePacket();
 					}
 					{
 						Packet<ChunkPacketSize> sPacket;
