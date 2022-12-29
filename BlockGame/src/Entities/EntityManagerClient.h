@@ -7,7 +7,7 @@ class EntityManagerClient : public EntityManager
 public:
 	static void Tick();
 	static PlayerClient& GetPlayer();
-	static void CreateSelf(int PlayerId, Player* player);
+	static void CreateSelf(Credentials& credentials, Player* player);
 	static void CreatePlayer(int PlayerId, Player* player);
 };
 

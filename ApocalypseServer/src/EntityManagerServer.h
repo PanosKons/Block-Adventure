@@ -3,6 +3,6 @@
 class EntityManagerServer : public EntityManager
 {
 public:
-	static void CreatePlayer(int PlayerId);
+	static void CreatePlayer(Credentials& credentials);
 };
 

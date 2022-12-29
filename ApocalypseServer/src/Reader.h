@@ -6,7 +6,7 @@ class Reader
 {
 public:
 	static void Init();
-	static Player* ReadPlayer(int PlayerId);
+	static Player* ReadPlayer(Credentials& credentials);
 	static void WriteAllPlayers();
 	static BlockArray* ReadWorldChunk(World* world,Vector3<int> ChunkPosition);
 	static void WriteWorld(World* world);

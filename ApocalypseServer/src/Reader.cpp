@@ -13,13 +13,13 @@ void Reader::Init()
 		std::filesystem::create_directory("Data/World");
 }
 
-Player* Reader::ReadPlayer(int PlayerId)
+Player* Reader::ReadPlayer(Credentials& credentials)
 {
-	Player* player = new Player();
-	if (std::filesystem::exists("Data/Player/Player_" + StringConvertions::ToString(PlayerId)))
+	Player* player = new Player(credentials);
+	if (std::filesystem::exists("Data/Player/Player_" + StringConvertions::ToString(credentials.UUID)))
 	{
 		std::ifstream fin;
-		fin.open("Data/Player/Player_" + StringConvertions::ToString(PlayerId), std::ios::binary | std::ios::in);
+		fin.open("Data/Player/Player_" + StringConvertions::ToString(credentials.UUID), std::ios::binary | std::ios::in);
 		fin.read((char*)player, sizeof(Player));
 		fin.close();
 	}

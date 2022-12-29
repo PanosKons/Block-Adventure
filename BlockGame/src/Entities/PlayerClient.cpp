@@ -7,7 +7,8 @@
 #include "Common/World/WorldManager.h"
 #include "Logger.h"
 
-PlayerClient::PlayerClient()
+PlayerClient::PlayerClient(Credentials& credentials)
+	: Player(credentials)
 {
 	Input::SetCursorCallback([](double xpos,double ypos) {EntityManagerClient::GetPlayer().CursorMoved(xpos,ypos); });
 }

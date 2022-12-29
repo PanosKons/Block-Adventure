@@ -29,11 +29,11 @@ void HandleMessage()
 		case PACKET_ID::NewChunk:
 		{
 			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
-			Packet<ChunkPacketSize> sPacket = Networking::GetPacketFromServer<ChunkPacketSize>();
-			BlockArray* blocks = (BlockArray*)sPacket.GetPacket();
-			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)sPacket.GetPacket());
+			Packet<ChunkPacketSize> chunkPacket = Networking::GetPacketFromServer<ChunkPacketSize>();
+			BlockArray* blocks = (BlockArray*)chunkPacket.GetPacket();
+			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)chunkPacket.GetPacket());
 			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld,ChunkPosition);
-			sPacket.SetPacket(nullptr);
+			chunkPacket.SetPacket(nullptr);
 			break;
 		}
 		}
@@ -58,12 +58,19 @@ void Networking::Connect()
 	int connectionResult = connect(clientSocket, (SOCKADDR*)&service, sizeof(service));
 	ASSERT(!connectionResult, "Failed to connect to the server");
 
+	//Send name and UUID
+	Packet<CredentialsPacketSize> CredentialsPacket;
+	CredentialsPacket.InitMemory();
+	CredentialsPacket.AddPacketData<Credentials>(*credentials);
+	Networking::SendPacketToServer(CredentialsPacket);
+
+	//Receive Player data
 	Packet<StartPacketSize> StartPacket;
 	StartPacket = Networking::GetPacketFromServer<StartPacketSize>();
-	Player_id = StartPacket.ExtractPacketData<int>();
 	Player player = StartPacket.ExtractPacketData<Player>();
-	EntityManagerClient::CreateSelf(Networking::Player_id, &player);
-	INFO("Connected to the server with id: ", Player_id);
+	EntityManagerClient::CreateSelf(*Networking::credentials, &player);
+
+	INFO("Connected to the server with UUID: ", Networking::credentials->UUID);
 
 	std::thread worker(HandleMessage);
 	worker.detach();

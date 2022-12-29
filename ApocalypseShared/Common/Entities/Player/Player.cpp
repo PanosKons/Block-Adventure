@@ -4,7 +4,8 @@
 #include "World/WorldConstants.h"
 #include "Math/EngineMath.h"
 #include "World/WorldManager.h"
-Player::Player()
+Player::Player(Credentials& credentials)
+	:credentials(credentials)
 {
 	Position = { 260,80,260 };
 	Hitbox = { 0.6, 1.8 ,0.6 };

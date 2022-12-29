@@ -13,16 +13,16 @@ void EntityManagerClient::Tick()
 
 PlayerClient& EntityManagerClient::GetPlayer()
 {
-	return *(PlayerClient*)(Players[Networking::Player_id]);
+	return *(PlayerClient*)(Players[Networking::credentials->UUID]);
 }
 
-void EntityManagerClient::CreateSelf(int PlayerId, Player* player)
+void EntityManagerClient::CreateSelf(Credentials& credentials, Player* player)
 {
-	PlayerClient* playerClient = new PlayerClient();
+	PlayerClient* playerClient = new PlayerClient(credentials);
 
 	*(Player*)playerClient = *player;
 
-	Players[PlayerId] = (Player*)playerClient;
+	Players[credentials.UUID] = (Player*)playerClient;
 }
 
 void EntityManagerClient::CreatePlayer(int PlayerId, Player* player)

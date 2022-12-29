@@ -10,8 +10,8 @@
 class Networking
 {
 public:
+	inline static Credentials* credentials;
 	inline static SOCKET clientSocket = 0;
-	inline static int Player_id = -1;
 
 	static void Connect();
 	static void ShutDown();

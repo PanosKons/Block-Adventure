@@ -1,4 +1,3 @@
-#include "Networking.h"
 #include "pch.h"
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/Block.h"
@@ -11,83 +10,32 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
-namespace Networking {
-	static std::vector<SOCKET*> sockets;
-	template<int TSize>
-	void SendPacketToClient(unsigned char ClientId, Packet<TSize>& packet)
-	{
-		int TotalSentBytes = 0;
-		do
-		{
-			int SentBytes = send(*sockets[ClientId], packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes, 0);
-			TotalSentBytes += SentBytes;
-		} while (TotalSentBytes != packet.GetPacketSize());
-	}
-	template<int TSize>
-	void SendAllClients(Packet<TSize>& packet)
-	{
-		for (int i = 0; i < sockets.size(); i++)
-		{
-			SendPacketToClient(i, packet);
-		}
-	}
-	template<int TSize>
-	Packet<TSize> GetPacketFromClient(unsigned char ClientId)
-	{
-		Packet<TSize> packet;
-		packet.InitMemory();
-		int TotalReceivedBytes = 0;
-		do
-		{
-			int ReceivedBytes = recv(*sockets[ClientId], packet.GetPacket() + TotalReceivedBytes, packet.GetPacketSize() - TotalReceivedBytes, 0);
-			TotalReceivedBytes += ReceivedBytes;
-		} while (TotalReceivedBytes != packet.GetPacketSize());
+#include "Networking.h"
 
-		return packet;
-	}
-	void HandleClientPacket(unsigned char ClientId)
+namespace Networking {
+	inline static std::unordered_map<uint64_t, SOCKET*> sockets;
+	void HandleClientPacket(Credentials credentials)
 	{
 		INFO("Thread with id:", std::this_thread::get_id(), " started!");
 		while (true)
 		{
-			Packet<DefaultPacketSize> packet = GetPacketFromClient<DefaultPacketSize>(ClientId);
+			Packet<DefaultPacketSize> packet = GetPacketFromClient<DefaultPacketSize>(credentials);
 			switch (packet.ExtractPacketData<PACKET_ID>())
 			{
 				case PACKET_ID::PlayerPosition:
 				{
 					Vector3<double> PlayerPosition = packet.ExtractPacketData<Vector3<double>>();
-					EntityManagerServer::GetPlayer(ClientId)->Position = PlayerPosition;
-					Packet<DefaultPacketSize> sPacket;
-					sPacket.InitMemory();
-					sPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-					sPacket.AddPacketData<int>(ClientId);
-					sPacket.AddPacketData<Vector3<double>>(PlayerPosition);
-					SendAllClients(sPacket);
-					sPacket.DeletePacket();
+					EntityManagerServer::GetPlayer(credentials.UUID)->Position = PlayerPosition;
+					//Packet<DefaultPacketSize> sPacket;
+					//sPacket.InitMemory();
+					//sPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
+					//sPacket.AddPacketData<uint64_t>(credentials.UUID);
+					//sPacket.AddPacketData<Vector3<double>>(PlayerPosition);
+					//SendAllClients(sPacket);
+					//sPacket.DeletePacket();
 				}
 				case PACKET_ID::BreakBlock:
 				{
-					SendAllClients(packet);
-				}
-				case PACKET_ID::RequestChunk:
-				{
-					Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
-					WorldManager::BaseWorld->CreateChunk(ChunkPosition,WorldManager::GenerateChunk(ChunkPosition));
-					WorldManager::BaseWorld->GetChunkDirect(ChunkPosition)->Refresh();
-					{
-						Packet<DefaultPacketSize> sPacket;
-						sPacket.InitMemory();
-						sPacket.AddPacketData(PACKET_ID::NewChunk);
-						sPacket.AddPacketData(ChunkPosition);
-						SendPacketToClient(ClientId, sPacket);
-						sPacket.DeletePacket();
-					}
-					{
-						Packet<ChunkPacketSize> sPacket;
-						sPacket.SetPacket((std::array<char,ChunkPacketSize>*)WorldManager::BaseWorld->GetChunkDirect(ChunkPosition)->GetBlocks());
-						SendPacketToClient(ClientId, sPacket);
-						sPacket.SetPacket(nullptr);
-					}
 				}
 			}
 			packet.DeletePacket();
@@ -96,6 +44,28 @@ namespace Networking {
 	void Shutdown()
 	{
 		WSACleanup();
+	}
+	template<int TSize>
+	Packet<TSize> GetPacketFromClient(SOCKET* socket)
+	{
+		Packet<TSize> packet;
+		packet.InitMemory();
+		int TotalReceivedBytes = 0;
+		do
+		{
+			int ReceivedBytes = recv(*socket, packet.GetPacket() + TotalReceivedBytes, packet.GetPacketSize() - TotalReceivedBytes, 0);
+			TotalReceivedBytes += ReceivedBytes;
+		} while (TotalReceivedBytes != packet.GetPacketSize());
+
+		return packet;
+	}
+	int Send(uint64_t UUID, const char* buffer, int len)
+	{
+		return send(*sockets[UUID], buffer, len, 0);
+	}
+	int Receive(uint64_t UUID, char* buf, int len)
+	{
+		return recv(*sockets[UUID],buf,len, 0);
 	}
 	void ListenForClients()
 	{
@@ -125,29 +95,30 @@ namespace Networking {
 		//Wait for clients
 		while (!Server::ShouldStop)
 		{
-			static int ClientId = 0;
 			INFO("Listening for clients...");
 			SOCKET* client = new SOCKET(accept(serverSocket, nullptr, nullptr));
 			ASSERT(*client, "Client failed to connect");
 
+			//Receive name and UUID
+			Packet<CredentialsPacketSize> CredentialsPacket = GetPacketFromClient<CredentialsPacketSize>(client);
+			Credentials credentials = CredentialsPacket.ExtractPacketData<Credentials>();
+
 			std::mutex mutex;
 			mutex.lock();
-			sockets.push_back(client);
+			sockets[credentials.UUID] = client;
 			mutex.unlock();
 
-			EntityManagerServer::CreatePlayer(ClientId);
+			EntityManagerServer::CreatePlayer(credentials);
 
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
-			StartPacket.AddPacketData<int>(ClientId);
-			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(ClientId));
-			SendPacketToClient(ClientId, StartPacket);
+			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
+			SendPacketToClient(credentials, StartPacket);
 
-			INFO("Client with id: ", ClientId, " connected to the server");
+			INFO("Client with name: ", credentials.Name, " and UUID:", credentials.UUID, " connected to the server");
 
-			std::thread work(HandleClientPacket, ClientId);
+			std::thread work(HandleClientPacket, credentials);
 			work.detach();
-			ClientId++;
 		}
 	}
 }

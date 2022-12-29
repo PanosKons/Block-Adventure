@@ -1,7 +1,7 @@
 #include "EntityManagerServer.h"
 #include "Reader.h"
 
-void EntityManagerServer::CreatePlayer(int PlayerId)
+void EntityManagerServer::CreatePlayer(Credentials& credentials)
 {
-	Players[PlayerId] = Reader::ReadPlayer(PlayerId);
+	Players[credentials.UUID] = Reader::ReadPlayer(credentials);
 }

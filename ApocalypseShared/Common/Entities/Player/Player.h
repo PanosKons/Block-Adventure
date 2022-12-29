@@ -5,12 +5,13 @@
 #include "Common/Entities/Inventory/ItemStack.h"
 #include "Common/World/WorldConstants.h"
 #include "Common/Entities/Entity.h"
+#include "Common/Entities/Credentials.h"
 
 class Player : public Entity
 {
 public:
 
-	Player();
+	Player(Credentials& credentials);
 	~Player();
 
 	Block GetFacingBlock();
@@ -18,6 +19,8 @@ public:
 	void MarkBlockToBreak();
 	int GetFirstAvaiableSlot(int id, TYPE type);
 	Vector3<double> GetLookPosition();
+
+	Credentials credentials;
 
 	char ActiveSlot;
 	std::array<ItemStack, InventorySize> Inventory;

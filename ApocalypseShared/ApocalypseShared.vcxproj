@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Blocks\Block.h" />
+    <ClInclude Include="Common\Entities\Credentials.h" />
     <ClInclude Include="Common\Entities\Entity.h" />
     <ClInclude Include="Common\Entities\EntityManager.h" />
     <ClInclude Include="Common\Entities\Inventory\ItemStack.h" />
@@ -121,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Blocks\Block.cpp" />
+    <ClCompile Include="Common\Entities\Credentials.cpp" />
     <ClCompile Include="Common\Entities\Entity.cpp" />
     <ClCompile Include="Common\Entities\EntityManager.cpp" />
     <ClCompile Include="Common\Entities\Inventory\ItemStack.cpp" />

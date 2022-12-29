@@ -5,7 +5,7 @@
 class PlayerClient : public Player
 {
 public:
-	PlayerClient();
+	PlayerClient(Credentials& credentials);
 	void CursorMoved(double xpos, double ypos);
 	glm::vec3 GetCameraFront();
 	glm::vec3 GetCameraPosition();

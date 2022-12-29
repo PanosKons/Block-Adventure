@@ -4,26 +4,27 @@
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/Block.h"
 #include "Common/World/WorldConstants.h"
+#include "Common/Entities/Credentials.h"
 
 constexpr int StartPacketSize = 1000;
 constexpr int DefaultPacketSize = 64;
 constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
 constexpr int MAX_PLAYERS = 20;
-
+constexpr int CredentialsPacketSize = sizeof(Credentials);
 enum class PACKET_ID
 {
 	//Sender: server
-	//Data: char PlayerId
+	//Data: uint64_t UUID
 	//		Vector3<double> Position
 	PlayerJoin,
 	//Sender: server
-	//Data: char PlayerId
+	//Data: uint64_t UUID
 	//		Vector3<double> Position
 	//Sender: client
 	//Data: Vector3<double> Position
 	PlayerPosition,
 	//Sender: server
-	//Data: char PlayerId
+	//Data: uint64_t UUID
 	//		Vector3<int> BlockPosition
 	//		int BLOCK_ID
 	//Sender: client
@@ -77,16 +78,10 @@ public:
 
 	void InitMemory()
 	{
-		static std::atomic<int> PacketCount = 0;
-		PacketCount++;
-		INFO("Total packets created: ", PacketCount.load());
 		PacketData = new std::array<char, TSize>();
 	}
 	void DeletePacket()
 	{
-		static std::atomic<int> DeletePacketCount = 0;
-		DeletePacketCount++;
-		INFO("Total packets deleted: ", DeletePacketCount.load());
 		delete PacketData;
 	}
 private:

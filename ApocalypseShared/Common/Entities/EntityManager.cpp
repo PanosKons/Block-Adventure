@@ -1,14 +1,7 @@
 #include "pch.h"
 #include "EntityManager.h"
 #include "Common/Networking/Packet.h"
-void EntityManager::Start()
-{
-	Players.reserve(MAX_PLAYERS);
-	for (int i = 0; i < Players.capacity(); i++)
-	{
-		Players.push_back(nullptr);
-	}
-}
+void EntityManager::Start(){}
 bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox)
 {
 	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
@@ -165,12 +158,12 @@ void EntityManager::UpdatePlayer(int id, Vector3<double> Position)
 }*/
 void EntityManager::ShutDown()
 {
-	for (Player* player : Players)
+	for (auto[UUID,player] : Players)
 	{
 		delete player;
 	}
 }
-Player* EntityManager::GetPlayer(int PlayerId)
+Player* EntityManager::GetPlayer(uint64_t UUID)
 {
-	return Players[PlayerId];
+	return Players[UUID];
 }
