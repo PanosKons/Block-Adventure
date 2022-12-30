@@ -136,7 +136,10 @@
     <ClCompile Include="Common\World\Structure.cpp" />
     <ClCompile Include="Common\World\World.cpp" />
     <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="pch.cpp">
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</MultiProcessorCompilation>
+    </ClCompile>
     <ClCompile Include="Common\World\WorldManager.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>

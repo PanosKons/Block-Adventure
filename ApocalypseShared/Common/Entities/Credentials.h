@@ -8,7 +8,7 @@ public:
 	{
 		return *((uint64_t*)Name.data());
 	}
-	Credentials(GameName Name, int UUID) : Name(Name), UUID(UUID) {}
+	Credentials(GameName Name, uint64_t UUID) : Name(Name), UUID(UUID) {}
 	GameName Name;
 	uint64_t UUID;
 };

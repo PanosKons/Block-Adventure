@@ -23,13 +23,8 @@ void GameScene::Start()
 
 void GameScene::Update(double TimeStep)
 {
+	EntityManagerClient::Tick();
 	EntityManagerClient::GetPlayer().InputTick(TimeStep);
-	Packet<DefaultPacketSize> packet;
-	packet.InitMemory();
-	packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-	packet.AddPacketData<Vector3<double>>(EntityManagerClient::GetPlayer().Position);
-	Networking::SendPacketToServer(packet);
-	packet.DeletePacket();
 }
 
 void GameScene::Render(double TimeStep)

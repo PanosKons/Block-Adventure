@@ -19,12 +19,14 @@ public:
 	template<int TSize>
 	static void SendPacketToServer(Packet<TSize>& packet)
 	{
-		int TotalSentBytes = 0;
-		do
 		{
-			int SentBytes = send(clientSocket, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes, 0);
-			TotalSentBytes += SentBytes;
-		} while (TotalSentBytes != packet.GetPacketSize());
+			int TotalSentBytes = 0;
+			do
+			{
+				int SentBytes = send(clientSocket, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes, 0);
+				TotalSentBytes += SentBytes;
+			} while (TotalSentBytes != packet.GetPacketSize());
+		}
 	}
 	template<int TSize>
 	static Packet<TSize> GetPacketFromServer()

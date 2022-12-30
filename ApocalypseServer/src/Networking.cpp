@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Networking.h"
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/Block.h"
 #include "Common/Math/Noise.h"
@@ -10,7 +11,6 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
-#include "Networking.h"
 
 namespace Networking {
 	inline static std::unordered_map<uint64_t, SOCKET*> sockets;
@@ -19,26 +19,27 @@ namespace Networking {
 		INFO("Thread with id:", std::this_thread::get_id(), " started!");
 		while (true)
 		{
-			Packet<DefaultPacketSize> packet = GetPacketFromClient<DefaultPacketSize>(credentials);
-			switch (packet.ExtractPacketData<PACKET_ID>())
+			Packet<SizePacket> packetID = GetPacketFromClient<SizePacket>(credentials);
+			switch (packetID.ExtractPacketData<PACKET_ID>())
 			{
 				case PACKET_ID::PlayerPosition:
 				{
-					Vector3<double> PlayerPosition = packet.ExtractPacketData<Vector3<double>>();
-					EntityManagerServer::GetPlayer(credentials.UUID)->Position = PlayerPosition;
-					//Packet<DefaultPacketSize> sPacket;
-					//sPacket.InitMemory();
-					//sPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-					//sPacket.AddPacketData<uint64_t>(credentials.UUID);
-					//sPacket.AddPacketData<Vector3<double>>(PlayerPosition);
-					//SendAllClients(sPacket);
-					//sPacket.DeletePacket();
+					Packet<ReceivePlayerPosition> packet = GetPacketFromClient<ReceivePlayerPosition>(credentials);
+					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
+					Vector3<double> playerPosition = packet.ExtractPacketData<Vector3<double>>();
+					EntityManagerServer::GetPlayer(UUID)->Position = playerPosition;
+
+					Packet<SendPlayerPosition> SendPacket;
+					SendPacket.InitMemory();
+					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
+					SendPacket.AddPacketData<uint64_t>(UUID);
+					SendPacket.AddPacketData<Vector3<double>>(playerPosition);
+					SendAllExceptClient(credentials, SendPacket);
 				}
 				case PACKET_ID::BreakBlock:
 				{
 				}
 			}
-			packet.DeletePacket();
 		}
 	}
 	void Shutdown()
@@ -110,10 +111,29 @@ namespace Networking {
 
 			EntityManagerServer::CreatePlayer(credentials);
 
+			Packet<SendPlayerJoin> packet;
+			packet.InitMemory();
+			packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerJoin);
+			packet.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
+			SendAllExceptClient(credentials,packet);
+
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
 			SendPacketToClient(credentials, StartPacket);
+
+			for (auto&[UUID, player] : EntityManagerServer::Players)
+			{
+				if (UUID != credentials.UUID)
+				{
+					Packet<SendPlayerJoin> JoinPacket;
+					JoinPacket.InitMemory();
+					JoinPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerJoin);
+					JoinPacket.AddPacketData<Player>(*player);
+					SendPacketToClient(credentials, JoinPacket);
+				}
+			}
+
 
 			INFO("Client with name: ", credentials.Name, " and UUID:", credentials.UUID, " connected to the server");
 

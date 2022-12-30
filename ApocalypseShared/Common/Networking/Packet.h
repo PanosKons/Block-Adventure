@@ -5,43 +5,38 @@
 #include "Common/Blocks/Block.h"
 #include "Common/World/WorldConstants.h"
 #include "Common/Entities/Credentials.h"
+#include "Common/Entities/Player/Player.h"
 
-constexpr int StartPacketSize = 1000;
-constexpr int DefaultPacketSize = 64;
-constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
-constexpr int MAX_PLAYERS = 20;
-constexpr int CredentialsPacketSize = sizeof(Credentials);
 enum class PACKET_ID
 {
-	//Sender: server
-	//Data: uint64_t UUID
-	//		Vector3<double> Position
 	PlayerJoin,
-	//Sender: server
-	//Data: uint64_t UUID
-	//		Vector3<double> Position
-	//Sender: client
-	//Data: Vector3<double> Position
 	PlayerPosition,
-	//Sender: server
-	//Data: uint64_t UUID
-	//		Vector3<int> BlockPosition
-	//		int BLOCK_ID
-	//Sender: client
-	//Data: Vector3<int> BlockPosition
-	//		int BLOCK_ID
 	BreakBlock,
-	//Sender: client
-	//Data: Vector3<int> ChunkPosition
 	RequestChunk,
-	//Sender: server
-	//Data: Vector3<int> ChunkPosition
-	//		BlockArray ChunkData
 	NewChunk,
-	//Sender: client
-	//Data: Vector3<int> ChunkPosition
 	DeleteChunk,
 };
+
+constexpr int MAX_PLAYERS = 20;
+
+constexpr int SizePacket = sizeof(PACKET_ID);
+
+constexpr int CredentialsPacketSize = sizeof(Credentials);
+constexpr int StartPacketSize = 1000;
+
+constexpr int ReceivePlayerPosition = sizeof(uint64_t) + sizeof(Vector3<double>);
+constexpr int SendPlayerPosition = SizePacket + ReceivePlayerPosition;
+
+constexpr int ReceivePlayerJoin = sizeof(Player);
+constexpr int SendPlayerJoin = SizePacket + ReceivePlayerJoin;
+
+constexpr int ReceiveNewChunk = sizeof(Vector3<int>);
+constexpr int SendNewChunk = SizePacket + ReceiveNewChunk;
+constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
+
+constexpr int ReceiveDeleteChunk = sizeof(Vector3<int>);
+constexpr int SendDeleteChunk = SizePacket + ReceiveDeleteChunk;
+
 template<int TSize>
 class Packet
 {
@@ -80,9 +75,10 @@ public:
 	{
 		PacketData = new std::array<char, TSize>();
 	}
-	void DeletePacket()
+	~Packet()
 	{
-		delete PacketData;
+		//if(PacketData != nullptr)
+		//	delete PacketData;
 	}
 private:
 	std::array<char, TSize>* PacketData = nullptr;

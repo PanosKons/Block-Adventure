@@ -94,6 +94,7 @@
     <ClCompile Include="src\Networking.cpp" />
     <ClCompile Include="src\ServerManager\ServerManager.cpp" />
     <ClCompile Include="src\Server\Server.cpp" />
+    <ClCompile Include="src\World\WorldManagerServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApocalypseShared\ApocalypseShared.vcxproj">
@@ -109,6 +110,7 @@
     <ClInclude Include="src\Networking.h" />
     <ClInclude Include="src\ServerManager\ServerManager.h" />
     <ClInclude Include="src\Server\Server.h" />
+    <ClInclude Include="src\World\WorldManagerServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

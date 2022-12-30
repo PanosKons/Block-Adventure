@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Common/Entities/Credentials.h"
 #include "Networking.h"
 #include "Common/Math/Vector.h"
 #include "GameManager.h"
@@ -11,16 +12,25 @@ void HandleMessage()
 {
 	while (Client::ShouldStop == false)
 	{
-		Packet<DefaultPacketSize> packet = Networking::GetPacketFromServer<DefaultPacketSize>();
-		switch (packet.ExtractPacketData<PACKET_ID>())
+		Packet<SizePacket> PacketID = Networking::GetPacketFromServer<SizePacket>();
+		switch (PacketID.ExtractPacketData<PACKET_ID>())
 		{
 		case PACKET_ID::PlayerPosition:
 		{
-			int PlayerId = packet.ExtractPacketData<int>();
+			Packet<ReceivePlayerPosition> packet = Networking::GetPacketFromServer<ReceivePlayerPosition>();
+			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
 			Vector3<double> Position = packet.ExtractPacketData<Vector3<double>>();
-			//if(PlayerId != Networking::Player_id)
-			//	EntityManagerClient::Players[PlayerId]->Position = Position;
+			if(UUID != EntityManagerClient::GetPlayer().credentials.UUID)
+				EntityManagerClient::Players[UUID]->Position = Position;
 			break;
+		}
+		case PACKET_ID::PlayerJoin:
+		{
+			Packet<ReceivePlayerJoin> packet = Networking::GetPacketFromServer<ReceivePlayerJoin>();
+			Player* player = new Player(*Networking::credentials);
+			*player = packet.ExtractPacketData<Player>();
+			EntityManagerClient::Players[player->credentials.UUID] = player;
+			INFO("Player with name:", player->credentials.Name, " and UUID:", player->credentials.UUID, " is in game!");
 		}
 		case PACKET_ID::BreakBlock:
 		{
@@ -28,12 +38,20 @@ void HandleMessage()
 		}
 		case PACKET_ID::NewChunk:
 		{
+			Packet<ReceiveNewChunk> packet = Networking::GetPacketFromServer<ReceiveNewChunk>();
 			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
 			Packet<ChunkPacketSize> chunkPacket = Networking::GetPacketFromServer<ChunkPacketSize>();
 			BlockArray* blocks = (BlockArray*)chunkPacket.GetPacket();
 			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)chunkPacket.GetPacket());
 			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld,ChunkPosition);
 			chunkPacket.SetPacket(nullptr);
+			break;
+		}
+		case PACKET_ID::DeleteChunk:
+		{
+			Packet<ReceiveDeleteChunk> packet = Networking::GetPacketFromServer<ReceiveDeleteChunk>();
+			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
+			WorldManager::BaseWorld->DestroyChunk(ChunkPosition);
 			break;
 		}
 		}
@@ -69,6 +87,7 @@ void Networking::Connect()
 	StartPacket = Networking::GetPacketFromServer<StartPacketSize>();
 	Player player = StartPacket.ExtractPacketData<Player>();
 	EntityManagerClient::CreateSelf(*Networking::credentials, &player);
+
 
 	INFO("Connected to the server with UUID: ", Networking::credentials->UUID);
 

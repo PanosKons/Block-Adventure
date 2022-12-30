@@ -8,12 +8,23 @@ namespace Networking{
 	template<int TSize>
 	void SendPacketToClient(Credentials& credentials, Packet<TSize>& packet)
 	{
-		int TotalSentBytes = 0;
-		do
 		{
-			int SentBytes = Send(credentials.UUID, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes);
-			TotalSentBytes += SentBytes;
-		} while (TotalSentBytes != packet.GetPacketSize());
+			int TotalSentBytes = 0;
+			do
+			{
+				int SentBytes = Send(credentials.UUID, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes);
+				TotalSentBytes += SentBytes;
+			} while (TotalSentBytes != packet.GetPacketSize());
+		}
+	}
+	template<int TSize>
+	void SendAllExceptClient(Credentials& credentials, Packet<TSize>& packet)
+	{
+		for (auto& [UUID, player] : EntityManagerServer::Players)
+		{
+			if(UUID != credentials.UUID)
+				SendPacketToClient(player->credentials, packet);
+		}
 	}
 	template<int TSize>
 	void SendAllClients(Packet<TSize>& packet)

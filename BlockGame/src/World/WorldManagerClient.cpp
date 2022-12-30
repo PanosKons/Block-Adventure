@@ -20,33 +20,6 @@ void WorldManagerClient::DeleteOldChunks()
 }
 void WorldManagerClient::RequestNewChunks()
 {
-	static std::vector<int64_t> RequestedChunks;
-	static int RenderDistance = 1;
-	Vector3<int> ChunkPosition = Vector::IntVector(EntityManagerClient::GetPlayer().Position) / ChunkSize;
-	for (int x = ChunkPosition.x - RenderDistance; x <= ChunkPosition.x + RenderDistance; x++)
-	{
-		for (int y = ChunkPosition.y - RenderDistance; y <= ChunkPosition.y + RenderDistance; y++)
-		{
-			for (int z = ChunkPosition.z - RenderDistance; z <= ChunkPosition.z + RenderDistance; z++)
-			{
-				auto it = std::find(RequestedChunks.begin(), RequestedChunks.end(), GetChunkKey({ x,y,z }));
-				Chunk* chunk = WorldManager::BaseWorld->GetChunkDirect({ x,y,z });
-				if (chunk == nullptr && it == RequestedChunks.end())
-				{
-					Packet<DefaultPacketSize> packet;
-					packet.InitMemory();
-					packet.AddPacketData(PACKET_ID::RequestChunk);
-					packet.AddPacketData<Vector3<int>>({ x,y,z });
-					Networking::SendPacketToServer(packet);
-					RequestedChunks.push_back(GetChunkKey({ x,y,z }));
-				}
-				if (chunk != nullptr && it != RequestedChunks.end())
-				{
-					RequestedChunks.erase(it);
-				}
-			}
-		}
-	}
 }
 
 void WorldManagerClient::RefreshBorderChunks(World* world, Vector3<int> ChunkPosition)

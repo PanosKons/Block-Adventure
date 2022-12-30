@@ -33,6 +33,9 @@
     <ClCompile Include="src\EntityManagerServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\World\WorldManagerServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Networking.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EntityManagerServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\World\WorldManagerServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
