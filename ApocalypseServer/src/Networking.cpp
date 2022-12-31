@@ -35,9 +35,23 @@ namespace Networking {
 					SendPacket.AddPacketData<uint64_t>(UUID);
 					SendPacket.AddPacketData<Vector3<double>>(playerPosition);
 					SendAllExceptClient(credentials, SendPacket);
+					break;
 				}
-				case PACKET_ID::BreakBlock:
+				case PACKET_ID::ReplaceBlock:
 				{
+					Packet<ReceiveReplaceBlock> packet = GetPacketFromClient<ReceiveReplaceBlock>(credentials);
+					Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
+					unsigned short id = packet.ExtractPacketData<unsigned short>();
+					Block block = WorldManager::BaseWorld->GetBlock(BlockPosition);
+					block.OnBreak((BLOCK_ID)id);
+
+					Packet<SendReplaceBlock> SendPacket;
+					SendPacket.InitMemory();
+					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::ReplaceBlock);
+					SendPacket.AddPacketData<Vector3<int>>(BlockPosition);
+					SendPacket.AddPacketData<unsigned short>(id);
+					SendAllExceptClient(credentials, SendPacket);
+					break;
 				}
 			}
 		}

@@ -173,19 +173,332 @@ void RendererClient::RenderWorld(World* world)
 
 void RendererClient::RenderEntities()
 {
+	RenderBuilder::Begin(EntityRenderData);
+	//Render players
+	for (auto&[UUID, player] : EntityManagerClient::Players)
+	{
+		if(UUID != EntityManagerClient::GetPlayer().credentials.UUID)
+			RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(player->Position), Vector::FloatVector(player->Hitbox), { 0.8f,1.0f,0.9f,1.0f });
+	}
+	//Render block selection
+	#define WIDTH 0.02f
+	#define OP_WIDTH 1.0f - WIDTH
+	Block facingblock = EntityManagerClient::GetPlayer().GetFacingBlock();
+	if (facingblock.data != nullptr)
+	{
+		Vector3<int> FacingBlockPosition = facingblock.Position;
+		Vertex a;
+		a.texCords = { 0,0 };
+		a.texId = -1.0f;
+		a.color = { 0.0f,0.0f,0.0f,1.0f };
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.y += OP_WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 0.02f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.x += OP_WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.y += OP_WIDTH;
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += OP_WIDTH;
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += 1.0f;
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.y += OP_WIDTH;
+		a.position.z += 1.0f;
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += 1.0f;
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.x -= OP_WIDTH;
+		a.position.z += 1.0f;
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.y += OP_WIDTH;
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z -= OP_WIDTH;
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.x += OP_WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += OP_WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.z += OP_WIDTH;
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+		a.position = Vector::FloatVector(FacingBlockPosition);
+		a.position.x += OP_WIDTH;
+		a.position.y += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x += WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.z += 1.0f;
+		EntityRenderData.vertexBuffer.Add(a);
+		a.position.x -= WIDTH;
+		EntityRenderData.vertexBuffer.Add(a);
+		EntityRenderData.indexBuffer.AddRectangle();
+	}
 
+	RenderBuilder::End(EntityRenderData);
+	Renderer::RenderCommand command;
+	command.view = Renderer::View::Player;
+	command.Depth = true;
+	command.renderData = &EntityRenderData;
+	Renderer::AddCommand(command);
 }
 
+constexpr float SlotWidth = 64.0f;
+constexpr float SlotHeight = 64.0f;
+constexpr float BaseLayer = 10.0f;
+constexpr float SlotsX = 64.0f;
 void RendererClient::RenderUI(double TimeStep)
 {
 	RenderBuilder::Begin(UIRenderData);
-	RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth/2, (float)Client::ScreenHeight/2}, { 20.0f,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 12);
-	Vector3<double>& PlayerPosition = EntityManagerClient::GetPlayer().Position;
-	RenderBuilder::AddText(UIRenderData, "Position:" + StringConvertions::ToString((int)PlayerPosition.x) + "," + StringConvertions::ToString((int)PlayerPosition.y) + "," + StringConvertions::ToString((int)PlayerPosition.z), {0.0f,Client::ScreenHeight - 40.0f});
-	RenderBuilder::AddText(UIRenderData, "FPS:" + StringConvertions::ToString((int)(1 / TimeStep)), {0.0f,Client::ScreenHeight - 70.0f});
-	Block LookBlock = EntityManagerClient::GetPlayer().GetFacingBlock();
-	if(LookBlock.data != nullptr)
-		RenderBuilder::AddText(UIRenderData, "Facing block:" + StringConvertions::ToString(LookBlock.Position.x) + "," + StringConvertions::ToString(LookBlock.Position.y) + "," + StringConvertions::ToString(LookBlock.Position.z), {0.0f,Client::ScreenHeight - 100.0f});
+	//Info screen
+	{
+		RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 2, (float)Client::ScreenHeight / 2 }, { 20.0f,20.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 12);
+		Vector3<double>& PlayerPosition = EntityManagerClient::GetPlayer().Position;
+		RenderBuilder::AddText(UIRenderData, "Position:" + StringConvertions::ToString((int)PlayerPosition.x) + "," + StringConvertions::ToString((int)PlayerPosition.y) + "," + StringConvertions::ToString((int)PlayerPosition.z), { 0.0f,Client::ScreenHeight - 40.0f });
+		RenderBuilder::AddText(UIRenderData, "FPS:" + StringConvertions::ToString((int)(1 / TimeStep)), { 0.0f,Client::ScreenHeight - 70.0f });
+		Block LookBlock = EntityManagerClient::GetPlayer().GetFacingBlock();
+		if (LookBlock.data != nullptr)
+			RenderBuilder::AddText(UIRenderData, "Facing block:" + StringConvertions::ToString(LookBlock.Position.x) + "," + StringConvertions::ToString(LookBlock.Position.y) + "," + StringConvertions::ToString(LookBlock.Position.z), { 0.0f,Client::ScreenHeight - 100.0f });
+	}
+	//Health and Inventory
+	{
+		Vector2<float> SlotPosition = { SlotsX,0.0f};
+
+		Vector2<float> HealthBarPosition = { SlotsX,10.0f + SlotHeight };
+		RenderBuilder::AddSquare(UIRenderData, HealthBarPosition, { 320.0f,40.0f }, { 1.0f,0.0f,0.0f,1.0f }, { 0.0f,0.0f }, {1.0f,1.0f}, -1, BaseLayer);
+		RenderBuilder::AddSquare(UIRenderData, HealthBarPosition, { 320.0f * EntityManagerClient::GetPlayer().Health / EntityManagerClient::GetPlayer().MaxHealth,40.0f }, { 0.0f,1.0f,0.0f,1.0f }, { 0.0f,0.0f }, { 1.0f,1.0f }, -1, BaseLayer);
+		RenderBuilder::AddText(UIRenderData,StringConvertions::ToString((int)EntityManagerClient::GetPlayer().Health) + "/" + StringConvertions::ToString((int)EntityManagerClient::GetPlayer().MaxHealth), HealthBarPosition, BaseLayer + 0.3f);
+		for (int i = 0; i < InventorySize; i++)
+		{
+			RenderBuilder::AddSquare(UIRenderData, SlotPosition, { SlotWidth,SlotHeight }, { 1,1,1,1 }, { 0.0f,0.0f }, { 1.0f,1.0f },14, BaseLayer - 0.3f);
+			SlotPosition.x += SlotWidth;
+		}
+		SlotPosition = { SlotsX,0.0f };
+		for (int i = 0; i < InventorySize; i++)
+		{
+			if (EntityManagerClient::GetPlayer().Inventory[i].count != 0)
+			{
+				unsigned char a = GetTexture(EntityManagerClient::GetPlayer().Inventory[i].id, EntityManagerClient::GetPlayer().Inventory[i].type)[0];
+				RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + 8, SlotPosition.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f,BaseLayer - 0.2f);
+			}
+			SlotPosition.x += SlotWidth;
+		}
+		SlotPosition = { SlotsX,0.0f };
+		for (int i = 0; i < InventorySize; i++)
+		{
+			if (EntityManagerClient::GetPlayer().Inventory[i].count > 1)
+				RenderBuilder::AddText(UIRenderData,StringConvertions::ToString(EntityManagerClient::GetPlayer().Inventory[i].count), SlotPosition, BaseLayer - 0.1f);
+			SlotPosition.x += SlotWidth;
+		}
+		SlotPosition = { SlotsX,0.0f };
+		RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + SlotWidth * EntityManagerClient::GetPlayer().ActiveSlot,SlotPosition.y }, { SlotWidth,SlotHeight }, { 1,1,1,1 }, { 0.0f,0.0f }, { 1.0f,1.0f }, 15, BaseLayer - 0.05f);
+	}
 	RenderBuilder::End(UIRenderData);
 	Renderer::RenderCommand command;
 	command.view = Renderer::View::UI;

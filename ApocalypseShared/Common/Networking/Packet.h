@@ -11,7 +11,7 @@ enum class PACKET_ID
 {
 	PlayerJoin,
 	PlayerPosition,
-	BreakBlock,
+	ReplaceBlock,
 	RequestChunk,
 	NewChunk,
 	DeleteChunk,
@@ -36,6 +36,9 @@ constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
 
 constexpr int ReceiveDeleteChunk = sizeof(Vector3<int>);
 constexpr int SendDeleteChunk = SizePacket + ReceiveDeleteChunk;
+
+constexpr int ReceiveReplaceBlock = sizeof(Vector3<int>) + sizeof(unsigned short);
+constexpr int SendReplaceBlock = ReceiveReplaceBlock + SizePacket;
 
 template<int TSize>
 class Packet

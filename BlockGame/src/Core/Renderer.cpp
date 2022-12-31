@@ -140,13 +140,13 @@ namespace RenderBuilder {
 		renderData.vertexBuffer.Clear();
 		renderData.indexBuffer.Clear();
 	}
-	void AddSquare(RenderData& renderData, Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID)
+	void AddSquare(RenderData& renderData, Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID, float layer)
 	{
 		Vertex vertex;
 		vertex.color = Color;
 		vertex.texId = TextureID;
 		vertex.texCords = TexCords;
-		vertex.position = { Position.x,Position.y,0.0f };
+		vertex.position = { Position.x,Position.y,layer };
 		renderData.vertexBuffer.Add(vertex);
 		vertex.texCords.y += TexSize.y;
 		vertex.position.y += Size.y;
@@ -159,12 +159,12 @@ namespace RenderBuilder {
 		renderData.vertexBuffer.Add(vertex);
 		renderData.indexBuffer.AddRectangle();
 	}
-	void AddText(RenderData& renderData, std::string_view Text, Vector2<float> Position)
+	void AddText(RenderData& renderData, std::string_view Text, Vector2<float> Position, float layer)
 	{
 		Vertex vertex;
 		vertex.color = { 1,1,1,1 };
 		vertex.texId = 13;
-		vertex.position = { Position.x,Position.y,0.0f};
+		vertex.position = { Position.x,Position.y,layer};
 		for (char digit : Text)
 		{
 			int x = digit % 16;
@@ -184,6 +184,73 @@ namespace RenderBuilder {
 			renderData.indexBuffer.AddRectangle();
 			vertex.position.x -= Client::charWidth - Client::charWidthOffset;
 		}
+	}
+	void AddCube(RenderData& renderData, Vector3<float> Position, Vector3<float> Size, Vector4<float> Color)
+	{
+		Vertex vertex;
+		vertex.color = Color;
+		vertex.texId = -1;
+		vertex.texCords = {0,0};
+
+		vertex.position = { Position.x,Position.y,Position.z };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.x += Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.y += Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.x -= Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
+
+		vertex.position = { Position.x,Position.y,Position.z };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.y += Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.z += Size.z;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.y -= Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
+
+		vertex.position = { Position.x,Position.y,Position.z };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.z += Size.z;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.x += Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.z -= Size.z;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
+
+		vertex.position = { Position.x ,Position.y,Position.z + Size.z };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.y += Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.x += Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.y -= Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
+
+		vertex.position = { Position.x + Size.x,Position.y ,Position.z };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.z += Size.z;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.y += Size.y;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.z -= Size.z;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
+
+		vertex.position = { Position.x,Position.y + Size.y ,Position.z };
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.x += Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.z += Size.z;
+		renderData.vertexBuffer.Add(vertex);
+		vertex.position.x -= Size.x;
+		renderData.vertexBuffer.Add(vertex);
+		renderData.indexBuffer.AddRectangle();
 	}
 	void End(RenderData& renderData)
 	{

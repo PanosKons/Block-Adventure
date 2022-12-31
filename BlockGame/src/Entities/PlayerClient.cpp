@@ -6,13 +6,21 @@
 #include "Common/Math/EngineMath.h"
 #include "Common/World/WorldManager.h"
 #include "Logger.h"
+#include "Networking/Networking.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
 {
 	Input::SetCursorCallback([](double xpos,double ypos) {EntityManagerClient::GetPlayer().CursorMoved(xpos,ypos); });
+	Input::SetKeyCallback([](int key, int actioncode, int action, int mods) {EntityManagerClient::GetPlayer().KeyPressed(key, action); });
 }
-
+void PlayerClient::KeyPressed(int key, int action)
+{
+	if (key >= Key::n1 && key <= Key::n9 && action == Action::Press && !IsGUIOpen)
+	{
+		ActiveSlot = key - 49;
+	}
+}
 void PlayerClient::CursorMoved(double xpos, double ypos)
 {
 	if (IsGUIOpen) return;
@@ -59,6 +67,7 @@ glm::vec3 PlayerClient::GetCameraPosition()
 
 void PlayerClient::InputTick(double TimeStep)
 {
+	//Use K to toggle godmode
 	{
 		static Action lastState = Action::Release;
 		if (Input::GetKeyState(Key::K) == Action::Press && !IsGUIOpen)
@@ -74,99 +83,160 @@ void PlayerClient::InputTick(double TimeStep)
 			lastState = Action::Release;
 		}
 	}
-
-	if (Input::GetKeyState(Key::W) == Action::Press && !IsGUIOpen)
+	//Check whether to crouch or sprint
 	{
-		Velocity.x = Speed * cos(Math::Radians(Yaw));
-		Velocity.z = Speed * sin(Math::Radians(Yaw));
-	}
-	else if (Input::GetKeyState(Key::S) == Action::Press && !IsGUIOpen)
-	{
-		Velocity.x = -Speed * cos(Math::Radians(Yaw));
-		Velocity.z = -Speed * sin(Math::Radians(Yaw));
-	}
-	else if (Input::GetKeyState(Key::D) == Action::Press && !IsGUIOpen)
-	{
-		Velocity.x = Speed * cos(Math::Radians(Yaw + 90));
-		Velocity.z = Speed * sin(Math::Radians(Yaw + 90));
-	}
-	else if (Input::GetKeyState(Key::A) == Action::Press && !IsGUIOpen)
-	{
-		Velocity.x = -Speed * cos(Math::Radians(Yaw + 90));
-		Velocity.z = -Speed * sin(Math::Radians(Yaw + 90));
-	}
-	else
-	{
-		Velocity.x = 0;
-		Velocity.z = 0;
-	}
-	if (Godmode == true)
-	{
-		if (Input::GetKeyState(Key::Space) == Action::Press && !IsGUIOpen)
+		Crouch = false;
+		if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
 		{
-			Velocity.y = Speed;
+			Speed = 2.0f;
+			Crouch = true;
 		}
-		else if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
+		else if (Input::GetKeyState(Key::Control) == Action::Press && !IsGUIOpen)
 		{
-			Velocity.y = -Speed;
+			Speed = 6.0f;
+			if (Godmode) Speed = 100.0f;
 		}
 		else
 		{
-			Velocity.y = 0.0;
+			Speed = 4.0f;
 		}
 	}
-	else
+	//Apply movement
 	{
-		Velocity.y -= GravityConstant * TimeStep;
+		if (Input::GetKeyState(Key::W) == Action::Press && !IsGUIOpen)
+		{
+			Velocity.x = Speed * cos(Math::Radians(Yaw));
+			Velocity.z = Speed * sin(Math::Radians(Yaw));
+		}
+		else if (Input::GetKeyState(Key::S) == Action::Press && !IsGUIOpen)
+		{
+			Velocity.x = -Speed * cos(Math::Radians(Yaw));
+			Velocity.z = -Speed * sin(Math::Radians(Yaw));
+		}
+		else if (Input::GetKeyState(Key::D) == Action::Press && !IsGUIOpen)
+		{
+			Velocity.x = Speed * cos(Math::Radians(Yaw + 90));
+			Velocity.z = Speed * sin(Math::Radians(Yaw + 90));
+		}
+		else if (Input::GetKeyState(Key::A) == Action::Press && !IsGUIOpen)
+		{
+			Velocity.x = -Speed * cos(Math::Radians(Yaw + 90));
+			Velocity.z = -Speed * sin(Math::Radians(Yaw + 90));
+		}
+		else
+		{
+			Velocity.x = 0;
+			Velocity.z = 0;
+		}
+		if (Godmode == true)
+		{
+			if (Input::GetKeyState(Key::Space) == Action::Press && !IsGUIOpen)
+			{
+				Velocity.y = Speed;
+			}
+			else if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
+			{
+				Velocity.y = -Speed;
+			}
+			else
+			{
+				Velocity.y = 0.0;
+			}
+		}
+		else
+		{
+			Velocity.y -= GravityConstant * TimeStep;
+		}
 	}
-
-	if (EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y, Position.z }, Hitbox))
+	//Jump mechanic
 	{
-		Velocity.x = 0;
+		JumpCooldown -= (float)TimeStep;
+		if (Input::GetKeyState(Key::Space) == Action::Press && Grounded && !Godmode && !IsGUIOpen && JumpCooldown <= 0)
+		{
+			Crouch = false;
+			Velocity.y = 7.2f;
+			JumpCooldown += 0.4f;
+		}
 	}
-	if (EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
+	//Check collisions
 	{
-		if (Velocity.y <= -6.0f) Health -= -(float)Velocity.y / 3.0f;
-		Velocity.y = 0;
-		Grounded = true;
+		if (EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y, Position.z }, Hitbox))
+		{
+			Velocity.x = 0;
+		}
+		if (EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
+		{
+			if (Velocity.y <= -16.0f) Health -= -(float)Velocity.y / 3.0f;
+			Velocity.y = 0;
+			Grounded = true;
+		}
+		else
+		{
+			Grounded = false;
+		}
+		if (EntityManagerClient::CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * TimeStep }, Hitbox))
+		{
+			Velocity.z = 0;
+		}
 	}
-	else
+	//Not fall over the edge of a block
 	{
-		Grounded = false;
+		if (Crouch && Grounded)
+		{
+			if (!EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
+			{
+				Velocity.x = 0;
+			}
+			if (!EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z + Velocity.z * TimeStep }, Hitbox))
+			{
+				Velocity.z = 0;
+			}
+		}
 	}
-	if (EntityManagerClient::CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * TimeStep }, Hitbox))
-	{
-		Velocity.z = 0;
-	}
-
+	//Apply the velocity to the position
 	Position += Velocity * TimeStep;
-	/*
+
+	//Get the facing block
 	Block facingblock = GetFacingBlock();
-	if (IsBreakingBlock)
+	//Break block functionality
 	{
-		if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
-		if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
+		if (IsBreakingBlock)
 		{
-			TimeToBreak -= (float)TimeStep * 60 * 12;
+			if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
+			if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
+			{
+				TimeToBreak -= (float)TimeStep * 60 * 12;
+			}
+			else
+			{
+				TimeToBreak -= (float)TimeStep * 60;
+			}
+			if (TimeToBreak < 0)
+			{
+				int index = GetFirstAvaiableSlot((int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), TYPE::BLOCK);
+				Inventory[index].id = (int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId();
+				Inventory[index].type = TYPE::BLOCK;
+				Inventory[index].count++;
+				WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).OnBreak(BLOCK_ID::Air);
+				//Notify the server
+				{
+					Packet<SendReplaceBlock> packet;
+					packet.InitMemory();
+					packet.AddPacketData(PACKET_ID::ReplaceBlock);
+					packet.AddPacketData<Vector3<int>>(BreakingBlockPosition);
+					packet.AddPacketData(BLOCK_ID::Air);
+					Networking::SendPacketToServer(packet);
+
+				}
+				IsBreakingBlock = false;
+			}
 		}
-		else
+		else if (Input::GetMouseState(Mouse::Left) == Action::Press && !IsGUIOpen)
 		{
-			TimeToBreak -= (float)TimeStep * 60;
-		}
-		if (TimeToBreak < 0)
-		{
-			int index = GetFirstAvaiableSlot((int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), TYPE::BLOCK);
-			Inventory[index].id = (int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId();
-			Inventory[index].type = TYPE::BLOCK;
-			Inventory[index].count++;
-			WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).OnBreak(BLOCK_ID::Air);
-			IsBreakingBlock = false;
+			MarkBlockToBreak();
 		}
 	}
-	else if (Input::GetMouseState(Mouse::Left) == Action::Press && !IsGUIOpen)
-	{
-		MarkBlockToBreak();
-	}
+	//Place block functionality
 	BlockPlaceDelay -= (float)TimeStep;
 	if (Input::GetMouseState(Mouse::Right) == Action::Press && !IsGUIOpen && BlockPlaceDelay < 0)
 	{
@@ -177,15 +247,21 @@ void PlayerClient::InputTick(double TimeStep)
 		if (Inventory[ActiveSlot].count > 0 && Inventory[ActiveSlot].type == TYPE::BLOCK)
 		{
 			block.OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
+			//Notify the server
+			{
+				Packet<SendReplaceBlock> packet;
+				packet.InitMemory();
+				packet.AddPacketData(PACKET_ID::ReplaceBlock);
+				packet.AddPacketData<Vector3<int>>(block.Position);
+				packet.AddPacketData(Inventory[ActiveSlot].id);
+				Networking::SendPacketToServer(packet);
+
+			}
 			Inventory[ActiveSlot].count--;
 		}
 		BlockPlaceDelay = 0.3f;
 	}
-	if (Input::GetKeyState(Key::G) == Action::Press && !IsGUIOpen)
-	{
-		Godmode = !Godmode;
-	}
-
+	//Pick block functionality
 	if (Input::GetMouseState(Mouse::Middle) == Action::Press && !IsGUIOpen && Godmode)
 	{
 		ItemStack& stack = Inventory[GetFirstAvaiableSlot((int)facingblock.GetBlockId(), TYPE::BLOCK)];
@@ -194,50 +270,4 @@ void PlayerClient::InputTick(double TimeStep)
 		stack.type = TYPE::BLOCK;
 	}
 
-	JumpCooldown -= (float)TimeStep;
-
-	if (!Godmode)
-	{
-		Velocity.y -= 24.0f * TimeStep;
-		Grounded = EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z }, Hitbox);
-	}
-	else
-	{
-		if (Velocity.y < 0) Velocity.y = 0;
-	}
-	Crouch = false;
-	if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
-	{
-		Speed = 2.0f;
-		Crouch = true;
-	}
-	else if (Input::GetKeyState(Key::Control) == Action::Press && !IsGUIOpen)
-	{
-		Speed = 6.0f;
-		if (Godmode) Speed = 28.0f;
-	}
-	else
-	{
-		Speed = 4.0f;
-	}
-
-	if (Input::GetKeyState(Key::Space) == Action::Press && (Grounded || Godmode) && !IsGUIOpen && JumpCooldown <= 0)
-	{
-		Crouch = false;
-		Velocity.y = 7.2f;
-		JumpCooldown += 0.4f;
-	}
-
-	if (Crouch && Grounded)
-	{
-		if (!EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
-		{
-			Velocity.x = 0;
-		}
-		if (!EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z + Velocity.z * TimeStep }, Hitbox))
-		{
-			Velocity.z = 0;
-		}
-	}
-	*/
 }

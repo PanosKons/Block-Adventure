@@ -7,6 +7,7 @@ class PlayerClient : public Player
 public:
 	PlayerClient(Credentials& credentials);
 	void CursorMoved(double xpos, double ypos);
+	void KeyPressed(int key, int action);
 	glm::vec3 GetCameraFront();
 	glm::vec3 GetCameraPosition();
 	void InputTick(double TimeStep);

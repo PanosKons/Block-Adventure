@@ -19,4 +19,5 @@ public:
 private:
 	inline static std::unordered_map<int64_t, ChunkRenderData> ChunkData;
 	inline static RenderData UIRenderData;
+	inline static RenderData EntityRenderData;
 };

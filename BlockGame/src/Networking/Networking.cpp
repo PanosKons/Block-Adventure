@@ -31,9 +31,15 @@ void HandleMessage()
 			*player = packet.ExtractPacketData<Player>();
 			EntityManagerClient::Players[player->credentials.UUID] = player;
 			INFO("Player with name:", player->credentials.Name, " and UUID:", player->credentials.UUID, " is in game!");
+			break;
 		}
-		case PACKET_ID::BreakBlock:
+		case PACKET_ID::ReplaceBlock:
 		{
+			Packet<ReceiveReplaceBlock> packet = Networking::GetPacketFromServer<ReceiveReplaceBlock>();
+			Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
+			unsigned short id = packet.ExtractPacketData<unsigned short>();
+			Block block = WorldManager::BaseWorld->GetBlock(BlockPosition);
+			block.OnBreak((BLOCK_ID)id);
 			break;
 		}
 		case PACKET_ID::NewChunk:

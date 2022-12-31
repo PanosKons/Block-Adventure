@@ -36,11 +36,11 @@ void Chunk::RefreshBorders()
 			}
 		}
 	}
-	for (int x = 0; x < ChunkSize; x++)
+	for (int x = 1; x < ChunkSize - 1; x++)
 	{
 		for (int y = 0; y < ChunkSize; y++)
 		{
-			for (int z = 1; z < ChunkSize; z += ChunkSize - 2)
+			for (int z = 0; z < ChunkSize; z += ChunkSize - 1)
 			{
 				GetBlock({ x,y,z }).Update();
 			}

@@ -9,7 +9,7 @@ public:
 private:
 	static bool ShouldRemoveChunk(Chunk* chunk);
 
-	static inline int RenderDistance = 1;
+	static inline int RenderDistance = 5;
 	static inline int UnloadRenderDistance = RenderDistance + 1;
 	static inline std::unordered_map<uint64_t, std::vector<Vector3<int>>> PlayerLoadedChunks;
 };
