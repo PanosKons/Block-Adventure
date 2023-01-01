@@ -7,18 +7,46 @@
 #include "Common/World/WorldManager.h"
 #include "Logger.h"
 #include "Networking/NetworkingClient.h"
+#include "UI/Commands.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
 {
 	Input::SetCursorCallback([](double xpos,double ypos) {EntityManagerClient::GetPlayer().CursorMoved(xpos,ypos); });
 	Input::SetKeyCallback([](int key, int actioncode, int action, int mods) {EntityManagerClient::GetPlayer().KeyPressed(key, action); });
+	Input::SetCharCallback([](unsigned int key) { EntityManagerClient::GetPlayer().TextInput(key); });
+}
+void PlayerClient::TextInput(int codepoint)
+{
+	if (IsGUIOpen && codepoint <= 255)
+	{
+		chatbox += (char)codepoint;
+	}
 }
 void PlayerClient::KeyPressed(int key, int action)
 {
 	if (key >= Key::n1 && key <= Key::n9 && action == Action::Press && !IsGUIOpen)
 	{
 		ActiveSlot = key - 49;
+	}
+	if (key == Key::Slash && !IsGUIOpen)
+	{
+		IsGUIOpen = true;
+	}
+	if (key == Key::Enter && IsGUIOpen)
+	{
+		Commands::ExecuteCommand(chatbox);
+		chatbox = "";
+		IsGUIOpen = false;
+	}
+	if (key == Key::EscapeKey && IsGUIOpen)
+	{
+		chatbox = "";
+		IsGUIOpen = false;
+	}
+	if (key == Key::BackSpace && IsGUIOpen)
+	{
+		chatbox.pop_back();
 	}
 }
 void PlayerClient::CursorMoved(double xpos, double ypos)
@@ -67,6 +95,17 @@ glm::vec3 PlayerClient::GetCameraPosition()
 
 void PlayerClient::InputTick(double TimeStep)
 {
+	//Use C to zoom
+	{
+		if (Input::GetKeyState(Key::C) == Action::Press && !IsGUIOpen)
+		{
+			EntityManagerClient::GetPlayer().Fov = 30.0f;
+		}
+		else
+		{
+			EntityManagerClient::GetPlayer().Fov = 70.0f;
+		}
+	}
 	//Use K to toggle godmode
 	{
 		static Action lastState = Action::Release;

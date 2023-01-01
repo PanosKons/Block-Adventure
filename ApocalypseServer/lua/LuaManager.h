@@ -6,6 +6,5 @@ class LuaManager
 {
 public:
 	static void LoadScripts();
-	static BlockType GetBlockType(std::string&& key);
 };
 

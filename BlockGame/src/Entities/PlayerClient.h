@@ -8,6 +8,7 @@ public:
 	PlayerClient(Credentials& credentials);
 	void CursorMoved(double xpos, double ypos);
 	void KeyPressed(int key, int action);
+	void TextInput(int codepoint);
 	glm::vec3 GetCameraFront();
 	glm::vec3 GetCameraPosition();
 	void InputTick(double TimeStep);
@@ -16,5 +17,7 @@ public:
 	float Fov = 70.0f;
 	bool firstMouse = true;
 	bool IsGUIOpen = false;
+	std::string chatbox;
+	std::string lastCommand;
 };
 

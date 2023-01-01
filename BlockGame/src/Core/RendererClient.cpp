@@ -453,6 +453,7 @@ constexpr float SlotWidth = 64.0f;
 constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
 constexpr float SlotsX = 64.0f;
+constexpr float charHeight = 16.0f;
 void RendererClient::RenderUI(double TimeStep)
 {
 	RenderBuilder::Begin(UIRenderData);
@@ -498,6 +499,12 @@ void RendererClient::RenderUI(double TimeStep)
 		}
 		SlotPosition = { SlotsX,0.0f };
 		RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + SlotWidth * EntityManagerClient::GetPlayer().ActiveSlot,SlotPosition.y }, { SlotWidth,SlotHeight }, { 1,1,1,1 }, { 0.0f,0.0f }, { 1.0f,1.0f }, 15, BaseLayer - 0.05f);
+		if (EntityManagerClient::GetPlayer().IsGUIOpen)
+		{
+			Vector2<float> TypingText = { 0.0f,160.0f };
+			RenderBuilder::AddText(UIRenderData, EntityManagerClient::GetPlayer().chatbox, TypingText);
+			RenderBuilder::AddSquare(UIRenderData,{ 0.0f,0.0f}, { (float)Client::ScreenWidth, charHeight }, { 0.2f, 0.2f, 0.2f, 0.6f }, { 0.0f,0.0f }, { 1.0f,1.0f }, -1,BaseLayer - 0.1f);
+		}
 	}
 	RenderBuilder::End(UIRenderData);
 	Renderer::RenderCommand command;

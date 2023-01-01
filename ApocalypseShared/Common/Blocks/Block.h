@@ -38,6 +38,8 @@ public:
 	static BlockProperties& GetBlockProperties(BlockData* data);
 	bool operator!=(Block& other);
 	bool IsValid();
+	static BlockType GetBlockType(std::string&& key);
+	static BlockType GetBlockType(std::string& key);
 	inline static int GetBlockCount() { return (int)blockProperties.size(); }
 	inline static int GetToolCount() { return (int)toolTypes.size(); }
 

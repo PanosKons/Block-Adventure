@@ -2,7 +2,6 @@
 #include "GameScene.h"
 #include "Common/World/World.h"
 #include "Common/Entities/Player/Player.h"
-#include "UI/ManagerUI.h"
 #include "GameManager.h"
 #include "Renderer.h"
 #include "Networking/NetworkingClient.h"

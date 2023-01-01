@@ -13,14 +13,6 @@ void Lua(int r)
 		ERR(msg);
 	}
 }
-BlockType LuaManager::GetBlockType(std::string&& key)
-{
-	for (size_t i = 0; i < Block::blockProperties.size(); i++)
-	{
-		if (key == std::string(Block::blockProperties[i].name.data())) return (BlockType)i;
-	}
-	ERR("Id:", key, " is invalid");
-}
 void LuaManager::LoadScripts()
 {
 	L = luaL_newstate();
@@ -112,49 +104,49 @@ void LuaManager::LoadScripts()
 			lua_pushstring(L, "Filler");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::FillerBlock = GetBlockType(lua_tostring(L,-1));
+			Block::FillerBlock = Block::GetBlockType(lua_tostring(L,-1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "Underground");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::UndergroundBlock = GetBlockType(lua_tostring(L, -1));
+			Block::UndergroundBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "Dirt");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::DirtBlock = GetBlockType(lua_tostring(L, -1));
+			Block::DirtBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "DryTop");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::DryTopBlock = GetBlockType(lua_tostring(L, -1));
+			Block::DryTopBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "WetTop");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::WetTopBlock = GetBlockType(lua_tostring(L, -1));
+			Block::WetTopBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "DeadTop");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::DeadTopBlock = GetBlockType(lua_tostring(L, -1));
+			Block::DeadTopBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "StoneTop");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::StoneTopBlock = GetBlockType(lua_tostring(L, -1));
+			Block::StoneTopBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "Ore");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
-			Block::OreBlock = GetBlockType(lua_tostring(L, -1));
+			Block::OreBlock = Block::GetBlockType(lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 	}

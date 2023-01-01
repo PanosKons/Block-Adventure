@@ -8,7 +8,6 @@
 #include "Rendering/VertexBufferLayout.h"
 #include "GameManager.h"
 #include "Entities/MainCamera.h"
-#include "UI/ManagerUI.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
 

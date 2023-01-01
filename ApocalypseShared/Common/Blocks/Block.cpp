@@ -8,6 +8,22 @@ Block::Block(Vector3<int> Position, BlockData* data)
 	:Position(Position),data(data){}
 Block::~Block(){}
 
+BlockType Block::GetBlockType(std::string&& key)
+{
+	for (size_t i = 0; i < Block::blockProperties.size(); i++)
+	{
+		if (key == std::string(Block::blockProperties[i].name.data())) return (BlockType)i;
+	}
+	ERR("Id:", key, " is invalid");
+}
+BlockType Block::GetBlockType(std::string& key)
+{
+	for (size_t i = 0; i < Block::blockProperties.size(); i++)
+	{
+		if (key == std::string(Block::blockProperties[i].name.data())) return (BlockType)i;
+	}
+	ERR("Id:", key, " is invalid");
+}
 bool Block::operator!=(Block& other)
 {
 	return data != other.data || Position != other.Position;
