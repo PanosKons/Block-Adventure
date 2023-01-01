@@ -2,6 +2,8 @@
 #pragma comment(lib, "lua54.lib")
 #include "LuaManager.h"
 #include "Logger.h"
+#include "Common/Blocks/Block.h"
+
 static lua_State* L;
 void Lua(int r)
 {
@@ -11,48 +13,32 @@ void Lua(int r)
 		ERR(msg);
 	}
 }
-enum class Tooltype
+BlockType LuaManager::GetBlockType(std::string&& key)
 {
-	Pickaxe, Shovel, Axe, None
-};
-Tooltype Totooltype(std::string in)
-{
-	if (in == "pickaxe")
+	for (size_t i = 0; i < Block::blockProperties.size(); i++)
 	{
-		return Tooltype::Pickaxe;
+		if (key == std::string(Block::blockProperties[i].name.data())) return (BlockType)i;
 	}
-	if (in == "shovel")
-	{
-		return Tooltype::Shovel;
-	}
-	if (in == "none")
-	{
-		return Tooltype::None;
-	}
-	if (in == "axe")
-	{
-		return Tooltype::Axe;
-	}
-	ERR("INVALID TOOL TYPE");
-	return Tooltype::None;
+	ERR("Id:", key, " is invalid");
 }
-struct Tool {
-	Tooltype type;
-	unsigned int minimumLevel;
-};
-struct BlockPropertiesLua
-{
-	std::string name;
-	unsigned int hardness;
-	Tool tool;
-	std::array<unsigned char, 6> textureSides;
-	bool render;
-};
-static std::vector<BlockPropertiesLua> bps;
-void LuaManager::Start()
+void LuaManager::LoadScripts()
 {
 	L = luaL_newstate();
 	Lua(luaL_dofile(L, "script.lua"));
+	//GetTooltypes
+	{
+		lua_getglobal(L, "ToolTypes");
+		if (lua_istable(L, -1))
+		{
+			lua_pushnil(L);
+			for (; lua_next(L, -2) != 0; lua_pop(L, 1))
+			{
+				ASSERT(lua_isstring(L, -1), "Invalid lua script(ToolTypes)");
+				Block::toolTypes.push_back(std::array<char,MaxIdLength>());
+				strcpy_s(Block::toolTypes.back().data(), Block::toolTypes.back().size() - 1, lua_tostring(L, -1));
+			}
+		}
+	}
 	//GetBlockProperties
 	{
 	lua_getglobal(L, "Blocks");
@@ -60,12 +46,12 @@ void LuaManager::Start()
 	{
 		lua_pushnil(L);
 		for (; lua_next(L, -2) != 0; lua_pop(L, 1)) {
-			BlockPropertiesLua bp;
+			BlockProperties bp{};
 
 			lua_pushstring(L, "Id");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(blocks)");
-			bp.name = lua_tostring(L, -1);
+			strcpy_s(bp.name.data(),bp.name.size() - 1, lua_tostring(L, -1));
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "Render");
@@ -74,6 +60,12 @@ void LuaManager::Start()
 			bp.render = lua_toboolean(L, -1);
 			lua_pop(L, 1);
 			if (bp.render == false) goto end;
+
+			lua_pushstring(L, "Transparent");
+			lua_gettable(L, -2);
+			ASSERT(lua_isboolean(L, -1), "Invalid lua script(blocks)");
+			bp.transparent = lua_toboolean(L, -1);
+			lua_pop(L, 1);
 
 			lua_pushstring(L, "Hardness");
 			lua_gettable(L, -2);
@@ -86,12 +78,14 @@ void LuaManager::Start()
 			lua_pushstring(L, "Id");
 			lua_gettable(L, -2);
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(blocks)");
-			bp.tool.type = Totooltype(lua_tostring(L, -1));
+			std::array<char, MaxIdLength> str;
+			strcpy_s(str.data(), str.size() - 1, lua_tostring(L, -1));
+			bp.tool.ToolId = (int)(std::find(Block::toolTypes.begin(), Block::toolTypes.end(),str) - Block::toolTypes.begin());
 			lua_pop(L, 1);
 			lua_pushstring(L, "MinimumLevel");
 			lua_gettable(L, -2);
 			ASSERT(lua_isinteger(L, -1), "Invalid lua script(blocks)");
-			bp.tool.minimumLevel = (unsigned int)lua_tointeger(L, -1);
+			bp.tool.ToolMinimumLevel = (unsigned int)lua_tointeger(L, -1);
 			lua_pop(L, 2);
 
 			lua_pushstring(L, "Texture");
@@ -106,13 +100,63 @@ void LuaManager::Start()
 			bp.render = true;
 			lua_pop(L, 2);
 		end:
-			bps.push_back(bp);
+			Block::blockProperties.push_back(bp);
 		}
 	}
 	}
 	//GetWorldGenerationProperties
 	{
+		lua_getglobal(L, "WorldGeneration");
+		if (lua_istable(L, -1))
+		{
+			lua_pushstring(L, "Filler");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::FillerBlock = GetBlockType(lua_tostring(L,-1));
+			lua_pop(L, 1);
 
+			lua_pushstring(L, "Underground");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::UndergroundBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "Dirt");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::DirtBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "DryTop");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::DryTopBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "WetTop");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::WetTopBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "DeadTop");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::DeadTopBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "StoneTop");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::StoneTopBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "Ore");
+			lua_gettable(L, -2);
+			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
+			Block::OreBlock = GetBlockType(lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
 	}
 	lua_close(L);
 }

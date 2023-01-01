@@ -7,7 +7,7 @@
 #pragma comment(lib,"WS2_32")
 
 
-class Networking
+class NetworkingClient
 {
 public:
 	inline static Credentials* credentials;

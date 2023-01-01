@@ -51,8 +51,8 @@ Block Player::GetFacingBlock()
 	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	while (true)
 	{
-		if (block.data == nullptr) break;
-		if (block.GetBlockId() != BLOCK_ID::Air) break;
+		if (!block.IsValid()) break;
+		if (block.GetBlockProperties().render) break;
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
 			return Block();
@@ -68,8 +68,8 @@ Block Player::GetBlockToPlace()
 	Block lastBlock = Block();
 	while (true)
 	{
-		if (block.data == nullptr) break;
-		if (block.GetBlockId() != BLOCK_ID::Air) break;
+		if (!block.IsValid()) break;
+		if (block.GetBlockProperties().render) break;
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
 			return Block();
@@ -81,7 +81,7 @@ Block Player::GetBlockToPlace()
 void Player::MarkBlockToBreak()
 {
 	Block block = GetFacingBlock();
-	if (block.data == nullptr) return;
+	if (!block.IsValid()) return;
 	IsBreakingBlock = true;
 	BreakingBlockPosition = block.Position;
 	TimeToBreak = (float)block.GetBlockProperties().hardness;

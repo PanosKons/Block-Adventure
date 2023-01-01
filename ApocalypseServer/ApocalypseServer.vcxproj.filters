@@ -18,7 +18,7 @@
     <ClCompile Include="src\EntryPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Networking.cpp">
+    <ClCompile Include="src\NetworkingServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Server\Server.cpp">
@@ -41,7 +41,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Networking.h">
+    <ClInclude Include="src\NetworkingServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Server\Server.h">

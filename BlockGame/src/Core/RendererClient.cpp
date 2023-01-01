@@ -26,17 +26,17 @@ void RendererClient::RenderWorld(World* world)
 					for (int z = 0; z < ChunkSize; z++)
 					{
 						Block block = chunk->GetBlock({ x, y, z });
+						if (block.GetBlockProperties().render == false) continue;
 						VertexBuffer* vertexBuffer;
-						block.GetTransparent() ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
+						block.GetBlockProperties().transparent ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
 						IndexBuffer* indexBuffer;
-						block.GetTransparent() ? indexBuffer = &rd.Transparent.indexBuffer : indexBuffer = &rd.Solid.indexBuffer;
+						block.GetBlockProperties().transparent ? indexBuffer = &rd.Transparent.indexBuffer : indexBuffer = &rd.Solid.indexBuffer;
 						std::array<unsigned char, 6> arr = block.GetBlockProperties().textureSides;
-						if (arr[0] == INVALID) continue;
 						Vertex a;
 						a.texId = 0.0f;
 						float alpha = 1.0f;
-						if (block.GetBlockId() == BLOCK_ID::Water) alpha = 0.4f;
-						if (block.data->RenderedSides & (unsigned char)1) {
+						//if (block.GetBlockId() == BLOCK_ID::Water) alpha = 0.4f;
+						if (block.data->RenderedSides & (unsigned char)8) {
 							float texcordsX = ((arr[0]) % 16) / 16.0f;
 							float texcordsY = ((arr[0]) / 16) / 16.0f;
 							a.color = { 0.9f,0.9f,0.9f,alpha };
@@ -53,7 +53,7 @@ void RendererClient::RenderWorld(World* world)
 							a.texCords.x = texcordsX;
 							vertexBuffer->Add(a);
 						}
-						if (block.data->RenderedSides & (unsigned char)2) {
+						if (block.data->RenderedSides & (unsigned char)1) {
 							float texcordsX = ((arr[1]) % 16) / 16.0f;
 							float texcordsY = ((arr[1]) / 16) / 16.0f;
 							a.color = { 0.85f,0.85f,0.85f,alpha };
@@ -90,7 +90,7 @@ void RendererClient::RenderWorld(World* world)
 							a.texCords.x = texcordsX;
 							vertexBuffer->Add(a);
 						}
-						if (block.data->RenderedSides & (unsigned char)8) {
+						if (block.data->RenderedSides & (unsigned char)2) {
 							float texcordsX = ((arr[3]) % 16) / 16.0f;
 							float texcordsY = ((arr[3]) / 16) / 16.0f;
 							a.color = { 0.8f,0.8f,0.8f,alpha };
@@ -108,7 +108,7 @@ void RendererClient::RenderWorld(World* world)
 							a.texCords.x = texcordsX;
 							vertexBuffer->Add(a);
 						}
-						if (block.data->RenderedSides & (unsigned char)16) {
+						if (block.data->RenderedSides & (unsigned char)32) {
 							float texcordsX = ((arr[4]) % 16) / 16.0f;
 							float texcordsY = ((arr[4]) / 16) / 16.0f;
 							a.color = { 0.7f,0.7f,0.7f,alpha };
@@ -125,7 +125,7 @@ void RendererClient::RenderWorld(World* world)
 							a.texCords.x = texcordsX;
 							vertexBuffer->Add(a);
 						}
-						if (block.data->RenderedSides & (unsigned char)32) {
+						if (block.data->RenderedSides & (unsigned char)16) {
 							float texcordsX = ((arr[5]) % 16) / 16.0f;
 							float texcordsY = ((arr[5]) / 16) / 16.0f;
 							a.color = { 1.0f,1.0f,1.0f,alpha };
@@ -484,8 +484,8 @@ void RendererClient::RenderUI(double TimeStep)
 		{
 			if (EntityManagerClient::GetPlayer().Inventory[i].count != 0)
 			{
-				unsigned char a = GetTexture(EntityManagerClient::GetPlayer().Inventory[i].id, EntityManagerClient::GetPlayer().Inventory[i].type)[0];
-				RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + 8, SlotPosition.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f,BaseLayer - 0.2f);
+				//unsigned char a = GetTexture(EntityManagerClient::GetPlayer().Inventory[i].id, EntityManagerClient::GetPlayer().Inventory[i].type)[0];
+				//RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + 8, SlotPosition.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f,BaseLayer - 0.2f);
 			}
 			SlotPosition.x += SlotWidth;
 		}

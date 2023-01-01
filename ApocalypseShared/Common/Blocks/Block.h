@@ -2,27 +2,26 @@
 #include "Common/Math/Vector.h"
 #include "Common/Entities/Inventory/ItemStack.h"
 
-enum class TOOL
-{
-	Pickaxe, Shovel, Axe, None
+constexpr int MaxIdLength = 32;
+typedef unsigned short BlockType;
+
+struct Tool {
+	int ToolId;
+	int ToolMinimumLevel;
 };
 struct BlockProperties //Each block is paired with some properties at global variables
 {
 	unsigned int hardness;
-	TOOL tool;
-	unsigned int miningLevel;
+	Tool tool;
 	std::array<unsigned char, 6> textureSides;
-};
-std::array<unsigned char, 6>& GetTexture(int id, TYPE type);
-
-enum class BLOCK_ID
-{
-	Invalid, Air, Cobblestone, Grass, Log, Iron, Dirt, Glass, Leaves, Water, DryGrass
+	bool render;
+	bool transparent;
+	std::array<char, MaxIdLength> name;
 };
 struct BlockData
 {
-	unsigned short blockId;
-	unsigned char RenderedSides = 64; // front,right,back,left,bottom,top,renders at all
+	BlockType blockId;
+	unsigned char RenderedSides = 64;
 	//unsigned char BlockProperties;
 };
 
@@ -34,18 +33,33 @@ public:
 	Block(Vector3<int> Position, BlockData* data);
 	~Block();
 
-	void Update();
-	void OnBreak(BLOCK_ID id);
-	void UpdateSurroundingBlocks();
-
-	BLOCK_ID GetBlockId() const;
-	bool GetTransparent();
-	BlockProperties GetBlockProperties();
-
+	BlockType GetBlockId() const;
+	BlockProperties& GetBlockProperties() const;
+	static BlockProperties& GetBlockProperties(BlockData* data);
 	bool operator!=(Block& other);
+	bool IsValid();
+	inline static int GetBlockCount() { return (int)blockProperties.size(); }
+	inline static int GetToolCount() { return (int)toolTypes.size(); }
 
 	Vector3<int> Position;
-	BlockData* data;
 
-	static bool IsBlockSolid(Vector3<int> Position);
+	//World generation
+	inline static BlockType FillerBlock;
+	inline static BlockType UndergroundBlock;
+	inline static BlockType DirtBlock;
+	inline static BlockType DryTopBlock;
+	inline static BlockType WetTopBlock;
+	inline static BlockType DeadTopBlock;
+	inline static BlockType StoneTopBlock;
+	inline static BlockType OreBlock;
+	//TEMPORARY (UNTIL NETWORKING BECOMES A CLASS)
+	inline static std::vector<BlockProperties> blockProperties;
+private:
+	BlockData* data;
+	inline static std::vector<std::array<char, MaxIdLength>> toolTypes;
+
+	friend class WorldManager;
+	friend class LuaManager;
+	friend class RendererClient;
+	friend class Networking;
 };

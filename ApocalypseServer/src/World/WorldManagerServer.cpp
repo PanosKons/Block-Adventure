@@ -1,13 +1,14 @@
 #include "pch.h"
 #include "WorldManagerServer.h"
 #include "EntityManagerServer.h"
-#include "Networking.h"
+#include "NetworkingServer.h"
 #include "Common/Math/EngineMath.h"
 
 void WorldManagerServer::SendAppropriateChunks()
 {
 	for (auto& [UUID, player] : EntityManagerServer::Players)
 	{
+		if (player == nullptr) continue; //Shouldnt be here (multithreading issue)
 		Vector3<int> ChunkPosition = Vector::IntVector(player->Position) / ChunkSize;
 		auto& PlayerChunks = PlayerLoadedChunks[UUID];
 		for (int x = ChunkPosition.x - RenderDistance; x <= ChunkPosition.x + RenderDistance; x++)
@@ -29,12 +30,12 @@ void WorldManagerServer::SendAppropriateChunks()
 							packet.InitMemory();
 							packet.AddPacketData(PACKET_ID::NewChunk);
 							packet.AddPacketData(NewChunkPosition);
-							Networking::SendPacketToClient(player->credentials, packet);
+							NetworkingServer::SendPacketToClient(player->credentials, packet);
 						}
 						{
 							Packet<ChunkPacketSize> SendPacket;
 							SendPacket.SetPacket((std::array<char, ChunkPacketSize>*)WorldManager::BaseWorld->GetChunkDirect(NewChunkPosition)->GetBlocks());
-							Networking::SendPacketToClient(player->credentials, SendPacket);
+							NetworkingServer::SendPacketToClient(player->credentials, SendPacket);
 							SendPacket.SetPacket(nullptr);
 						}
 						PlayerChunks.push_back(NewChunkPosition);
@@ -50,7 +51,7 @@ void WorldManagerServer::SendAppropriateChunks()
 				packet.InitMemory();
 				packet.AddPacketData(PACKET_ID::DeleteChunk);
 				packet.AddPacketData(ExixstingChunkPosition);
-				Networking::SendPacketToClient(player->credentials, packet);
+				NetworkingServer::SendPacketToClient(player->credentials, packet);
 				PlayerChunks.erase(std::find(PlayerChunks.begin(), PlayerChunks.end(), ExixstingChunkPosition));
 			}
 		}

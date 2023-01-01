@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Networking.h"
+#include "NetworkingServer.h"
 #include "Common/Math/Vector.h"
 #include "Common/Blocks/Block.h"
 #include "Common/Math/Noise.h"
@@ -12,7 +12,7 @@
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
 
-namespace Networking {
+namespace NetworkingServer {
 	inline static std::unordered_map<uint64_t, SOCKET*> sockets;
 	void HandleClientPacket(Credentials credentials)
 	{
@@ -43,7 +43,7 @@ namespace Networking {
 					Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
 					unsigned short id = packet.ExtractPacketData<unsigned short>();
 					Block block = WorldManager::BaseWorld->GetBlock(BlockPosition);
-					block.OnBreak((BLOCK_ID)id);
+					WorldManager::ReplaceBlock(block,id);
 
 					Packet<SendReplaceBlock> SendPacket;
 					SendPacket.InitMemory();
@@ -134,7 +134,25 @@ namespace Networking {
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
+			StartPacket.AddPacketData<int>(Block::GetBlockCount());
+			StartPacket.AddPacketData<int>(Block::GetToolCount());
+			StartPacket.AddPacketData<int>(Block::FillerBlock);
+			StartPacket.AddPacketData<int>(Block::UndergroundBlock);
+			StartPacket.AddPacketData<int>(Block::DirtBlock);
+			StartPacket.AddPacketData<int>(Block::DryTopBlock);
+			StartPacket.AddPacketData<int>(Block::WetTopBlock);
+			StartPacket.AddPacketData<int>(Block::DeadTopBlock);
+			StartPacket.AddPacketData<int>(Block::StoneTopBlock);
+			StartPacket.AddPacketData<int>(Block::OreBlock);
 			SendPacketToClient(credentials, StartPacket);
+
+			for (int i = 0; i < Block::GetBlockCount(); i++)
+			{
+				Packet<BlockPropertiesSize> BlockPacket;
+				BlockPacket.InitMemory();
+				BlockPacket.AddPacketData<BlockProperties>(Block::blockProperties[i]);
+				SendPacketToClient(credentials, BlockPacket);
+			}
 
 			for (auto&[UUID, player] : EntityManagerServer::Players)
 			{

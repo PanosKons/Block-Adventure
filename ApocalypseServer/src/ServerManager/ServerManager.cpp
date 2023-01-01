@@ -1,21 +1,23 @@
 #include "ServerManager.h"
 #include "pch.h"
-#include "Networking.h"
+#include "NetworkingServer.h"
 #include "Common/World/World.h"
 #include "Server/Server.h"
 #include "World/WorldManagerServer.h"
 #include "EntityManagerServer.h"
 #include "Common/Entities/Player/Player.h"
 #include "Logger.h"
+#include "../lua/LuaManager.h"
 
 static std::thread* ListeningThread;
 
 void ServerManager::Start()
 {
 	INFO("Starting server...");
+	LuaManager::LoadScripts();
 	EntityManagerServer::Start();
 	WorldManager::BaseWorld = new World();
-	ListeningThread = new std::thread(Networking::ListenForClients);
+	ListeningThread = new std::thread(NetworkingServer::ListenForClients);
 }
 
 void ServerManager::Tick()

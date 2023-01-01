@@ -2,7 +2,7 @@
 #include "Entities/PlayerClient.h"
 #include "Entities/EntityManagerClient.h"
 #include "Common/Networking/Packet.h"
-#include "Networking/Networking.h"
+#include "Networking/NetworkingClient.h"
 #include "Logger.h"
 #include "Common/Math/EngineMath.h"
 void WorldManagerClient::DeleteOldChunks()

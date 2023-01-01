@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "EntityManagerServer.h"
 #include "Common/Entities/Player/Player.h"
-namespace Networking{
+namespace NetworkingServer{
 	int Send(uint64_t UUID, const char* buffer, int len);
 	int Receive(uint64_t UUID, char* buf, int len);
 	template<int TSize>

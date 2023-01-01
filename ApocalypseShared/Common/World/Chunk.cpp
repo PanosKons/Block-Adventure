@@ -18,7 +18,7 @@ void Chunk::Refresh()
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				GetBlock({ x,y,z }).Update();
+				WorldManager::UpdateBlock(GetBlock({ x,y,z }));
 			}
 		}
 	}
@@ -32,7 +32,7 @@ void Chunk::RefreshBorders()
 		{
 			for (int z = 0; z < ChunkSize; z++)
 			{
-				GetBlock({ x,y,z }).Update();
+				WorldManager::UpdateBlock(GetBlock({ x,y,z }));
 			}
 		}
 	}
@@ -42,7 +42,7 @@ void Chunk::RefreshBorders()
 		{
 			for (int z = 0; z < ChunkSize; z += ChunkSize - 1)
 			{
-				GetBlock({ x,y,z }).Update();
+				WorldManager::UpdateBlock(GetBlock({ x,y,z }));
 			}
 		}
 	}
@@ -52,7 +52,7 @@ void Chunk::RefreshBorders()
 		{
 			for (int z = 1; z < ChunkSize - 1; z++)
 			{
-				GetBlock({ x,y,z }).Update();
+				WorldManager::UpdateBlock(GetBlock({ x,y,z }));
 			}
 		}
 	}

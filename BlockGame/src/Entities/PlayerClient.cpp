@@ -6,7 +6,7 @@
 #include "Common/Math/EngineMath.h"
 #include "Common/World/WorldManager.h"
 #include "Logger.h"
-#include "Networking/Networking.h"
+#include "Networking/NetworkingClient.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
@@ -203,29 +203,30 @@ void PlayerClient::InputTick(double TimeStep)
 		if (IsBreakingBlock)
 		{
 			if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
-			if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
-			{
-				TimeToBreak -= (float)TimeStep * 60 * 12;
-			}
-			else
-			{
-				TimeToBreak -= (float)TimeStep * 60;
-			}
+			//if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
+			//{
+			//	TimeToBreak -= (float)TimeStep * 60 * 12;
+			//}
+			//else
+			//{
+			//	TimeToBreak -= (float)TimeStep * 60;
+			//}
+			TimeToBreak -= (float)TimeStep * 60;
 			if (TimeToBreak < 0)
 			{
 				int index = GetFirstAvaiableSlot((int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), TYPE::BLOCK);
 				Inventory[index].id = (int)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId();
 				Inventory[index].type = TYPE::BLOCK;
 				Inventory[index].count++;
-				WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).OnBreak(BLOCK_ID::Air);
+				WorldManager::ReplaceBlock(WorldManager::BaseWorld->GetBlock(BreakingBlockPosition),Block::FillerBlock);
 				//Notify the server
 				{
 					Packet<SendReplaceBlock> packet;
 					packet.InitMemory();
 					packet.AddPacketData(PACKET_ID::ReplaceBlock);
 					packet.AddPacketData<Vector3<int>>(BreakingBlockPosition);
-					packet.AddPacketData(BLOCK_ID::Air);
-					Networking::SendPacketToServer(packet);
+					packet.AddPacketData(Block::FillerBlock);
+					NetworkingClient::SendPacketToServer(packet);
 
 				}
 				IsBreakingBlock = false;
@@ -241,12 +242,12 @@ void PlayerClient::InputTick(double TimeStep)
 	if (Input::GetMouseState(Mouse::Right) == Action::Press && !IsGUIOpen && BlockPlaceDelay < 0)
 	{
 		Block block = GetBlockToPlace();
-		if (block.data == nullptr) return;
+		if (!block.IsValid()) return;
 		if (EntityManagerClient::CheckCollision(Position, Hitbox, block.Position) == true)
 			return;
 		if (Inventory[ActiveSlot].count > 0 && Inventory[ActiveSlot].type == TYPE::BLOCK)
 		{
-			block.OnBreak((BLOCK_ID)Inventory[ActiveSlot].id);
+			WorldManager::ReplaceBlock(block, (BlockType)Inventory[ActiveSlot].id);
 			//Notify the server
 			{
 				Packet<SendReplaceBlock> packet;
@@ -254,7 +255,7 @@ void PlayerClient::InputTick(double TimeStep)
 				packet.AddPacketData(PACKET_ID::ReplaceBlock);
 				packet.AddPacketData<Vector3<int>>(block.Position);
 				packet.AddPacketData(Inventory[ActiveSlot].id);
-				Networking::SendPacketToServer(packet);
+				NetworkingClient::SendPacketToServer(packet);
 
 			}
 			Inventory[ActiveSlot].count--;

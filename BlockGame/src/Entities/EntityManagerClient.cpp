@@ -2,21 +2,21 @@
 #include "Common/Math/Vector.h"
 #include "EntityManagerClient.h"
 #include "Common/Networking/Packet.h"
-#include "Networking/Networking.h"
+#include "Networking/NetworkingClient.h"
 
 void EntityManagerClient::Tick()
 {
 	Packet<SendPlayerPosition> packet;
 	packet.InitMemory();
 	packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-	packet.AddPacketData<uint64_t>(Networking::credentials->UUID);
+	packet.AddPacketData<uint64_t>(NetworkingClient::credentials->UUID);
 	packet.AddPacketData<Vector3<double>>(EntityManagerClient::GetPlayer().Position);
-	Networking::SendPacketToServer(packet);
+	NetworkingClient::SendPacketToServer(packet);
 }
 
 PlayerClient& EntityManagerClient::GetPlayer()
 {
-	return *(PlayerClient*)(Players[Networking::credentials->UUID]);
+	return *(PlayerClient*)(Players[NetworkingClient::credentials->UUID]);
 }
 
 void EntityManagerClient::CreateSelf(Credentials& credentials, Player* player)

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "EntityManager.h"
 #include "Common/Networking/Packet.h"
+#include "Common/World/WorldManager.h"
 void EntityManager::Start(){}
 bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox)
 {
@@ -12,9 +13,11 @@ bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hit
 		{
 			for (int z = Point1.z; z <= Point2.z; z++)
 			{
-				if (Block::IsBlockSolid({ x,y,z }))
+				Block block = WorldManager::BaseWorld->GetBlock({ x,y,z });
+				if(block.IsValid())
 				{
-					return true;
+					if(block.GetBlockProperties().render)
+						return true;
 				}
 			}
 		}

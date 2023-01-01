@@ -22,7 +22,8 @@ constexpr int MAX_PLAYERS = 20;
 constexpr int SizePacket = sizeof(PACKET_ID);
 
 constexpr int CredentialsPacketSize = sizeof(Credentials);
-constexpr int StartPacketSize = 1000;
+constexpr int StartPacketSize = sizeof(Player) + sizeof(int) + sizeof(int) + 8 * sizeof(int);
+constexpr int BlockPropertiesSize = sizeof(BlockProperties);
 
 constexpr int ReceivePlayerPosition = sizeof(uint64_t) + sizeof(Vector3<double>);
 constexpr int SendPlayerPosition = SizePacket + ReceivePlayerPosition;

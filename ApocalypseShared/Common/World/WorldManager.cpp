@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "WorldManager.h"
 #include "Math/Noise.h"
+#include "Math/EngineMath.h"
 #include "Logger.h"
 
 Block WorldManager::GetBlock(BlockData* data, Vector3<int> WorldPosition)
@@ -29,6 +30,65 @@ Vector3<int> WorldManager::GetVectorFromKey(int64_t value)
 	v.z = *p;
 	return v;
 }
+void WorldManager::ReplaceBlock(Block block,BlockType NewType)
+{
+	block.data->blockId = NewType;
+	UpdateBlock(block);
+	UpdateSurroundingBlocks(block);
+	WorldManager::BaseWorld->GetChunkAbsolute(block.Position)->MeshChanged = true;
+}
+void WorldManager::UpdateBlock(Block block)
+{
+	if (block.GetBlockProperties().render == false) return;
+	unsigned char oldSides = block.data->RenderedSides;
+	std::array<Block,6> blocks =
+	{
+		WorldManager::BaseWorld->GetBlock({ block.Position.x + 1, block.Position.y, block.Position.z }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x - 1, block.Position.y, block.Position.z }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y, block.Position.z + 1 }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y, block.Position.z - 1 }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y + 1, block.Position.z }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y - 1, block.Position.z })
+	};
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (blocks[i].IsValid())
+			if (!blocks[i].GetBlockProperties().render || blocks[i].GetBlockProperties().transparent)
+			{
+				block.data->RenderedSides = block.data->RenderedSides | Math::Powi(2,i);
+			}
+			else
+			{
+				block.data->RenderedSides = block.data->RenderedSides & (255 - Math::Powi(2, i));
+			}
+	}
+
+	if (oldSides != block.data->RenderedSides)
+	{
+		Chunk* chunk = WorldManager::BaseWorld->GetChunkAbsolute(block.Position);
+		if (chunk != nullptr) chunk->MeshChanged = true;
+	}
+}
+void WorldManager::UpdateSurroundingBlocks(Block block)
+{
+	std::array<Block, 6> blocks =
+	{
+		WorldManager::BaseWorld->GetBlock({ block.Position.x + 1, block.Position.y, block.Position.z }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x - 1, block.Position.y, block.Position.z }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y, block.Position.z + 1 }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y, block.Position.z - 1 }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y + 1, block.Position.z }),
+		WorldManager::BaseWorld->GetBlock({ block.Position.x, block.Position.y - 1, block.Position.z })
+	};
+	for (unsigned int i = 0; i < blocks.size(); i++)
+	{
+		if (blocks[i].IsValid())
+			if (blocks[i].GetBlockProperties().render)
+			{
+				UpdateBlock(blocks[i]);
+			}
+	}
+}
 BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 {
 	BlockArray* blocks = new BlockArray();
@@ -53,51 +113,50 @@ BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 				int level = HeightMap[x + z * ChunkSize];
 				if (ylevel > level && ylevel <= 30)
 				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Air; // WATER
+					(*blocks)[x][y][z].blockId = Block::FillerBlock; // WATER
 				}
 				else if (ylevel == level)
 				{
 					if (ylevel < 30)
 					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;
+						(*blocks)[x][y][z].blockId = Block::DirtBlock;
 					}
 					else if (BiomeMap[x + z * ChunkSize] == 0)
 					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Cobblestone;
+						(*blocks)[x][y][z].blockId = Block::StoneTopBlock;
 					}
 					else if (BiomeMap[x + z * ChunkSize] == 1)
 					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;
+						(*blocks)[x][y][z].blockId = Block::DeadTopBlock;
 					}
 					else if (BiomeMap[x + z * ChunkSize] == 2)
 					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::DryGrass;
+						(*blocks)[x][y][z].blockId = Block::DryTopBlock;
 					}
 					else
 					{
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Grass;
+						(*blocks)[x][y][z].blockId = Block::WetTopBlock;
 					}
 				}
 				else if (ylevel + 1 == level)
 				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;
+					(*blocks)[x][y][z].blockId = Block::DirtBlock;
 				}
 				else if (ylevel + 2 == level)
 				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Dirt;;
+					(*blocks)[x][y][z].blockId = Block::DirtBlock;
 				}
 				else if (ylevel < level)
 				{
 					if (rand() % 50 == 0)
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Iron;
+						(*blocks)[x][y][z].blockId = Block::OreBlock;
 					else
-						(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Cobblestone;
+						(*blocks)[x][y][z].blockId = Block::UndergroundBlock;
 				}
 				else
 				{
-					(*blocks)[x][y][z].blockId = (unsigned short)BLOCK_ID::Air;
+					(*blocks)[x][y][z].blockId = Block::FillerBlock;
 				}
-				ASSERT((*blocks)[x][y][z].blockId, "Invalid block id in chunk generation");
 			}
 		}
 	}

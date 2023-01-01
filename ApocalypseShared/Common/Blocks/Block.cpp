@@ -2,189 +2,36 @@
 #include "Block.h"
 #include "World/WorldManager.h"
 #include "Logger.h"
-
-#define BLOCK_NUMBER 1024
-static std::unordered_map<int, std::array<unsigned char, 6>> Textures =
-{
-	{(int)BLOCK_ID::Air,{0,0,0,0,0,0}},
-	{(int)BLOCK_ID::Cobblestone,{3,3,3,3,3,3}},
-	{(int)BLOCK_ID::Dirt,{2,2,2,2,2,2}},
-	{(int)BLOCK_ID::Glass,{7,7,7,7,7,7}},
-	{(int)BLOCK_ID::Grass,{1,1,1,1,2,0}},
-	{(int)BLOCK_ID::Iron,{6,6,6,6,6,6}},
-	{(int)BLOCK_ID::Leaves,{8,8,8,8,8,8}},
-	{(int)BLOCK_ID::Log,{4,4,4,4,5,5}},
-	{(int)BLOCK_ID::Water,{14,14,14,14,14,14}},
-	{(int)BLOCK_ID::DryGrass,{12,12,12,12,2,10}},
-
-	{(int)ITEM_ID::DryGrassBlade + BLOCK_NUMBER,{9,9,9,9,9,9}},
-	{(int)ITEM_ID::Stick + BLOCK_NUMBER,{11,11,11,11,11,11}},
-	{(int)ITEM_ID::Pickaxe + BLOCK_NUMBER,{13,13,13,13,13,13}},
-
-};
-std::array<unsigned char, 6>& GetTexture(int id, TYPE type)
-{
-	return Textures[id + (int)type * BLOCK_NUMBER];
-}
-
 Block::Block()
 	:Position(0),data(nullptr){}
-Block::Block(Vector3<int> Position, BlockData * data)
+Block::Block(Vector3<int> Position, BlockData* data)
 	:Position(Position),data(data){}
 Block::~Block(){}
-
-void Block::Update()
-{
-	if (data->blockId == (unsigned short)BLOCK_ID::Air) return;
-	unsigned char oldSides = data->RenderedSides;
-	Block blocks[] =
-	{
-		WorldManager::BaseWorld->GetBlock({ Position.x + 1, Position.y, Position.z }),
-		WorldManager::BaseWorld->GetBlock({ Position.x - 1, Position.y, Position.z }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z + 1 }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z - 1 }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y + 1, Position.z }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y - 1, Position.z })
-	};
-	if (blocks[0].data != nullptr)
-		if (blocks[0].GetTransparent() && blocks[0].GetBlockId() != GetBlockId())
-		{
-			data->RenderedSides = data->RenderedSides | 2;
-		}
-		else
-		{
-			data->RenderedSides = data->RenderedSides & (255 - 2);
-		}
-	if (blocks[1].data != nullptr)
-		if (blocks[1].GetTransparent() && blocks[1].GetBlockId() != GetBlockId())
-		{
-			data->RenderedSides = data->RenderedSides | 8;
-		}
-		else
-		{
-			data->RenderedSides = data->RenderedSides & (255 - 8);
-		}
-	if (blocks[2].data != nullptr)
-		if (blocks[2].GetTransparent() && blocks[2].GetBlockId() != GetBlockId())
-		{
-			data->RenderedSides = data->RenderedSides | 4;
-		}
-		else
-		{
-			data->RenderedSides = data->RenderedSides & (255 - 4);
-		}
-	if (blocks[3].data != nullptr)
-		if (blocks[3].GetTransparent() && blocks[3].GetBlockId() != GetBlockId())
-		{
-			data->RenderedSides = data->RenderedSides | 1;
-		}
-		else
-		{
-			data->RenderedSides = data->RenderedSides & (255 - 1);
-		}
-	if (blocks[4].data != nullptr)
-		if (blocks[4].GetTransparent() && blocks[4].GetBlockId() != GetBlockId())
-		{
-			data->RenderedSides = data->RenderedSides | 32;
-		}
-		else
-		{
-			data->RenderedSides = data->RenderedSides & (255 - 32);
-		}
-	if (blocks[5].data != nullptr)
-		if (blocks[5].GetTransparent() && blocks[5].GetBlockId() != GetBlockId())
-		{
-			data->RenderedSides = data->RenderedSides | 16;
-		}
-		else
-		{
-			data->RenderedSides = data->RenderedSides & (255 - 16);
-		}
-
-	if (oldSides != data->RenderedSides)
-	{
-		Chunk* chunk = WorldManager::BaseWorld->GetChunkAbsolute(this->Position);
-		if (chunk != nullptr) chunk->MeshChanged = true;
-	}
-}
-void Block::OnBreak(BLOCK_ID id)
-{
-	data->blockId = (unsigned short)id;
-	Update();
-	UpdateSurroundingBlocks();
-	Chunk* chunk = WorldManager::BaseWorld->GetChunkAbsolute(this->Position);
-	if (chunk != nullptr) chunk->MeshChanged = true;
-}
-void Block::UpdateSurroundingBlocks()
-{
-	std::array<Block, 6> blocks =
-	{
-		WorldManager::BaseWorld->GetBlock({ Position.x + 1, Position.y, Position.z }),
-		WorldManager::BaseWorld->GetBlock({ Position.x - 1, Position.y, Position.z }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z + 1 }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y, Position.z - 1 }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y + 1, Position.z }),
-		WorldManager::BaseWorld->GetBlock({ Position.x, Position.y - 1, Position.z })
-	};
-	for (unsigned int i = 0; i < blocks.size(); i++)
-	{
-		if (blocks[i].data != nullptr)
-			if (blocks[i].GetBlockId() != BLOCK_ID::Air)
-			{
-				blocks[i].Update();
-			}
-	}
-}
 
 bool Block::operator!=(Block& other)
 {
 	return data != other.data || Position != other.Position;
 }
-BLOCK_ID Block::GetBlockId() const
+bool Block::IsValid()
 {
-	return (BLOCK_ID)data->blockId;
+	return data;
 }
-bool Block::GetTransparent()
+BlockType Block::GetBlockId() const
 {
-	if ((BLOCK_ID)data->blockId == BLOCK_ID::Air || (BLOCK_ID)data->blockId == BLOCK_ID::Water || (BLOCK_ID)data->blockId == BLOCK_ID::Leaves || (BLOCK_ID)data->blockId == BLOCK_ID::Glass)
-		return true;
-	return false;
+	return data->blockId;
 }
-BlockProperties Block::GetBlockProperties()
+BlockProperties& Block::GetBlockProperties(BlockData* data)
 {
-	switch ((BLOCK_ID)data->blockId)
-	{
-	case BLOCK_ID::Air:
-		return { 0,TOOL::None,0, {INVALID,INVALID,INVALID,INVALID,INVALID,INVALID} };
-	case BLOCK_ID::Cobblestone:
-		return { 180,TOOL::Pickaxe,0,{3,3,3,3,3,3} };
-	case BLOCK_ID::Dirt:
-		return { 60,TOOL::Shovel,0,{2,2,2,2,2,2} };
-	case BLOCK_ID::DryGrass:
-		return { 60,TOOL::Shovel,0,{12,12,12,12,2,10} };
-	case BLOCK_ID::Glass:
-		return { 60,TOOL::None,0,{7,7,7,7,7,7} };
-	case BLOCK_ID::Grass:
-		return { 60,TOOL::Shovel,0,{1,1,1,1,2,0} };
-	case BLOCK_ID::Iron:
-		return { 300,TOOL::Pickaxe,0,{6,6,6,6,6,6} };
-	case BLOCK_ID::Leaves:
-		return { 5,TOOL::Axe,0,{8,8,8,8,8,8} };
-	case BLOCK_ID::Log:
-		return { 120,TOOL::Axe,0,{4,4,4,4,5,5} };
-	case BLOCK_ID::Water:
-		return { 20,TOOL::None,0,{14,14,14,14,14,14} };
-	};
-	ERR("Invalid block properties for block: ", Position.x, ", ", Position.y, ", ", Position.z, " with id: ", data->blockId);
-	return {};
+	return blockProperties[data->blockId];
 }
-
-bool Block::IsBlockSolid(Vector3<int> Position)
+BlockProperties& Block::GetBlockProperties() const
 {
-	
-	Block block = WorldManager::BaseWorld->GetBlock({ Position.x,Position.y,Position.z });
-	if (block.data != nullptr)
-		return block.GetBlockId() != BLOCK_ID::Air;
-	return true;
-	
+	return blockProperties[data->blockId];
 }
+//bool Block::IsBlockSolid(Vector3<int> Position)
+//{
+//	Block block = WorldManager::BaseWorld->GetBlock({ Position.x,Position.y,Position.z });
+//	if (block.data != nullptr)
+//		return blockProperties[block.GetBlockId()].render;
+//	return true;
+//}

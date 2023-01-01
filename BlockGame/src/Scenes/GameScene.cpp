@@ -5,7 +5,7 @@
 #include "UI/ManagerUI.h"
 #include "GameManager.h"
 #include "Renderer.h"
-#include "Networking/Networking.h"
+#include "Networking/NetworkingClient.h"
 #include "Entities/EntityManagerClient.h"
 #include "Client.h"
 #include "World/WorldManagerClient.h"
@@ -17,7 +17,7 @@ void GameScene::Start()
 	INFO("GameScene Started");
 	EntityManagerClient::Start();
 	WorldManager::BaseWorld = new World();
-	Networking::Connect();
+	NetworkingClient::Connect();
 	Renderer::HideCursor(true);
 }
 
@@ -37,6 +37,6 @@ void GameScene::Render(double TimeStep)
 void GameScene::End()
 {
 	EntityManager::ShutDown();
-	Networking::ShutDown();
+	NetworkingClient::ShutDown();
 	delete WorldManager::BaseWorld;
 }

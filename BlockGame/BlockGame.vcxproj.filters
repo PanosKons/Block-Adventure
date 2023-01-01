@@ -36,7 +36,7 @@
     <ClCompile Include="src\Scenes\GameScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Networking\Networking.cpp">
+    <ClCompile Include="src\Networking\NetworkingClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Entities\EntityManagerClient.cpp">
@@ -80,7 +80,7 @@
     <ClInclude Include="src\Scenes\GameScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Networking\Networking.h">
+    <ClInclude Include="src\Networking\NetworkingClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\EntityManagerClient.h">
