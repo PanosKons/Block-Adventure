@@ -36,6 +36,9 @@
     <ClCompile Include="src\World\WorldManagerServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lua\LuaManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Networking.h">
@@ -56,5 +59,29 @@
     <ClInclude Include="src\World\WorldManagerServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lua\include\lauxlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\include\lua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\include\lua.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\include\luaconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\include\lualib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\LuaManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lua\lua54.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="script.lua" />
   </ItemGroup>
 </Project>

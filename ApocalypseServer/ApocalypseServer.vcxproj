@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lua\LuaManager.cpp" />
     <ClCompile Include="src\EntityManagerServer.cpp" />
     <ClCompile Include="src\Reader.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
@@ -105,12 +106,24 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lua\LuaManager.h" />
+    <ClInclude Include="lua\include\lauxlib.h" />
+    <ClInclude Include="lua\include\lua.h" />
+    <ClInclude Include="lua\include\lua.hpp" />
+    <ClInclude Include="lua\include\luaconf.h" />
+    <ClInclude Include="lua\include\lualib.h" />
     <ClInclude Include="src\EntityManagerServer.h" />
     <ClInclude Include="src\Reader.h" />
     <ClInclude Include="src\Networking.h" />
     <ClInclude Include="src\ServerManager\ServerManager.h" />
     <ClInclude Include="src\Server\Server.h" />
     <ClInclude Include="src\World\WorldManagerServer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lua\lua54.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="script.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
