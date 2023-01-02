@@ -18,14 +18,17 @@ struct BlockProperties //Each block is paired with some properties at global var
 	bool transparent;
 	std::array<char, MaxIdLength> name;
 };
+struct ItemProperties
+{
+	std::array<char, MaxIdLength> name;
+	unsigned char texture;
+};
 struct BlockData
 {
 	BlockType blockId;
 	unsigned char RenderedSides = 64;
 	//unsigned char BlockProperties;
 };
-
-#define INVALID 255
 class Block
 {
 public:
@@ -35,7 +38,7 @@ public:
 
 	BlockType GetBlockId() const;
 	BlockProperties& GetBlockProperties() const;
-	static BlockProperties& GetBlockProperties(BlockData* data);
+	static BlockProperties& GetBlockProperties(BlockType blocktype);
 	bool operator!=(Block& other);
 	bool IsValid();
 	static BlockType GetBlockType(std::string&& key);
@@ -54,7 +57,7 @@ public:
 	inline static BlockType DeadTopBlock;
 	inline static BlockType StoneTopBlock;
 	inline static BlockType OreBlock;
-	//TEMPORARY (UNTIL NETWORKING BECOMES A CLASS)
+	//TEMPORARY (UNTIL NETWORKINGSERVER BECOMES A CLASS)
 	inline static std::vector<BlockProperties> blockProperties;
 private:
 	BlockData* data;
@@ -64,4 +67,16 @@ private:
 	friend class LuaManager;
 	friend class RendererClient;
 	friend class Networking;
+};
+class Item
+{
+public:
+	static ItemType GetItemType(std::string&& key);
+	static ItemType GetItemType(std::string& key);
+	static ItemProperties& GetItemProperties(ItemType itemType);
+	inline static int GetItemCount() { return (int)itemProperties.size(); };
+	//TEMPORARY (UNTIL NETWORKINGSERVER BECOMES A CLASS)
+	inline static std::vector<ItemProperties> itemProperties;
+private:
+	friend class LuaManager;
 };

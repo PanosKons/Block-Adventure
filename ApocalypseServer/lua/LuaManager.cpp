@@ -150,5 +150,29 @@ void LuaManager::LoadScripts()
 			lua_pop(L, 1);
 		}
 	}
+	//GetItemProperties
+	{
+		lua_getglobal(L, "Items");
+		if (lua_istable(L, -1))
+		{
+			lua_pushnil(L);
+			for (; lua_next(L, -2) != 0; lua_pop(L, 1)) {
+				ItemProperties bp{};
+
+				lua_pushstring(L, "Id");
+				lua_gettable(L, -2);
+				ASSERT(lua_isstring(L, -1), "Invalid lua script(items)");
+				strcpy_s(bp.name.data(), bp.name.size() - 1, lua_tostring(L, -1));
+				lua_pop(L, 1);
+
+				lua_pushstring(L, "Texture");
+				lua_gettable(L, -2);
+				ASSERT(lua_isinteger(L, -1), "Invalid lua script(items)");
+				bp.texture = (unsigned char)lua_tointeger(L, -1);
+				lua_pop(L, 1);
+				Item::itemProperties.push_back(bp);
+			}
+		}
+	}
 	lua_close(L);
 }

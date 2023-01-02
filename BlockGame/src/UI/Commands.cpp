@@ -30,26 +30,24 @@ void Commands::ExecuteCommand(const std::string& command)
 		ss >> token;
 		tokens.push_back(token);
 	}
-	//if (tokens[0] == "/give")
-	//{
-	//	if (tokens.size() == 4)
-	//	{
-	//		if (tokens[1] == "block")
-	//		{
-	//			ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot((int)blockIds[tokens[2]], TYPE::BLOCK)];
-	//			stack.id = (int)blockIds[tokens[2]];
-	//			stack.count += std::stoi(tokens[3]);
-	//			stack.type = TYPE::BLOCK;
-	//		}
-	//		else if (tokens[1] == "item")
-	//		{
-	//			ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot((int)itemIds[tokens[2]], TYPE::ITEM)];
-	//			stack.id = (int)itemIds[tokens[2]];
-	//			stack.count += std::stoi(tokens[3]);
-	//			stack.type = TYPE::ITEM;
-	//		}
-	//	}
-	//}
+	if (tokens[0] == "/give")
+	{
+		if (tokens.size() == 4)
+		{
+			if (tokens[1] == "block")
+			{
+				int count = std::stoi(tokens[3]);
+				ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot(ItemStack(ItemStackType::BlockItem,(ItemType)Block::GetBlockType(tokens[2]), count))];
+				stack = ItemStack(ItemStackType::BlockItem, (ItemType)Block::GetBlockType(tokens[2]), count);
+			}
+			else if (tokens[1] == "item")
+			{
+				int count = std::stoi(tokens[3]);
+				ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot(ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count))];
+				stack = ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count);
+			}
+		}
+	}
 	//if (tokens[0] == "/structure")
 	//{
 	//	if (tokens.size() == 12 || tokens.size() == 6)

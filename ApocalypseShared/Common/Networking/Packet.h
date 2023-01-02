@@ -24,6 +24,7 @@ constexpr int SizePacket = sizeof(PACKET_ID);
 constexpr int CredentialsPacketSize = sizeof(Credentials);
 constexpr int StartPacketSize = sizeof(Player) + sizeof(int) + sizeof(int) + 8 * sizeof(int);
 constexpr int BlockPropertiesSize = sizeof(BlockProperties);
+constexpr int ItemPropertiesSize = sizeof(ItemProperties);
 
 constexpr int ReceivePlayerPosition = sizeof(uint64_t) + sizeof(Vector3<double>);
 constexpr int SendPlayerPosition = SizePacket + ReceivePlayerPosition;

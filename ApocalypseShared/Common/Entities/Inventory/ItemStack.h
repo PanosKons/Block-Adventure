@@ -1,18 +1,24 @@
 #pragma once
+#include "pch.h"
 enum class ITEM_ID
 {
 	DryGrassBlade, Stick, Pickaxe
 };
-enum class TYPE
+enum class ItemStackType
 {
-	BLOCK, ITEM
+	BlockItem, Item
 };
+typedef unsigned short ItemType;
 class ItemStack
 {
 public:
-	TYPE type;
-	int id;
-	unsigned int count;
-	ItemStack(int id, unsigned int count, TYPE type);
 	ItemStack();
+	ItemStack(ItemStackType itemStackType,ItemType type, unsigned int count);
+	inline unsigned int GetCount() { return count; };
+	inline ItemStackType GetItemStackType() { return itemStackType; };
+	inline ItemType GetItemType() { return itemType; };
+private:
+	ItemStackType itemStackType;
+	ItemType itemType;
+	unsigned int count;
 };

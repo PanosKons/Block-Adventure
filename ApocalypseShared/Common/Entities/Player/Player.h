@@ -17,7 +17,7 @@ public:
 	Block GetFacingBlock();
 	Block GetBlockToPlace();
 	void MarkBlockToBreak();
-	int GetFirstAvaiableSlot(int id, TYPE type);
+	int GetFirstAvaiableSlot(ItemStack itemStack);
 	Vector3<double> GetLookPosition();
 
 	Credentials credentials;

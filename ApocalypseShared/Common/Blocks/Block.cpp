@@ -36,18 +36,32 @@ BlockType Block::GetBlockId() const
 {
 	return data->blockId;
 }
-BlockProperties& Block::GetBlockProperties(BlockData* data)
+BlockProperties& Block::GetBlockProperties(BlockType blocktype)
 {
-	return blockProperties[data->blockId];
+	return blockProperties[blocktype];
 }
 BlockProperties& Block::GetBlockProperties() const
 {
 	return blockProperties[data->blockId];
 }
-//bool Block::IsBlockSolid(Vector3<int> Position)
-//{
-//	Block block = WorldManager::BaseWorld->GetBlock({ Position.x,Position.y,Position.z });
-//	if (block.data != nullptr)
-//		return blockProperties[block.GetBlockId()].render;
-//	return true;
-//}
+
+ItemProperties& Item::GetItemProperties(ItemType itemType)
+{
+	return itemProperties[itemType];
+}
+ItemType Item::GetItemType(std::string&& key)
+{
+	for (size_t i = 0; i < Item::itemProperties.size(); i++)
+	{
+		if (key == std::string(Item::itemProperties[i].name.data())) return (ItemType)i;
+	}
+	ERR("Id:", key, " is invalid");
+}
+ItemType Item::GetItemType(std::string& key)
+{
+	for (size_t i = 0; i < Item::itemProperties.size(); i++)
+	{
+		if (key == std::string(Item::itemProperties[i].name.data())) return (ItemType)i;
+	}
+	ERR("Id:", key, " is invalid");
+}

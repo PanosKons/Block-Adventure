@@ -136,6 +136,7 @@ namespace NetworkingServer {
 			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
 			StartPacket.AddPacketData<int>(Block::GetBlockCount());
 			StartPacket.AddPacketData<int>(Block::GetToolCount());
+			StartPacket.AddPacketData<int>(Item::GetItemCount());
 			StartPacket.AddPacketData<int>(Block::FillerBlock);
 			StartPacket.AddPacketData<int>(Block::UndergroundBlock);
 			StartPacket.AddPacketData<int>(Block::DirtBlock);
@@ -152,6 +153,13 @@ namespace NetworkingServer {
 				BlockPacket.InitMemory();
 				BlockPacket.AddPacketData<BlockProperties>(Block::blockProperties[i]);
 				SendPacketToClient(credentials, BlockPacket);
+			}
+			for (int i = 0; i < Item::GetItemCount(); i++)
+			{
+				Packet<ItemPropertiesSize> ItemPacket;
+				ItemPacket.InitMemory();
+				ItemPacket.AddPacketData<ItemProperties>(Item::itemProperties[i]);
+				SendPacketToClient(credentials, ItemPacket);
 			}
 
 			for (auto&[UUID, player] : EntityManagerServer::Players)

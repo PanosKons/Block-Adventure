@@ -27,7 +27,7 @@ WorldGeneration = {
 	Ore = "iron"
  }
  Items = {
-	 DryGrassBlade = {Id = "drygrassblade", Texture = {9,9,9,9,9,9}},
-	 Stick = {Id = "stick", Texture = {11,11,11,11,11,11}},
-	 StonePickaxe = {Id = "stone_pickaxe", Texture = {13,13,13,13,13,13}, Tool = "pickaxe"},
+	 DryGrassBlade = {Id = "drygrassblade", Texture = 9},
+	 Stick = {Id = "stick", Texture = 11},
+	 StonePickaxe = {Id = "stone_pickaxe", Texture = 13, Tool = "pickaxe"},
  }

@@ -94,6 +94,7 @@ void NetworkingClient::Connect()
 	Player player = StartPacket.ExtractPacketData<Player>();
 	int BlockCount = StartPacket.ExtractPacketData<int>();
 	int ToolCount = StartPacket.ExtractPacketData<int>(); // Not used
+	int ItemCount = StartPacket.ExtractPacketData<int>();
 	Block::FillerBlock = StartPacket.ExtractPacketData<int>();
 	Block::UndergroundBlock = StartPacket.ExtractPacketData<int>();
 	Block::DirtBlock = StartPacket.ExtractPacketData<int>();
@@ -108,6 +109,12 @@ void NetworkingClient::Connect()
 		Packet<BlockPropertiesSize> BlockPacket;
 		BlockPacket = NetworkingClient::GetPacketFromServer<BlockPropertiesSize>();
 		Block::blockProperties.push_back(BlockPacket.ExtractPacketData<BlockProperties>());
+	}
+	for (int i = 0; i < ItemCount; i++)
+	{
+		Packet<ItemPropertiesSize> ItemPacket;
+		ItemPacket = NetworkingClient::GetPacketFromServer<ItemPropertiesSize>();
+		Item::itemProperties.push_back(ItemPacket.ExtractPacketData<ItemProperties>());
 	}
 
 	EntityManagerClient::CreateSelf(*NetworkingClient::credentials, &player);

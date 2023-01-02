@@ -483,18 +483,27 @@ void RendererClient::RenderUI(double TimeStep)
 		SlotPosition = { SlotsX,0.0f };
 		for (int i = 0; i < InventorySize; i++)
 		{
-			if (EntityManagerClient::GetPlayer().Inventory[i].count != 0)
+			ItemStack& itemStack = EntityManagerClient::GetPlayer().Inventory[i];
+			if (itemStack.GetCount() != 0)
 			{
-				//unsigned char a = GetTexture(EntityManagerClient::GetPlayer().Inventory[i].id, EntityManagerClient::GetPlayer().Inventory[i].type)[0];
-				//RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + 8, SlotPosition.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (a % 16) / 16.0f, (a / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f,BaseLayer - 0.2f);
+				unsigned char TextureId;
+				if (itemStack.GetItemStackType() == ItemStackType::BlockItem)
+				{
+					TextureId = Block::GetBlockProperties((BlockType)itemStack.GetItemType()).textureSides[0];
+				}
+				else
+				{
+					TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
+				}
+				RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + 8, SlotPosition.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (TextureId % 16) / 16.0f, (TextureId / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f,BaseLayer - 0.2f);
 			}
 			SlotPosition.x += SlotWidth;
 		}
 		SlotPosition = { SlotsX,0.0f };
 		for (int i = 0; i < InventorySize; i++)
 		{
-			if (EntityManagerClient::GetPlayer().Inventory[i].count > 1)
-				RenderBuilder::AddText(UIRenderData,StringConvertions::ToString(EntityManagerClient::GetPlayer().Inventory[i].count), SlotPosition, BaseLayer - 0.1f);
+			if (EntityManagerClient::GetPlayer().Inventory[i].GetCount() > 1)
+				RenderBuilder::AddText(UIRenderData,StringConvertions::ToString(EntityManagerClient::GetPlayer().Inventory[i].GetCount()), SlotPosition, BaseLayer - 0.1f);
 			SlotPosition.x += SlotWidth;
 		}
 		SlotPosition = { SlotsX,0.0f };

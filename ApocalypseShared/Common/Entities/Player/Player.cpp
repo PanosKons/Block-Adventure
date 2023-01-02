@@ -28,15 +28,15 @@ Player::Player(Credentials& credentials)
 }
 Player::~Player() {}
 
-int Player::GetFirstAvaiableSlot(int id,TYPE type)
+int Player::GetFirstAvaiableSlot(ItemStack itemStack)
 {
 	for (unsigned int i = 0; i < Inventory.size(); i++)
 	{
-		if (Inventory[i].id == id && Inventory[i].type == type) return i;
+		if (Inventory[i].GetItemStackType() == itemStack.GetItemStackType() && Inventory[i].GetItemType() == itemStack.GetItemType()) return i;
 	}
 	for (unsigned int i = 0; i < Inventory.size(); i++)
 	{
-		if (Inventory[i].count == 0) return i;
+		if (Inventory[i].GetCount() == 0) return i;
 	}
 	return -1;
 }
