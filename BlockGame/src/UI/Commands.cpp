@@ -34,17 +34,27 @@ void Commands::ExecuteCommand(const std::string& command)
 	{
 		if (tokens.size() == 4)
 		{
+			ItemStack* stack = nullptr;
 			if (tokens[1] == "block")
 			{
 				int count = std::stoi(tokens[3]);
-				ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot(ItemStack(ItemStackType::BlockItem,(ItemType)Block::GetBlockType(tokens[2]), count))];
-				stack = ItemStack(ItemStackType::BlockItem, (ItemType)Block::GetBlockType(tokens[2]), count);
+				stack = &EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot(ItemStack(ItemStackType::BlockItem,(ItemType)Block::GetBlockType(tokens[2]), count))];
+				*stack = ItemStack(ItemStackType::BlockItem, (ItemType)Block::GetBlockType(tokens[2]), count);
 			}
 			else if (tokens[1] == "item")
 			{
 				int count = std::stoi(tokens[3]);
-				ItemStack& stack = EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot(ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count))];
-				stack = ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count);
+				stack = &EntityManagerClient::GetPlayer().Inventory[EntityManagerClient::GetPlayer().GetFirstAvaiableSlot(ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count))];
+				*stack = ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count);
+			}
+
+			//Notify the server
+			{
+				Packet<SendPlayerGiveItem> packet;
+				packet.InitMemory();
+				packet.AddPacketData(PACKET_ID::PlayerGiveItem);
+				packet.AddPacketData<ItemStack>(*stack);
+				NetworkingClient::SendPacketToServer(packet);
 			}
 		}
 	}

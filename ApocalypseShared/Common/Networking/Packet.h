@@ -6,15 +6,18 @@
 #include "Common/World/WorldConstants.h"
 #include "Common/Entities/Credentials.h"
 #include "Common/Entities/Player/Player.h"
-
 enum class PACKET_ID
 {
 	PlayerJoin,
 	PlayerPosition,
+	PlayerRotation,
 	ReplaceBlock,
 	RequestChunk,
 	NewChunk,
 	DeleteChunk,
+	BlockInteract,
+	SelectSlot,
+	PlayerGiveItem
 };
 
 constexpr int MAX_PLAYERS = 20;
@@ -29,6 +32,9 @@ constexpr int ItemPropertiesSize = sizeof(ItemProperties);
 constexpr int ReceivePlayerPosition = sizeof(uint64_t) + sizeof(Vector3<double>);
 constexpr int SendPlayerPosition = SizePacket + ReceivePlayerPosition;
 
+constexpr int ReceivePlayerRotation = sizeof(uint64_t) + sizeof(Vector2<float>);
+constexpr int SendPlayerRotation = SizePacket + ReceivePlayerRotation;
+
 constexpr int ReceivePlayerJoin = sizeof(Player);
 constexpr int SendPlayerJoin = SizePacket + ReceivePlayerJoin;
 
@@ -42,6 +48,15 @@ constexpr int SendDeleteChunk = SizePacket + ReceiveDeleteChunk;
 constexpr int ReceiveReplaceBlock = sizeof(Vector3<int>) + sizeof(unsigned short);
 constexpr int SendReplaceBlock = ReceiveReplaceBlock + SizePacket;
 
+constexpr int ReceiveBlockInteract = sizeof(uint64_t) + sizeof(Vector3<int>) + sizeof(BlockInteractState) + sizeof(float);
+constexpr int SendBlockInteract = SizePacket + ReceiveBlockInteract;
+
+constexpr int ReceiveSelectSlot = sizeof(char);
+constexpr int SendSelectSlot = SizePacket + ReceiveSelectSlot;
+
+constexpr int ReceivePlayerGiveItem = sizeof(ItemStack);
+constexpr int SendPlayerGiveItem = SizePacket + ReceivePlayerGiveItem;
+
 template<int TSize>
 class Packet
 {
@@ -51,6 +66,7 @@ public:
 	const T& ExtractPacketData()
 	{
 		LastIndex += sizeof(T);
+		ASSERT((LastIndex <= GetPacketSize()), "Attempting to access fobidden memory!");
 		return *(T*)(this->PacketData->data() + LastIndex - sizeof(T));
 	}
 	template<typename T>
@@ -58,6 +74,7 @@ public:
 	{
 		if (PacketData == nullptr)
 			InitMemory();
+		ASSERT((LastIndex + sizeof(T) <= GetPacketSize()), "Attempting to write forbidden memory!");
 		*(T*)((char*)PacketData->data() + LastIndex) = Data;
 		LastIndex += sizeof(T);
 	}

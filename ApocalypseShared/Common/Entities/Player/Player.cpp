@@ -5,7 +5,7 @@
 #include "Math/EngineMath.h"
 #include "World/WorldManager.h"
 Player::Player(Credentials& credentials)
-	:credentials(credentials)
+	:credentials(credentials),IsReadyToReceivePackets(false)
 {
 	Position = { 2600,80,2600 };
 	Hitbox = { 0.6, 1.8 ,0.6 };
@@ -77,12 +77,4 @@ Block Player::GetBlockToPlace()
 		block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
 	}
 	return lastBlock;
-}
-void Player::MarkBlockToBreak()
-{
-	Block block = GetFacingBlock();
-	if (!block.IsValid()) return;
-	IsBreakingBlock = true;
-	BreakingBlockPosition = block.Position;
-	TimeToBreak = (float)block.GetBlockProperties().hardness;
 }

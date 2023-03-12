@@ -1,17 +1,23 @@
 #include "pch.h"
 #include "Noise.h"
 #include "../Engine/scr/vendor/PerlinNoise.hpp"
-constexpr double frequency = 8.0; //0.1 - 64.0
-constexpr int octaves = 8; // 1-16
 constexpr unsigned int seed = 12;
 const siv::PerlinNoise perlin(seed);
 int Noise::GetYLevel(int x, int z)
 {
-	double a = perlin.accumulatedOctaveNoise2D_0_1(x / 256.0f, z / 256.0f, octaves);
-	return (int)(a * 96);
+	double a = perlin.accumulatedOctaveNoise2D_0_1(x / frequency, z / frequency, octaves);
+	return (int)(a * YLevelStretch);
 }
 int Noise::GetBiomeTemperature(int x, int z)
 {
-	double a = perlin.accumulatedOctaveNoise2D_0_1(x / 256.0f + 1000, z / 256.0f + 1000, octaves);
-	return (int)(a * 4);
+	double a = perlin.accumulatedOctaveNoise2D_0_1(x / frequency + 10000, z / frequency + 10000, octaves);
+	return (int)(a * BiomeStretch);
+}
+
+void Noise::SetNoiseSettings(int Octaves, double Frequency, int YlevelStretch, int biomeStretch)
+{
+	octaves = Octaves;
+	frequency = Frequency;
+	YLevelStretch = YlevelStretch;
+	BiomeStretch = biomeStretch;
 }

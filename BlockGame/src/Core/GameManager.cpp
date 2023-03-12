@@ -18,9 +18,8 @@ void GameManager::Tick(double TimeStep)
 void GameManager::Start()
 {
 	//Manual ip input
-	//std::wcin >> Client::ip;
-	//std::cin >> Client::port;
-	//Automatic ip input
+	std::wcin >> Client::ip;
+	std::cin >> Client::port;
 	{
 		GameName Name;
 		std::string in;
@@ -28,8 +27,6 @@ void GameManager::Start()
 		strcpy_s(Name.data(),Name.size()-1, in.c_str());
 		NetworkingClient::credentials = new Credentials(Name, Credentials::ConvertToUUID(Name));
 	}
-	Client::ip = L"127.0.0.1";
-	Client::port = 25555;
 	Client::ScreenWidth = 1920 / 2;
 	Client::ScreenHeight = 1080 / 2;
 

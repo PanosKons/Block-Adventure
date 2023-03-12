@@ -28,6 +28,14 @@ void PlayerClient::KeyPressed(int key, int action)
 	if (key >= Key::n1 && key <= Key::n9 && action == Action::Press && !IsGUIOpen)
 	{
 		ActiveSlot = key - 49;
+		//Notify the server
+		{
+			Packet<SendSelectSlot> packet;
+			packet.InitMemory();
+			packet.AddPacketData(PACKET_ID::SelectSlot);
+			packet.AddPacketData<char>(ActiveSlot);
+			NetworkingClient::SendPacketToServer(packet);
+		}
 	}
 	if (key == Key::Slash && !IsGUIOpen)
 	{
@@ -76,21 +84,16 @@ void PlayerClient::CursorMoved(double xpos, double ypos)
 		Pitch = 89.0f;
 	if (Pitch < -89.0f)
 		Pitch = -89.0f;
-}
 
-glm::vec3 PlayerClient::GetCameraFront()
-{
-	glm::vec3 front;
-	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	front.y = sin(glm::radians(Pitch));
-	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	return glm::normalize(front);
-}
-
-glm::vec3 PlayerClient::GetCameraPosition()
-{
-	Vector3<double> view = GetLookPosition();
-	return glm::vec3(view.x, view.y, view.z);
+	//Notify the server
+	{
+		Packet<SendPlayerRotation> packet;
+		packet.InitMemory();
+		packet.AddPacketData(PACKET_ID::PlayerRotation);
+		packet.AddPacketData(credentials.UUID);
+		packet.AddPacketData<Vector2<float>>({ Pitch,Yaw });
+		NetworkingClient::SendPacketToServer(packet);
+	}
 }
 
 void PlayerClient::InputTick(double TimeStep)
@@ -253,8 +256,17 @@ void PlayerClient::InputTick(double TimeStep)
 			TimeToBreak -= (float)TimeStep * 60;
 			if (TimeToBreak < 0)
 			{
-				int index = GetFirstAvaiableSlot(ItemStack(ItemStackType::BlockItem,(ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(),1));
+				ItemStack stack(ItemStackType::BlockItem, (ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), 1);
+				int index = GetFirstAvaiableSlot(stack);
 				Inventory[index] = ItemStack(ItemStack(ItemStackType::BlockItem, (ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), Inventory[index].GetCount() + 1));
+				//Notify the server
+				{
+					Packet<SendPlayerGiveItem> packet;
+					packet.InitMemory();
+					packet.AddPacketData(PACKET_ID::PlayerGiveItem);
+					packet.AddPacketData<ItemStack>(stack);
+					NetworkingClient::SendPacketToServer(packet);
+				}
 				WorldManager::ReplaceBlock(WorldManager::BaseWorld->GetBlock(BreakingBlockPosition),Block::FillerBlock);
 				//Notify the server
 				{
@@ -271,9 +283,25 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		else if (Input::GetMouseState(Mouse::Left) == Action::Press && !IsGUIOpen)
 		{
-			MarkBlockToBreak();
+			Block block = GetFacingBlock();
+			if (block.IsValid())
+			{
+				//Notify the server
+				{
+					Packet<SendBlockInteract> packet;
+					packet.InitMemory();
+					packet.AddPacketData<PACKET_ID>(PACKET_ID::BlockInteract);
+					packet.AddPacketData<uint64_t>(credentials.UUID);
+					packet.AddPacketData<Vector3<int>>(block.Position);
+					packet.AddPacketData<BlockInteractState>(BlockInteractState::Started);
+					packet.AddPacketData<float>(10.0f);
+					NetworkingClient::SendPacketToServer(packet);
+				}
+			}
+
 		}
 	}
+
 	//Place block functionality
 	BlockPlaceDelay -= (float)TimeStep;
 	if (Input::GetMouseState(Mouse::Right) == Action::Press && !IsGUIOpen && BlockPlaceDelay < 0)
@@ -296,6 +324,14 @@ void PlayerClient::InputTick(double TimeStep)
 
 			}
 			Inventory[ActiveSlot] = ItemStack(ItemStackType::BlockItem,Inventory[ActiveSlot].GetItemType(),Inventory[ActiveSlot].GetCount() - 1);
+			//Notify the server
+			{
+				Packet<SendPlayerGiveItem> packet;
+				packet.InitMemory();
+				packet.AddPacketData(PACKET_ID::PlayerGiveItem);
+				packet.AddPacketData<ItemStack>(ItemStack(ItemStackType::BlockItem, Inventory[ActiveSlot].GetItemType(), Inventory[ActiveSlot].GetCount() - 1));
+				NetworkingClient::SendPacketToServer(packet);
+			}
 		}
 		BlockPlaceDelay = 0.3f;
 	}

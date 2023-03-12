@@ -39,6 +39,9 @@
     <ClCompile Include="lua\LuaManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EventManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\NetworkingServer.h">
@@ -77,11 +80,14 @@
     <ClInclude Include="lua\LuaManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EventManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="lua\lua54.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="script.lua" />
+    <None Include="data.lua" />
   </ItemGroup>
 </Project>

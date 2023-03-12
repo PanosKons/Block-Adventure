@@ -3,9 +3,9 @@
 #include "LuaManager.h"
 #include "Logger.h"
 #include "Common/Blocks/Block.h"
-
+#include "Common/Math/Noise.h"
 static lua_State* L;
-void Lua(int r)
+void Lua(int r, lua_State* L)
 {
 	if (r != LUA_OK)
 	{
@@ -16,21 +16,7 @@ void Lua(int r)
 void LuaManager::LoadScripts()
 {
 	L = luaL_newstate();
-	Lua(luaL_dofile(L, "script.lua"));
-	//GetTooltypes
-	{
-		lua_getglobal(L, "ToolTypes");
-		if (lua_istable(L, -1))
-		{
-			lua_pushnil(L);
-			for (; lua_next(L, -2) != 0; lua_pop(L, 1))
-			{
-				ASSERT(lua_isstring(L, -1), "Invalid lua script(ToolTypes)");
-				Block::toolTypes.push_back(std::array<char,MaxIdLength>());
-				strcpy_s(Block::toolTypes.back().data(), Block::toolTypes.back().size() - 1, lua_tostring(L, -1));
-			}
-		}
-	}
+	Lua(luaL_dofile(L, "data.lua"),L);
 	//GetBlockProperties
 	{
 	lua_getglobal(L, "Blocks");
@@ -40,48 +26,21 @@ void LuaManager::LoadScripts()
 		for (; lua_next(L, -2) != 0; lua_pop(L, 1)) {
 			BlockProperties bp{};
 
-			lua_pushstring(L, "Id");
-			lua_gettable(L, -2);
-			ASSERT(lua_isstring(L, -1), "Invalid lua script(blocks)");
-			strcpy_s(bp.name.data(),bp.name.size() - 1, lua_tostring(L, -1));
-			lua_pop(L, 1);
+			ASSERT(lua_isstring(L, -2), "Invalid lua script(blocks)");
+			strcpy_s(bp.name.data(),bp.name.size() - 1, lua_tostring(L, -2));
 
-			lua_pushstring(L, "Render");
-			lua_gettable(L, -2);
+			lua_getfield(L, -1, "Render");
 			ASSERT(lua_isboolean(L, -1), "Invalid lua script(blocks)");
 			bp.render = lua_toboolean(L, -1);
 			lua_pop(L, 1);
 			if (bp.render == false) goto end;
 
-			lua_pushstring(L, "Transparent");
-			lua_gettable(L, -2);
+			lua_getfield(L, -1, "Transparent");
 			ASSERT(lua_isboolean(L, -1), "Invalid lua script(blocks)");
 			bp.transparent = lua_toboolean(L, -1);
 			lua_pop(L, 1);
 
-			lua_pushstring(L, "Hardness");
-			lua_gettable(L, -2);
-			ASSERT(lua_isinteger(L, -1), "Invalid lua script(blocks)");
-			bp.hardness = (unsigned int)lua_tointeger(L, -1);
-			lua_pop(L, 1);
-
-			lua_pushstring(L, "Tool");
-			lua_gettable(L, -2);
-			lua_pushstring(L, "Id");
-			lua_gettable(L, -2);
-			ASSERT(lua_isstring(L, -1), "Invalid lua script(blocks)");
-			std::array<char, MaxIdLength> str;
-			strcpy_s(str.data(), str.size() - 1, lua_tostring(L, -1));
-			bp.tool.ToolId = (int)(std::find(Block::toolTypes.begin(), Block::toolTypes.end(),str) - Block::toolTypes.begin());
-			lua_pop(L, 1);
-			lua_pushstring(L, "MinimumLevel");
-			lua_gettable(L, -2);
-			ASSERT(lua_isinteger(L, -1), "Invalid lua script(blocks)");
-			bp.tool.ToolMinimumLevel = (unsigned int)lua_tointeger(L, -1);
-			lua_pop(L, 2);
-
-			lua_pushstring(L, "Texture");
-			lua_gettable(L, -2);
+			lua_getfield(L, -1, "Texture");
 			lua_pushnil(L);
 			for (size_t i = 0; i < bp.textureSides.size(); i++)
 			{
@@ -96,13 +55,47 @@ void LuaManager::LoadScripts()
 		}
 	}
 	}
+	//GetNoise
+	{
+		lua_getglobal(L, "Noise");
+		int Octaves;
+		int YLevelStretch;
+		double Frequency;
+		int BiomeStretch;
+		if (lua_istable(L, -1))
+		{
+			lua_pushstring(L, "Octaves");
+			lua_gettable(L, -2);
+			ASSERT(lua_isinteger(L, -1), "Invalid lua script(Noise)");
+			Octaves = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "YLevelStretch");
+			lua_gettable(L, -2);
+			ASSERT(lua_isinteger(L, -1), "Invalid lua script(Noise)");
+			YLevelStretch = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "Frequency");
+			lua_gettable(L, -2);
+			ASSERT(lua_isnumber(L, -1), "Invalid lua script(Noise)");
+			Frequency = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+
+			lua_pushstring(L, "BiomeStretch");
+			lua_gettable(L, -2);
+			ASSERT(lua_isinteger(L, -1), "Invalid lua script(Noise)");
+			BiomeStretch = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+			Noise::SetNoiseSettings(Octaves, Frequency, YLevelStretch, BiomeStretch);
+		}
+	}
 	//GetWorldGenerationProperties
 	{
 		lua_getglobal(L, "WorldGeneration");
 		if (lua_istable(L, -1))
 		{
-			lua_pushstring(L, "Filler");
-			lua_gettable(L, -2);
+			lua_getfield(L, -1, "Filler");
 			ASSERT(lua_isstring(L, -1), "Invalid lua script(WorldGenerationProperties)");
 			Block::FillerBlock = Block::GetBlockType(lua_tostring(L,-1));
 			lua_pop(L, 1);
@@ -159,20 +152,38 @@ void LuaManager::LoadScripts()
 			for (; lua_next(L, -2) != 0; lua_pop(L, 1)) {
 				ItemProperties bp{};
 
-				lua_pushstring(L, "Id");
-				lua_gettable(L, -2);
-				ASSERT(lua_isstring(L, -1), "Invalid lua script(items)");
-				strcpy_s(bp.name.data(), bp.name.size() - 1, lua_tostring(L, -1));
-				lua_pop(L, 1);
+				ASSERT(lua_isstring(L, -2), "Invalid lua script(items)");
+				strcpy_s(bp.name.data(), bp.name.size() - 1, lua_tostring(L, -2));
 
-				lua_pushstring(L, "Texture");
-				lua_gettable(L, -2);
+				lua_getfield(L, -1, "Texture");
 				ASSERT(lua_isinteger(L, -1), "Invalid lua script(items)");
 				bp.texture = (unsigned char)lua_tointeger(L, -1);
 				lua_pop(L, 1);
+
+
+
 				Item::itemProperties.push_back(bp);
 			}
 		}
 	}
-	lua_close(L);
+	//lua_close(L);
+}
+
+float LuaManager::OnBlockInteract(Player& player, Block block, BlockInteractState state)
+{
+	lua_getglobal(L, "OnBlockInteract");
+	if (lua_isfunction(L, -1))
+	{
+		lua_pushstring(L, block.GetBlockProperties().name.data());
+		if (player.Inventory[player.ActiveSlot].GetItemStackType() == ItemStackType::Item && player.Inventory[player.ActiveSlot].GetCount() > 0)
+		{
+			lua_pushstring(L, Item::GetItemProperties(player.Inventory[player.ActiveSlot].GetItemType()).name.data());
+		}
+		else
+		{
+			lua_pushnil(L);
+		}
+		lua_pcall(L, 2, 1, 0);
+	}
+	return lua_tonumber(L, -1);
 }

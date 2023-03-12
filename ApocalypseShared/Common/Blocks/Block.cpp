@@ -42,6 +42,7 @@ BlockProperties& Block::GetBlockProperties(BlockType blocktype)
 }
 BlockProperties& Block::GetBlockProperties() const
 {
+	ASSERT(data->blockId < blockProperties.size(), "Invalid blockId");
 	return blockProperties[data->blockId];
 }
 

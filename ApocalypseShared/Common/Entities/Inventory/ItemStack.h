@@ -1,9 +1,5 @@
 #pragma once
 #include "pch.h"
-enum class ITEM_ID
-{
-	DryGrassBlade, Stick, Pickaxe
-};
 enum class ItemStackType
 {
 	BlockItem, Item

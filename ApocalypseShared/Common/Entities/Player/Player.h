@@ -7,6 +7,12 @@
 #include "Common/Entities/Entity.h"
 #include "Common/Entities/Credentials.h"
 
+enum BlockInteractState
+{
+	Started,
+	Ended
+};
+
 class Player : public Entity
 {
 public:
@@ -16,7 +22,6 @@ public:
 
 	Block GetFacingBlock();
 	Block GetBlockToPlace();
-	void MarkBlockToBreak();
 	int GetFirstAvaiableSlot(ItemStack itemStack);
 	Vector3<double> GetLookPosition();
 
@@ -36,4 +41,6 @@ public:
 	bool Crouch = false;
 	bool Godmode = true;
 
+	//Field should be used only by the server
+	bool IsReadyToReceivePackets = false;
 };

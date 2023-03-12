@@ -119,3 +119,13 @@ template <typename S>
 std::ostream& operator<<(std::ostream& os, Vector3<S> const& m) {
 	return os << m.x << ", " << m.y << ", " << m.z;
 }
+template <typename S>
+std::ostream& operator<<(std::ostream& os, Vector4<S> const& m) {
+	return os << m.x << ", " << m.y << ", " << m.z << ", " << m.w;
+}
+
+template <typename S>
+std::ostream& operator<<(std::ostream& os, Vector2<S> const& m) {
+	return os << m.x << ", " << m.y;
+}
+

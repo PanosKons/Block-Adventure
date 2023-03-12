@@ -9,9 +9,9 @@
 #define ONEOVER16 0.0625f
 void RendererClient::RenderWorld(World* world)
 {
-	auto ChunkMap = *(world->GetChunkMap());
-	for (auto [key, chunk] : ChunkMap)
+	for (auto&[key, chunk] : *world->GetChunkMap())
 	{
+		ASSERT(chunk, "Invalid chunk in rendering");
 		ChunkRenderData& rd = ChunkData[WorldManager::GetChunkKey(chunk->GetPosition())];
 		if (rd.Populated == false || chunk->MeshChanged == true)
 		{
@@ -35,7 +35,7 @@ void RendererClient::RenderWorld(World* world)
 						Vertex a;
 						a.texId = 0.0f;
 						float alpha = 1.0f;
-						//if (block.GetBlockId() == BLOCK_ID::Water) alpha = 0.4f;
+						//if (block.GetBlockId() == Block::Water) alpha = 0.4f;
 						if (block.data->RenderedSides & (unsigned char)8) {
 							float texcordsX = ((arr[0]) % 16) / 16.0f;
 							float texcordsY = ((arr[0]) / 16) / 16.0f;

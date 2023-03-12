@@ -20,8 +20,20 @@ void HandleMessage()
 			Packet<ReceivePlayerPosition> packet = NetworkingClient::GetPacketFromServer<ReceivePlayerPosition>();
 			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
 			Vector3<double> Position = packet.ExtractPacketData<Vector3<double>>();
-			if(UUID != EntityManagerClient::GetPlayer().credentials.UUID)
+			if (UUID != EntityManagerClient::GetPlayer().credentials.UUID)
 				EntityManagerClient::Players[UUID]->Position = Position;
+			break;
+		}
+		case PACKET_ID::PlayerRotation:
+		{
+			Packet<ReceivePlayerRotation> packet = NetworkingClient::GetPacketFromServer<ReceivePlayerRotation>();
+			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
+			Vector2<float> Rotation = packet.ExtractPacketData<Vector2<float>>();
+			if (UUID != EntityManagerClient::GetPlayer().credentials.UUID)
+			{
+				EntityManagerClient::Players[UUID]->Pitch = Rotation.x;
+				EntityManagerClient::Players[UUID]->Yaw = Rotation.y;
+			}
 			break;
 		}
 		case PACKET_ID::PlayerJoin:
@@ -49,7 +61,7 @@ void HandleMessage()
 			Packet<ChunkPacketSize> chunkPacket = NetworkingClient::GetPacketFromServer<ChunkPacketSize>();
 			BlockArray* blocks = (BlockArray*)chunkPacket.GetPacket();
 			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)chunkPacket.GetPacket());
-			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld,ChunkPosition);
+			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld, ChunkPosition);
 			chunkPacket.SetPacket(nullptr);
 			break;
 		}
@@ -59,6 +71,17 @@ void HandleMessage()
 			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
 			WorldManager::BaseWorld->DestroyChunk(ChunkPosition);
 			break;
+		}
+		case PACKET_ID::BlockInteract:
+		{
+			Packet<ReceiveBlockInteract> packet = NetworkingClient::GetPacketFromServer<ReceiveBlockInteract>();
+			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
+			Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
+			BlockInteractState state = packet.ExtractPacketData<BlockInteractState>();
+			float TimeToBreak = packet.ExtractPacketData<float>();
+			EntityManager::GetPlayer(UUID)->BreakingBlockPosition = BlockPosition;
+			EntityManager::GetPlayer(UUID)->IsBreakingBlock = true;
+			EntityManager::GetPlayer(UUID)->TimeToBreak = TimeToBreak;
 		}
 		}
 	}
@@ -93,7 +116,6 @@ void NetworkingClient::Connect()
 	StartPacket = NetworkingClient::GetPacketFromServer<StartPacketSize>();
 	Player player = StartPacket.ExtractPacketData<Player>();
 	int BlockCount = StartPacket.ExtractPacketData<int>();
-	int ToolCount = StartPacket.ExtractPacketData<int>(); // Not used
 	int ItemCount = StartPacket.ExtractPacketData<int>();
 	Block::FillerBlock = StartPacket.ExtractPacketData<int>();
 	Block::UndergroundBlock = StartPacket.ExtractPacketData<int>();

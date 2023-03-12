@@ -8,6 +8,7 @@
 #include "Common/World/World.h"
 #include "EntityManagerServer.h"
 #include "Logger.h"
+#include "../lua/LuaManager.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -37,6 +38,22 @@ namespace NetworkingServer {
 					SendAllExceptClient(credentials, SendPacket);
 					break;
 				}
+				case PACKET_ID::PlayerRotation:
+				{
+					Packet<ReceivePlayerRotation> packet = GetPacketFromClient<ReceivePlayerRotation>(credentials);
+					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
+					Vector2<float> playerRotation = packet.ExtractPacketData<Vector2<float>>();
+					EntityManagerServer::GetPlayer(UUID)->Pitch = playerRotation.x;
+					EntityManagerServer::GetPlayer(UUID)->Yaw = playerRotation.y;
+
+					Packet<SendPlayerPosition> SendPacket;
+					SendPacket.InitMemory();
+					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerRotation);
+					SendPacket.AddPacketData<uint64_t>(UUID);
+					SendPacket.AddPacketData<Vector2<float>>(playerRotation);
+					SendAllExceptClient(credentials, SendPacket);
+					break;
+				}
 				case PACKET_ID::ReplaceBlock:
 				{
 					Packet<ReceiveReplaceBlock> packet = GetPacketFromClient<ReceiveReplaceBlock>(credentials);
@@ -51,6 +68,47 @@ namespace NetworkingServer {
 					SendPacket.AddPacketData<Vector3<int>>(BlockPosition);
 					SendPacket.AddPacketData<unsigned short>(id);
 					SendAllExceptClient(credentials, SendPacket);
+					break;
+				}
+				case PACKET_ID::SelectSlot:
+				{
+					Packet<ReceiveSelectSlot> packet = GetPacketFromClient<ReceiveSelectSlot>(credentials);
+					char ActiveSlot = packet.ExtractPacketData<char>();
+					EntityManagerServer::GetPlayer(credentials.UUID)->ActiveSlot = ActiveSlot;
+					break;
+				}
+				case PACKET_ID::BlockInteract:
+				{
+					Packet<ReceiveBlockInteract> packet = GetPacketFromClient<ReceiveBlockInteract>(credentials);
+					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
+					Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
+					BlockInteractState state = packet.ExtractPacketData<BlockInteractState>();
+					//Calculate Time
+					float TimeToBreak = LuaManager::OnBlockInteract(*EntityManager::GetPlayer(UUID), WorldManager::BaseWorld->GetBlock(BlockPosition), state);
+						//WorldManager::BaseWorld->GetBlock(BlockPosition).GetBlockProperties().hardness * 4;
+
+					EntityManagerServer::GetPlayer(credentials.UUID)->BreakingBlockPosition = BlockPosition;
+					EntityManagerServer::GetPlayer(credentials.UUID)->IsBreakingBlock = true;
+					EntityManagerServer::GetPlayer(credentials.UUID)->TimeToBreak = TimeToBreak;
+
+					
+					Packet<SendBlockInteract> SendPacket = GetPacketFromClient<SendBlockInteract>(credentials);
+					SendPacket.InitMemory();
+					SendPacket.AddPacketData(PACKET_ID::BlockInteract);
+					SendPacket.AddPacketData(UUID);
+					SendPacket.AddPacketData(BlockPosition);
+					SendPacket.AddPacketData(state);
+					SendPacket.AddPacketData(TimeToBreak);
+					SendAllClients(SendPacket);
+					break;
+				}
+				case PACKET_ID::PlayerGiveItem:
+				{
+					Packet<ReceivePlayerGiveItem> packet = GetPacketFromClient<ReceivePlayerGiveItem>(credentials);
+					ItemStack itemStack = packet.ExtractPacketData<ItemStack>();
+					Player& player = *EntityManager::GetPlayer(credentials.UUID);
+					int index = player.GetFirstAvaiableSlot(itemStack);
+					player.Inventory[index] = ItemStack(ItemStack(itemStack.GetItemStackType(), itemStack.GetItemType(), player.Inventory[index].GetCount() + 1));
 					break;
 				}
 			}
@@ -129,13 +187,12 @@ namespace NetworkingServer {
 			packet.InitMemory();
 			packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerJoin);
 			packet.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
-			SendAllExceptClient(credentials,packet);
+			SendAllClients(packet);
 
 			Packet<StartPacketSize> StartPacket;
 			StartPacket.InitMemory();
 			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
 			StartPacket.AddPacketData<int>(Block::GetBlockCount());
-			StartPacket.AddPacketData<int>(Block::GetToolCount());
 			StartPacket.AddPacketData<int>(Item::GetItemCount());
 			StartPacket.AddPacketData<int>(Block::FillerBlock);
 			StartPacket.AddPacketData<int>(Block::UndergroundBlock);
@@ -162,6 +219,8 @@ namespace NetworkingServer {
 				SendPacketToClient(credentials, ItemPacket);
 			}
 
+			EntityManagerServer::GetPlayer(credentials.UUID)->IsReadyToReceivePackets = true;
+
 			for (auto&[UUID, player] : EntityManagerServer::Players)
 			{
 				if (UUID != credentials.UUID)
@@ -173,7 +232,6 @@ namespace NetworkingServer {
 					SendPacketToClient(credentials, JoinPacket);
 				}
 			}
-
 
 			INFO("Client with name: ", credentials.Name, " and UUID:", credentials.UUID, " connected to the server");
 
