@@ -79,9 +79,12 @@ void HandleMessage()
 			Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
 			BlockInteractState state = packet.ExtractPacketData<BlockInteractState>();
 			float TimeToBreak = packet.ExtractPacketData<float>();
-			EntityManager::GetPlayer(UUID)->BreakingBlockPosition = BlockPosition;
-			EntityManager::GetPlayer(UUID)->IsBreakingBlock = true;
-			EntityManager::GetPlayer(UUID)->TimeToBreak = TimeToBreak;
+			if (state == BlockInteractState::StartedBreaking)
+			{
+				EntityManager::GetPlayer(UUID)->BreakingBlockPosition = BlockPosition;
+				EntityManager::GetPlayer(UUID)->IsBreakingBlock = true;
+				EntityManager::GetPlayer(UUID)->TimeToBreak = TimeToBreak;
+			}
 		}
 		}
 	}

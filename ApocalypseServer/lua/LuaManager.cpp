@@ -67,13 +67,13 @@ void LuaManager::LoadScripts()
 			lua_pushstring(L, "Octaves");
 			lua_gettable(L, -2);
 			ASSERT(lua_isinteger(L, -1), "Invalid lua script(Noise)");
-			Octaves = lua_tointeger(L, -1);
+			Octaves = (int)lua_tointeger(L, -1);
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "YLevelStretch");
 			lua_gettable(L, -2);
 			ASSERT(lua_isinteger(L, -1), "Invalid lua script(Noise)");
-			YLevelStretch = lua_tointeger(L, -1);
+			YLevelStretch = (int)lua_tointeger(L, -1);
 			lua_pop(L, 1);
 
 			lua_pushstring(L, "Frequency");
@@ -85,7 +85,7 @@ void LuaManager::LoadScripts()
 			lua_pushstring(L, "BiomeStretch");
 			lua_gettable(L, -2);
 			ASSERT(lua_isinteger(L, -1), "Invalid lua script(Noise)");
-			BiomeStretch = lua_tointeger(L, -1);
+			BiomeStretch = (int)lua_tointeger(L, -1);
 			lua_pop(L, 1);
 			Noise::SetNoiseSettings(Octaves, Frequency, YLevelStretch, BiomeStretch);
 		}
@@ -171,7 +171,14 @@ void LuaManager::LoadScripts()
 
 float LuaManager::OnBlockInteract(Player& player, Block block, BlockInteractState state)
 {
-	lua_getglobal(L, "OnBlockInteract");
+	if (state == BlockInteractState::StartedBreaking)
+	{
+		lua_getglobal(L, "OnBlockStartBreak");
+	}
+	else if (state == BlockInteractState::Interact)
+	{
+		lua_getglobal(L, "OnBlockInteract");
+	}
 	if (lua_isfunction(L, -1))
 	{
 		lua_pushstring(L, block.GetBlockProperties().name.data());
@@ -185,5 +192,6 @@ float LuaManager::OnBlockInteract(Player& player, Block block, BlockInteractStat
 		}
 		lua_pcall(L, 2, 1, 0);
 	}
+	INFO(lua_tonumber(L, -1));
 	return lua_tonumber(L, -1);
 }

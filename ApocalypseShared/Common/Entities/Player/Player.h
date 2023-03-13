@@ -9,8 +9,9 @@
 
 enum BlockInteractState
 {
-	Started,
-	Ended
+	Interact,
+	StartedBreaking,
+	EndedBreaking
 };
 
 class Player : public Entity

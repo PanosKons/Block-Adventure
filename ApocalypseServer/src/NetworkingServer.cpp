@@ -83,15 +83,20 @@ namespace NetworkingServer {
 					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
 					Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
 					BlockInteractState state = packet.ExtractPacketData<BlockInteractState>();
-					//Calculate Time
-					float TimeToBreak = LuaManager::OnBlockInteract(*EntityManager::GetPlayer(UUID), WorldManager::BaseWorld->GetBlock(BlockPosition), state);
-						//WorldManager::BaseWorld->GetBlock(BlockPosition).GetBlockProperties().hardness * 4;
 
-					EntityManagerServer::GetPlayer(credentials.UUID)->BreakingBlockPosition = BlockPosition;
-					EntityManagerServer::GetPlayer(credentials.UUID)->IsBreakingBlock = true;
-					EntityManagerServer::GetPlayer(credentials.UUID)->TimeToBreak = TimeToBreak;
+					float TimeToBreak = 0.0f;
+					if (state == BlockInteractState::StartedBreaking)
+					{
+						TimeToBreak = LuaManager::OnBlockInteract(*EntityManager::GetPlayer(UUID), WorldManager::BaseWorld->GetBlock(BlockPosition), state);
+						EntityManagerServer::GetPlayer(credentials.UUID)->BreakingBlockPosition = BlockPosition;
+						EntityManagerServer::GetPlayer(credentials.UUID)->IsBreakingBlock = true;
+						EntityManagerServer::GetPlayer(credentials.UUID)->TimeToBreak = TimeToBreak;
+					}
+					else if (state == BlockInteractState::Interact)
+					{
+						LuaManager::OnBlockInteract(*EntityManager::GetPlayer(UUID), WorldManager::BaseWorld->GetBlock(BlockPosition), state);
+					}
 
-					
 					Packet<SendBlockInteract> SendPacket = GetPacketFromClient<SendBlockInteract>(credentials);
 					SendPacket.InitMemory();
 					SendPacket.AddPacketData(PACKET_ID::BlockInteract);

@@ -293,7 +293,7 @@ void PlayerClient::InputTick(double TimeStep)
 					packet.AddPacketData<PACKET_ID>(PACKET_ID::BlockInteract);
 					packet.AddPacketData<uint64_t>(credentials.UUID);
 					packet.AddPacketData<Vector3<int>>(block.Position);
-					packet.AddPacketData<BlockInteractState>(BlockInteractState::Started);
+					packet.AddPacketData<BlockInteractState>(BlockInteractState::StartedBreaking);
 					packet.AddPacketData<float>(10.0f);
 					NetworkingClient::SendPacketToServer(packet);
 				}
@@ -330,6 +330,20 @@ void PlayerClient::InputTick(double TimeStep)
 				packet.InitMemory();
 				packet.AddPacketData(PACKET_ID::PlayerGiveItem);
 				packet.AddPacketData<ItemStack>(ItemStack(ItemStackType::BlockItem, Inventory[ActiveSlot].GetItemType(), Inventory[ActiveSlot].GetCount() - 1));
+				NetworkingClient::SendPacketToServer(packet);
+			}
+		}
+		else
+		{
+			//Notify the server
+			{
+				Packet<SendBlockInteract> packet;
+				packet.InitMemory();
+				packet.AddPacketData(PACKET_ID::BlockInteract);
+				packet.AddPacketData(credentials.UUID);
+				packet.AddPacketData<Vector3<int>>(GetFacingBlock().Position);
+				packet.AddPacketData(BlockInteractState::Interact);
+				packet.AddPacketData(0.0f);
 				NetworkingClient::SendPacketToServer(packet);
 			}
 		}
