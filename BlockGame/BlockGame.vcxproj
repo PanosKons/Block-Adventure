@@ -92,7 +92,6 @@
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Entities\PlayerClient.cpp" />
     <ClCompile Include="src\Entities\EntityManagerClient.cpp" />
-    <ClCompile Include="src\Entities\MainCamera.cpp" />
     <ClCompile Include="src\Networking\NetworkingClient.cpp" />
     <ClCompile Include="src\Scenes\GameScene.cpp" />
     <ClCompile Include="src\Scenes\MainMenuScene.cpp" />
@@ -108,7 +107,6 @@
     <ClInclude Include="src\Core\Input.h" />
     <ClInclude Include="src\Entities\PlayerClient.h" />
     <ClInclude Include="src\Entities\EntityManagerClient.h" />
-    <ClInclude Include="src\Entities\MainCamera.h" />
     <ClInclude Include="src\Networking\NetworkingClient.h" />
     <ClInclude Include="src\Scenes\GameScene.h" />
     <ClInclude Include="src\Scenes\MainMenuScene.h" />

@@ -39,9 +39,6 @@
     <ClCompile Include="src\Entities\EntityManagerClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Entities\MainCamera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\PlayerClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\EntityManagerClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Entities\MainCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\PlayerClient.h">

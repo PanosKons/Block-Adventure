@@ -18,8 +18,8 @@ void GameManager::Tick(double TimeStep)
 void GameManager::Start()
 {
 	//Manual ip input
-	std::wcin >> Client::ip;
-	std::cin >> Client::port;
+	//std::wcin >> Client::ip;
+	//std::cin >> Client::port;
 	{
 		GameName Name;
 		std::string in;

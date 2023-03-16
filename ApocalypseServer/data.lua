@@ -51,15 +51,18 @@ WorldGeneration = {
 	 YLevelStretch = 96,
 	 BiomeStretch = 4
  }
- function OnBlockInteract(block, item)
-	return 0.34
+ function OnLeftMouseClickEvent(UUID)
+	block = GetPlayerFacingBlock(UUID)
+	if(block:IsValid()) then
+		ReplaceBlock(block, WorldGeneration.Filler)
+	end
  end
- function OnBlockStartBreak(block, item)
-	local time = Blocks[block]["Material"]["Hardness"]
-	 if item ~= nil then
-		if Blocks[block]["Material"]["Tool"] == Items[item]["Tool"] then
-		time = time / 4
-		end
-	 end
-	return time
- end
+
+  function OnRightMouseClickEvent(UUID)
+  end
+
+  function OnMiddleMouseClickEvent(UUID)
+  end
+
+  function Update()
+  end

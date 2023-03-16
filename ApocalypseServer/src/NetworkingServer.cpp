@@ -34,8 +34,8 @@ namespace NetworkingServer {
 					SendPacket.InitMemory();
 					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
 					SendPacket.AddPacketData<uint64_t>(UUID);
-					SendPacket.AddPacketData<Vector3<double>>(playerPosition);
-					SendAllExceptClient(credentials, SendPacket);
+					SendPacket.AddPacketData<Vector3<double>>(EntityManager::GetPlayer(UUID)->Position);
+					SendAllExceptClient(UUID, SendPacket);
 					break;
 				}
 				case PACKET_ID::PlayerRotation:
@@ -51,23 +51,7 @@ namespace NetworkingServer {
 					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerRotation);
 					SendPacket.AddPacketData<uint64_t>(UUID);
 					SendPacket.AddPacketData<Vector2<float>>(playerRotation);
-					SendAllExceptClient(credentials, SendPacket);
-					break;
-				}
-				case PACKET_ID::ReplaceBlock:
-				{
-					Packet<ReceiveReplaceBlock> packet = GetPacketFromClient<ReceiveReplaceBlock>(credentials);
-					Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
-					unsigned short id = packet.ExtractPacketData<unsigned short>();
-					Block block = WorldManager::BaseWorld->GetBlock(BlockPosition);
-					WorldManager::ReplaceBlock(block,id);
-
-					Packet<SendReplaceBlock> SendPacket;
-					SendPacket.InitMemory();
-					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::ReplaceBlock);
-					SendPacket.AddPacketData<Vector3<int>>(BlockPosition);
-					SendPacket.AddPacketData<unsigned short>(id);
-					SendAllExceptClient(credentials, SendPacket);
+					SendAllExceptClient(credentials.UUID, SendPacket);
 					break;
 				}
 				case PACKET_ID::SelectSlot:
@@ -77,44 +61,13 @@ namespace NetworkingServer {
 					EntityManagerServer::GetPlayer(credentials.UUID)->ActiveSlot = ActiveSlot;
 					break;
 				}
-				case PACKET_ID::BlockInteract:
+				case PACKET_ID::MouseState:
 				{
-					Packet<ReceiveBlockInteract> packet = GetPacketFromClient<ReceiveBlockInteract>(credentials);
-					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
-					Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
-					BlockInteractState state = packet.ExtractPacketData<BlockInteractState>();
-
-					float TimeToBreak = 0.0f;
-					if (state == BlockInteractState::StartedBreaking)
-					{
-						TimeToBreak = LuaManager::OnBlockInteract(*EntityManager::GetPlayer(UUID), WorldManager::BaseWorld->GetBlock(BlockPosition), state);
-						EntityManagerServer::GetPlayer(credentials.UUID)->BreakingBlockPosition = BlockPosition;
-						EntityManagerServer::GetPlayer(credentials.UUID)->IsBreakingBlock = true;
-						EntityManagerServer::GetPlayer(credentials.UUID)->TimeToBreak = TimeToBreak;
-					}
-					else if (state == BlockInteractState::Interact)
-					{
-						LuaManager::OnBlockInteract(*EntityManager::GetPlayer(UUID), WorldManager::BaseWorld->GetBlock(BlockPosition), state);
-					}
-
-					Packet<SendBlockInteract> SendPacket = GetPacketFromClient<SendBlockInteract>(credentials);
-					SendPacket.InitMemory();
-					SendPacket.AddPacketData(PACKET_ID::BlockInteract);
-					SendPacket.AddPacketData(UUID);
-					SendPacket.AddPacketData(BlockPosition);
-					SendPacket.AddPacketData(state);
-					SendPacket.AddPacketData(TimeToBreak);
-					SendAllClients(SendPacket);
-					break;
-				}
-				case PACKET_ID::PlayerGiveItem:
-				{
-					Packet<ReceivePlayerGiveItem> packet = GetPacketFromClient<ReceivePlayerGiveItem>(credentials);
-					ItemStack itemStack = packet.ExtractPacketData<ItemStack>();
-					Player& player = *EntityManager::GetPlayer(credentials.UUID);
-					int index = player.GetFirstAvaiableSlot(itemStack);
-					player.Inventory[index] = ItemStack(ItemStack(itemStack.GetItemStackType(), itemStack.GetItemType(), player.Inventory[index].GetCount() + 1));
-					break;
+					Packet<ReceiveMouseState> packet = GetPacketFromClient<ReceiveMouseState>(credentials);
+					MouseState LeftMouse = packet.ExtractPacketData<MouseState>();
+					MouseState RightMouse = packet.ExtractPacketData<MouseState>();
+					MouseState MiddleMouse = packet.ExtractPacketData<MouseState>();
+					LuaManager::MouseEvent(credentials.UUID, LeftMouse, RightMouse, MiddleMouse);
 				}
 			}
 		}
@@ -144,6 +97,24 @@ namespace NetworkingServer {
 	int Receive(uint64_t UUID, char* buf, int len)
 	{
 		return recv(*sockets[UUID],buf,len, 0);
+	}
+	void SendPlayerPositionPacket(uint64_t UUID)
+	{
+		Packet<SendPlayerPosition> SendPacket;
+		SendPacket.InitMemory();
+		SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
+		SendPacket.AddPacketData<uint64_t>(UUID);
+		SendPacket.AddPacketData<Vector3<double>>(EntityManager::GetPlayer(UUID)->Position);
+		SendAllClients(SendPacket);
+	}
+	void SendReplaceBlockPacket(Block block, BlockType newType)
+	{
+		Packet<SendReplaceBlock> SendPacket;
+		SendPacket.InitMemory();
+		SendPacket.AddPacketData(PACKET_ID::ReplaceBlock);
+		SendPacket.AddPacketData(block.Position);
+		SendPacket.AddPacketData(newType);
+		SendAllClients(SendPacket);
 	}
 	void ListenForClients()
 	{

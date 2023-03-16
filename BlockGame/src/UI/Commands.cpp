@@ -48,14 +48,14 @@ void Commands::ExecuteCommand(const std::string& command)
 				*stack = ItemStack(ItemStackType::Item, Item::GetItemType(tokens[2]), count);
 			}
 
-			//Notify the server
-			{
-				Packet<SendPlayerGiveItem> packet;
-				packet.InitMemory();
-				packet.AddPacketData(PACKET_ID::PlayerGiveItem);
-				packet.AddPacketData<ItemStack>(*stack);
-				NetworkingClient::SendPacketToServer(packet);
-			}
+			////Notify the server
+			//{
+			//	Packet<SendPlayerGiveItem> packet;
+			//	packet.InitMemory();
+			//	packet.AddPacketData(PACKET_ID::PlayerGiveItem);
+			//	packet.AddPacketData<ItemStack>(*stack);
+			//	NetworkingClient::SendPacketToServer(packet);
+			//}
 		}
 	}
 	//if (tokens[0] == "/structure")

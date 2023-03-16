@@ -15,10 +15,10 @@ void MainMenuScene::Start()
 
 void MainMenuScene::Update(double TimeStep)
 {
-	if (Input::GetMouseState(Mouse::Left) == Action::Press)
-	{
+	//if (Input::GetMouseState(Mouse::Left) == MouseState::Click)
+	//{
 		GameManager::SetScene((Scene*)new GameScene());
-	}
+	//}
 }
 
 void MainMenuScene::Render(double TimeStep)

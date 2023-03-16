@@ -7,6 +7,7 @@ class LuaManager
 {
 public:
 	static void LoadScripts();
-	static float OnBlockInteract(Player& player,Block block,BlockInteractState state);
+	static void MouseEvent(uint64_t UUID, MouseState LeftMouse, MouseState RightMouse, MouseState MiddleMouse);
+	static void UpdateEvent();
 };
 

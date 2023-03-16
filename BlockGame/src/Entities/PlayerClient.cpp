@@ -237,123 +237,123 @@ void PlayerClient::InputTick(double TimeStep)
 	}
 	//Apply the velocity to the position
 	Position += Velocity * TimeStep;
-
-	//Get the facing block
-	Block facingblock = GetFacingBlock();
-	//Break block functionality
+	
+	if (!IsGUIOpen)
 	{
-		if (IsBreakingBlock)
-		{
-			if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
-			//if (Inventory[ActiveSlot].id == (int)ITEM_ID::Pickaxe && Inventory[ActiveSlot].type == TYPE::ITEM && WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockProperties().tool == TOOL::Pickaxe)
-			//{
-			//	TimeToBreak -= (float)TimeStep * 60 * 12;
-			//}
-			//else
-			//{
-			//	TimeToBreak -= (float)TimeStep * 60;
-			//}
-			TimeToBreak -= (float)TimeStep * 60;
-			if (TimeToBreak < 0)
-			{
-				ItemStack stack(ItemStackType::BlockItem, (ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), 1);
-				int index = GetFirstAvaiableSlot(stack);
-				Inventory[index] = ItemStack(ItemStack(ItemStackType::BlockItem, (ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), Inventory[index].GetCount() + 1));
-				//Notify the server
-				{
-					Packet<SendPlayerGiveItem> packet;
-					packet.InitMemory();
-					packet.AddPacketData(PACKET_ID::PlayerGiveItem);
-					packet.AddPacketData<ItemStack>(stack);
-					NetworkingClient::SendPacketToServer(packet);
-				}
-				WorldManager::ReplaceBlock(WorldManager::BaseWorld->GetBlock(BreakingBlockPosition),Block::FillerBlock);
-				//Notify the server
-				{
-					Packet<SendReplaceBlock> packet;
-					packet.InitMemory();
-					packet.AddPacketData(PACKET_ID::ReplaceBlock);
-					packet.AddPacketData<Vector3<int>>(BreakingBlockPosition);
-					packet.AddPacketData(Block::FillerBlock);
-					NetworkingClient::SendPacketToServer(packet);
-
-				}
-				IsBreakingBlock = false;
-			}
-		}
-		else if (Input::GetMouseState(Mouse::Left) == Action::Press && !IsGUIOpen)
-		{
-			Block block = GetFacingBlock();
-			if (block.IsValid())
-			{
-				//Notify the server
-				{
-					Packet<SendBlockInteract> packet;
-					packet.InitMemory();
-					packet.AddPacketData<PACKET_ID>(PACKET_ID::BlockInteract);
-					packet.AddPacketData<uint64_t>(credentials.UUID);
-					packet.AddPacketData<Vector3<int>>(block.Position);
-					packet.AddPacketData<BlockInteractState>(BlockInteractState::StartedBreaking);
-					packet.AddPacketData<float>(10.0f);
-					NetworkingClient::SendPacketToServer(packet);
-				}
-			}
-
-		}
+		Packet<SendMouseState> packet;
+		packet.InitMemory();
+		packet.AddPacketData(PACKET_ID::MouseState);
+		packet.AddPacketData(Input::GetMouseState(Mouse::Left));
+		packet.AddPacketData(Input::GetMouseState(Mouse::Right));
+		packet.AddPacketData(Input::GetMouseState(Mouse::Middle));
+		NetworkingClient::SendPacketToServer(packet);
 	}
+	////Break block functionality
+	//{
+	//	if (IsBreakingBlock)
+	//	{
+	//		if (facingblock.Position != BreakingBlockPosition || Input::GetMouseState(Mouse::Left) == Action::Release) IsBreakingBlock = false;
+	//		TimeToBreak -= (float)TimeStep * 60;
+	//		if (TimeToBreak < 0)
+	//		{
+	//			ItemStack stack(ItemStackType::BlockItem, (ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), 1);
+	//			int index = GetFirstAvaiableSlot(stack);
+	//			Inventory[index] = ItemStack(ItemStack(ItemStackType::BlockItem, (ItemType)WorldManager::BaseWorld->GetBlock(BreakingBlockPosition).GetBlockId(), Inventory[index].GetCount() + 1));
+	//			//Notify the server
+	//			{
+	//				Packet<SendPlayerGiveItem> packet;
+	//				packet.InitMemory();
+	//				packet.AddPacketData(PACKET_ID::PlayerGiveItem);
+	//				packet.AddPacketData<ItemStack>(stack);
+	//				NetworkingClient::SendPacketToServer(packet);
+	//			}
+	//			WorldManager::ReplaceBlock(WorldManager::BaseWorld->GetBlock(BreakingBlockPosition),Block::FillerBlock);
+	//			//Notify the server
+	//			{
+	//				Packet<SendReplaceBlock> packet;
+	//				packet.InitMemory();
+	//				packet.AddPacketData(PACKET_ID::ReplaceBlock);
+	//				packet.AddPacketData<Vector3<int>>(BreakingBlockPosition);
+	//				packet.AddPacketData(Block::FillerBlock);
+	//				NetworkingClient::SendPacketToServer(packet);
 
-	//Place block functionality
-	BlockPlaceDelay -= (float)TimeStep;
-	if (Input::GetMouseState(Mouse::Right) == Action::Press && !IsGUIOpen && BlockPlaceDelay < 0)
-	{
-		Block block = GetBlockToPlace();
-		if (!block.IsValid()) return;
-		if (EntityManagerClient::CheckCollision(Position, Hitbox, block.Position) == true)
-			return;
-		if (Inventory[ActiveSlot].GetCount() > 0 && Inventory[ActiveSlot].GetItemStackType() == ItemStackType::BlockItem)
-		{
-			WorldManager::ReplaceBlock(block, (BlockType)Inventory[ActiveSlot].GetItemType());
-			//Notify the server
-			{
-				Packet<SendReplaceBlock> packet;
-				packet.InitMemory();
-				packet.AddPacketData(PACKET_ID::ReplaceBlock);
-				packet.AddPacketData<Vector3<int>>(block.Position);
-				packet.AddPacketData(Inventory[ActiveSlot].GetItemType());
-				NetworkingClient::SendPacketToServer(packet);
+	//			}
+	//			IsBreakingBlock = false;
+	//		}
+	//	}
+	//	else if (Input::GetMouseState(Mouse::Left) == Action::Press && !IsGUIOpen)
+	//	{
+	//		Block block = GetFacingBlock();
+	//		if (block.IsValid())
+	//		{
+	//			//Notify the server
+	//			{
+	//				Packet<SendBlockInteract> packet;
+	//				packet.InitMemory();
+	//				packet.AddPacketData<PACKET_ID>(PACKET_ID::BlockInteract);
+	//				packet.AddPacketData<uint64_t>(credentials.UUID);
+	//				packet.AddPacketData<Vector3<int>>(block.Position);
+	//				packet.AddPacketData<BlockInteractState>(BlockInteractState::StartedBreaking);
+	//				packet.AddPacketData<float>(10.0f);
+	//				NetworkingClient::SendPacketToServer(packet);
+	//			}
+	//		}
 
-			}
-			Inventory[ActiveSlot] = ItemStack(ItemStackType::BlockItem,Inventory[ActiveSlot].GetItemType(),Inventory[ActiveSlot].GetCount() - 1);
-			//Notify the server
-			{
-				Packet<SendPlayerGiveItem> packet;
-				packet.InitMemory();
-				packet.AddPacketData(PACKET_ID::PlayerGiveItem);
-				packet.AddPacketData<ItemStack>(ItemStack(ItemStackType::BlockItem, Inventory[ActiveSlot].GetItemType(), Inventory[ActiveSlot].GetCount() - 1));
-				NetworkingClient::SendPacketToServer(packet);
-			}
-		}
-		else
-		{
-			//Notify the server
-			{
-				Packet<SendBlockInteract> packet;
-				packet.InitMemory();
-				packet.AddPacketData(PACKET_ID::BlockInteract);
-				packet.AddPacketData(credentials.UUID);
-				packet.AddPacketData<Vector3<int>>(GetFacingBlock().Position);
-				packet.AddPacketData(BlockInteractState::Interact);
-				packet.AddPacketData(0.0f);
-				NetworkingClient::SendPacketToServer(packet);
-			}
-		}
-		BlockPlaceDelay = 0.3f;
-	}
-	//Pick block functionality
-	if (Input::GetMouseState(Mouse::Middle) == Action::Press && !IsGUIOpen && Godmode)
-	{
-		ItemStack& stack = Inventory[GetFirstAvaiableSlot((ItemStack(ItemStackType::BlockItem,(ItemType)facingblock.GetBlockId(),1)))];
-		stack = ItemStack(ItemStackType::BlockItem, (ItemType)facingblock.GetBlockId(), stack.GetCount() + 1);
-	}
+	//	}
+	//}
+	
+	////Place block functionality
+	//BlockPlaceDelay -= (float)TimeStep;
+	//if (Input::GetMouseState(Mouse::Right) == Action::Press && !IsGUIOpen && BlockPlaceDelay < 0)
+	//{
+	//	Block block = GetBlockToPlace();
+	//	if (!block.IsValid()) return;
+	//	if (EntityManagerClient::CheckCollision(Position, Hitbox, block.Position) == true)
+	//		return;
+	//	if (Inventory[ActiveSlot].GetCount() > 0 && Inventory[ActiveSlot].GetItemStackType() == ItemStackType::BlockItem)
+	//	{
+	//		WorldManager::ReplaceBlock(block, (BlockType)Inventory[ActiveSlot].GetItemType());
+	//		//Notify the server
+	//		{
+	//			Packet<SendReplaceBlock> packet;
+	//			packet.InitMemory();
+	//			packet.AddPacketData(PACKET_ID::ReplaceBlock);
+	//			packet.AddPacketData<Vector3<int>>(block.Position);
+	//			packet.AddPacketData(Inventory[ActiveSlot].GetItemType());
+	//			NetworkingClient::SendPacketToServer(packet);
+
+	//		}
+	//		Inventory[ActiveSlot] = ItemStack(ItemStackType::BlockItem,Inventory[ActiveSlot].GetItemType(),Inventory[ActiveSlot].GetCount() - 1);
+	//		//Notify the server
+	//		{
+	//			Packet<SendPlayerGiveItem> packet;
+	//			packet.InitMemory();
+	//			packet.AddPacketData(PACKET_ID::PlayerGiveItem);
+	//			packet.AddPacketData<ItemStack>(ItemStack(ItemStackType::BlockItem, Inventory[ActiveSlot].GetItemType(), Inventory[ActiveSlot].GetCount() - 1));
+	//			NetworkingClient::SendPacketToServer(packet);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		//Notify the server
+	//		{
+	//			Packet<SendBlockInteract> packet;
+	//			packet.InitMemory();
+	//			packet.AddPacketData(PACKET_ID::BlockInteract);
+	//			packet.AddPacketData(credentials.UUID);
+	//			packet.AddPacketData<Vector3<int>>(GetFacingBlock().Position);
+	//			packet.AddPacketData(BlockInteractState::Interact);
+	//			packet.AddPacketData(0.0f);
+	//			NetworkingClient::SendPacketToServer(packet);
+	//		}
+	//	}
+	//	BlockPlaceDelay = 0.3f;
+	//}
+	////Pick block functionality
+	//if (Input::GetMouseState(Mouse::Middle) == Action::Press && !IsGUIOpen && Godmode)
+	//{
+	//	ItemStack& stack = Inventory[GetFirstAvaiableSlot((ItemStack(ItemStackType::BlockItem,(ItemType)facingblock.GetBlockId(),1)))];
+	//	stack = ItemStack(ItemStackType::BlockItem, (ItemType)facingblock.GetBlockId(), stack.GetCount() + 1);
+	//}
 
 }

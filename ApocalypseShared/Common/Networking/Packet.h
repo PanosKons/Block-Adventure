@@ -8,16 +8,20 @@
 #include "Common/Entities/Player/Player.h"
 enum class PACKET_ID
 {
-	PlayerJoin,
-	PlayerPosition,
-	PlayerRotation,
-	ReplaceBlock,
-	RequestChunk,
-	NewChunk,
-	DeleteChunk,
-	BlockInteract,
-	SelectSlot,
-	PlayerGiveItem
+	//ClientBound
+	PlayerJoin, //Client
+	ReplaceBlock, //Client
+	NewChunk, //Client
+	DeleteChunk, //Client
+
+	//Mutual
+	PlayerPosition, //Server, Client
+	PlayerRotation, //Server, Client
+	SelectSlot, //Server
+	PlayerInventory,
+
+	//ServerBound
+	MouseState, //Server
 };
 
 constexpr int MAX_PLAYERS = 20;
@@ -48,14 +52,11 @@ constexpr int SendDeleteChunk = SizePacket + ReceiveDeleteChunk;
 constexpr int ReceiveReplaceBlock = sizeof(Vector3<int>) + sizeof(unsigned short);
 constexpr int SendReplaceBlock = ReceiveReplaceBlock + SizePacket;
 
-constexpr int ReceiveBlockInteract = sizeof(uint64_t) + sizeof(Vector3<int>) + sizeof(BlockInteractState) + sizeof(float);
-constexpr int SendBlockInteract = SizePacket + ReceiveBlockInteract;
-
 constexpr int ReceiveSelectSlot = sizeof(char);
 constexpr int SendSelectSlot = SizePacket + ReceiveSelectSlot;
 
-constexpr int ReceivePlayerGiveItem = sizeof(ItemStack);
-constexpr int SendPlayerGiveItem = SizePacket + ReceivePlayerGiveItem;
+constexpr int ReceiveMouseState = 3 * sizeof(int);
+constexpr int SendMouseState = SizePacket + ReceiveMouseState;
 
 template<int TSize>
 class Packet

@@ -17,11 +17,11 @@ namespace NetworkingServer{
 
 	}
 	template<int TSize>
-	void SendAllExceptClient(Credentials& credentials, Packet<TSize>& packet)
+	void SendAllExceptClient(uint64_t uuid, Packet<TSize>& packet)
 	{
 		for (auto& [UUID, player] : EntityManagerServer::Players)
 		{
-			if(UUID != credentials.UUID && player->IsReadyToReceivePackets == true)
+			if(UUID != uuid && player->IsReadyToReceivePackets == true)
 				SendPacketToClient(player->credentials, packet);
 		}
 	}
@@ -48,6 +48,8 @@ namespace NetworkingServer{
 
 		return packet;
 	}
+	void SendPlayerPositionPacket(uint64_t UUID);
+	void SendReplaceBlockPacket(Block block, BlockType newType);
 	void ListenForClients();
 	void Shutdown();
 }

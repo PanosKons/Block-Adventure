@@ -18,9 +18,6 @@ void WorldManagerClient::DeleteOldChunks()
 		}
 	}
 }
-void WorldManagerClient::RequestNewChunks()
-{
-}
 
 void WorldManagerClient::RefreshBorderChunks(World* world, Vector3<int> ChunkPosition)
 {

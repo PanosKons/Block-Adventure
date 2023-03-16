@@ -18,9 +18,6 @@ Player::Player(Credentials& credentials)
 	Grounded = false;
 	ActiveSlot = 0;
 	Inventory = {};
-	TimeToBreak = 0.0f;
-	BreakingBlockPosition = { 0,0,0 };
-	IsBreakingBlock = false;
 	BlockPlaceDelay = 0.3f;
 	JumpCooldown = 0.0f;
 	Crouch = false;

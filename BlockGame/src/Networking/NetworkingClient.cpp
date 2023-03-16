@@ -20,8 +20,7 @@ void HandleMessage()
 			Packet<ReceivePlayerPosition> packet = NetworkingClient::GetPacketFromServer<ReceivePlayerPosition>();
 			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
 			Vector3<double> Position = packet.ExtractPacketData<Vector3<double>>();
-			if (UUID != EntityManagerClient::GetPlayer().credentials.UUID)
-				EntityManagerClient::Players[UUID]->Position = Position;
+			EntityManagerClient::Players[UUID]->Position = Position;
 			break;
 		}
 		case PACKET_ID::PlayerRotation:
@@ -71,20 +70,6 @@ void HandleMessage()
 			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
 			WorldManager::BaseWorld->DestroyChunk(ChunkPosition);
 			break;
-		}
-		case PACKET_ID::BlockInteract:
-		{
-			Packet<ReceiveBlockInteract> packet = NetworkingClient::GetPacketFromServer<ReceiveBlockInteract>();
-			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
-			Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
-			BlockInteractState state = packet.ExtractPacketData<BlockInteractState>();
-			float TimeToBreak = packet.ExtractPacketData<float>();
-			if (state == BlockInteractState::StartedBreaking)
-			{
-				EntityManager::GetPlayer(UUID)->BreakingBlockPosition = BlockPosition;
-				EntityManager::GetPlayer(UUID)->IsBreakingBlock = true;
-				EntityManager::GetPlayer(UUID)->TimeToBreak = TimeToBreak;
-			}
 		}
 		}
 	}

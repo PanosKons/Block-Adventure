@@ -24,6 +24,7 @@ void ServerManager::Tick()
 {
 	WorldManagerServer::SendAppropriateChunks();
 	WorldManagerServer::RemoveUnusedChunks();
+	LuaManager::UpdateEvent();
 }
 
 void ServerManager::Shutdown()

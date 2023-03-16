@@ -7,7 +7,6 @@
 #include "Rendering/Texture.h"
 #include "Rendering/VertexBufferLayout.h"
 #include "GameManager.h"
-#include "Entities/MainCamera.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
 

@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include "Renderer.h"
 #include "Client.h"
+#include "Common/Entities/Player/Player.h"
+
 void Input::SetCharCallback(void (*CharCallback)(unsigned int key))
 {
 	static auto WCharCallback = CharCallback;
@@ -29,7 +31,20 @@ int Input::GetKeyState(int key)
 {
 	return glfwGetKey(Client::ApplicationWindow, key);
 }
-int Input::GetMouseState(int Mouse)
+MouseState Input::GetMouseState(int Mouse)
 {
-	return glfwGetMouseButton(Client::ApplicationWindow, Mouse);
+	static std::array<bool, 3> HoldState = {false,false,false};
+	MouseState ReturnState = MouseState::Idle;
+	int action = glfwGetMouseButton(Client::ApplicationWindow, Mouse);
+	if (action == GLFW_RELEASE)
+		HoldState[Mouse] = false;
+	if (action == GLFW_PRESS)
+	{
+		if (HoldState[Mouse] == false)
+			ReturnState = MouseState::Click;
+		else
+			ReturnState = MouseState::Hold;
+		HoldState[Mouse] = true;
+	}
+	return ReturnState;
 }
