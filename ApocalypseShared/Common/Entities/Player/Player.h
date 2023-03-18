@@ -34,6 +34,7 @@ class Player : public Entity
 public:
 
 	Player(Credentials& credentials);
+	Player() {};
 	~Player();
 
 	Block GetFacingBlock();

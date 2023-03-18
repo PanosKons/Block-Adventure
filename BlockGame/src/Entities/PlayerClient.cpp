@@ -30,11 +30,7 @@ void PlayerClient::KeyPressed(int key, int action)
 		ActiveSlot = key - 49;
 		//Notify the server
 		{
-			Packet<SendSelectSlot> packet;
-			packet.InitMemory();
-			packet.AddPacketData(PACKET_ID::SelectSlot);
-			packet.AddPacketData<char>(ActiveSlot);
-			NetworkingClient::SendPacketToServer(packet);
+			NetworkingClient::SendDataToServer(Packet::SelectSlot, /*SelectSlotData*/ ActiveSlot);
 		}
 	}
 	if (key == Key::Slash && !IsGUIOpen)
@@ -87,12 +83,10 @@ void PlayerClient::CursorMoved(double xpos, double ypos)
 
 	//Notify the server
 	{
-		Packet<SendPlayerRotation> packet;
-		packet.InitMemory();
-		packet.AddPacketData(PACKET_ID::PlayerRotation);
-		packet.AddPacketData(credentials.UUID);
-		packet.AddPacketData<Vector2<float>>({ Pitch,Yaw });
-		NetworkingClient::SendPacketToServer(packet);
+		PlayerRotationData data;
+		data.playerRotation = { Pitch,Yaw };
+		data.UUID = credentials.UUID;
+		NetworkingClient::SendDataToServer(Packet::PlayerRotation,data);
 	}
 }
 
@@ -240,13 +234,11 @@ void PlayerClient::InputTick(double TimeStep)
 	
 	if (!IsGUIOpen)
 	{
-		Packet<SendMouseState> packet;
-		packet.InitMemory();
-		packet.AddPacketData(PACKET_ID::MouseState);
-		packet.AddPacketData(Input::GetMouseState(Mouse::Left));
-		packet.AddPacketData(Input::GetMouseState(Mouse::Right));
-		packet.AddPacketData(Input::GetMouseState(Mouse::Middle));
-		NetworkingClient::SendPacketToServer(packet);
+		MouseStateData data;
+		data.LeftMouse = Input::GetMouseState(Mouse::Left);
+		data.RightMouse = Input::GetMouseState(Mouse::Right);
+		data.MiddleMouse = Input::GetMouseState(Mouse::Middle);
+		NetworkingClient::SendDataToServer(Packet::MouseState, data);
 	}
 	////Break block functionality
 	//{

@@ -7,68 +7,53 @@
 #include "Entities/EntityManagerClient.h"
 #include "Logger.h"
 #include "World/WorldManagerClient.h"
-
 void HandleMessage()
 {
 	while (Client::ShouldStop == false)
 	{
-		Packet<SizePacket> PacketID = NetworkingClient::GetPacketFromServer<SizePacket>();
-		switch (PacketID.ExtractPacketData<PACKET_ID>())
+		switch (NetworkingClient::GetDataFromServer<Packet>())
 		{
-		case PACKET_ID::PlayerPosition:
+		case Packet::PlayerPosition:
 		{
-			Packet<ReceivePlayerPosition> packet = NetworkingClient::GetPacketFromServer<ReceivePlayerPosition>();
-			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
-			Vector3<double> Position = packet.ExtractPacketData<Vector3<double>>();
-			EntityManagerClient::Players[UUID]->Position = Position;
+			PlayerPositionData data = NetworkingClient::GetDataFromServer<PlayerPositionData>();
+			EntityManagerClient::Players[data.UUID]->Position = data.playerPosition;
+			WARN("Got player pos data");
 			break;
 		}
-		case PACKET_ID::PlayerRotation:
+		case Packet::PlayerRotation:
 		{
-			Packet<ReceivePlayerRotation> packet = NetworkingClient::GetPacketFromServer<ReceivePlayerRotation>();
-			uint64_t UUID = packet.ExtractPacketData<uint64_t>();
-			Vector2<float> Rotation = packet.ExtractPacketData<Vector2<float>>();
-			if (UUID != EntityManagerClient::GetPlayer().credentials.UUID)
-			{
-				EntityManagerClient::Players[UUID]->Pitch = Rotation.x;
-				EntityManagerClient::Players[UUID]->Yaw = Rotation.y;
-			}
+			PlayerRotationData data = NetworkingClient::GetDataFromServer<PlayerRotationData>();
+			EntityManagerClient::Players[data.UUID]->Pitch = data.playerRotation.x;
+			EntityManagerClient::Players[data.UUID]->Yaw = data.playerRotation.y;
+			WARN("Got player rot data");
 			break;
 		}
-		case PACKET_ID::PlayerJoin:
+		case Packet::PlayerJoin:
 		{
-			Packet<ReceivePlayerJoin> packet = NetworkingClient::GetPacketFromServer<ReceivePlayerJoin>();
 			Player* player = new Player(*NetworkingClient::credentials);
-			*player = packet.ExtractPacketData<Player>();
+			*player = NetworkingClient::GetDataFromServer<Player>();
 			EntityManagerClient::Players[player->credentials.UUID] = player;
 			INFO("Player with name:", player->credentials.Name, " and UUID:", player->credentials.UUID, " is in game!");
 			break;
 		}
-		case PACKET_ID::ReplaceBlock:
+		case Packet::ReplaceBlock:
 		{
-			Packet<ReceiveReplaceBlock> packet = NetworkingClient::GetPacketFromServer<ReceiveReplaceBlock>();
-			Vector3<int> BlockPosition = packet.ExtractPacketData<Vector3<int>>();
-			BlockType id = packet.ExtractPacketData<BlockType>();
-			Block block = WorldManager::BaseWorld->GetBlock(BlockPosition);
-			WorldManager::ReplaceBlock(block, id);
+			ReplaceBlockData data = NetworkingClient::GetDataFromServer<ReplaceBlockData>();
+			Block block = WorldManager::BaseWorld->GetBlock(data.Position);
+			WorldManager::ReplaceBlock(block, data.blockType);
 			break;
 		}
-		case PACKET_ID::NewChunk:
+		case Packet::NewChunk:
 		{
-			Packet<ReceiveNewChunk> packet = NetworkingClient::GetPacketFromServer<ReceiveNewChunk>();
-			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
-			Packet<ChunkPacketSize> chunkPacket = NetworkingClient::GetPacketFromServer<ChunkPacketSize>();
-			BlockArray* blocks = (BlockArray*)chunkPacket.GetPacket();
-			WorldManager::BaseWorld->CreateChunk(ChunkPosition, (BlockArray*)chunkPacket.GetPacket());
+			Vector3<int> ChunkPosition = NetworkingClient::GetDataFromServer<Vector3<int>>();
+			BlockArray* data = NetworkingClient::GetChunkDataFromServer();
+			WorldManager::BaseWorld->CreateChunk(ChunkPosition, data);
 			WorldManagerClient::RefreshBorderChunks(WorldManager::BaseWorld, ChunkPosition);
-			chunkPacket.SetPacket(nullptr);
 			break;
 		}
-		case PACKET_ID::DeleteChunk:
+		case Packet::DeleteChunk:
 		{
-			Packet<ReceiveDeleteChunk> packet = NetworkingClient::GetPacketFromServer<ReceiveDeleteChunk>();
-			Vector3<int> ChunkPosition = packet.ExtractPacketData<Vector3<int>>();
-			WorldManager::BaseWorld->DestroyChunk(ChunkPosition);
+			WorldManager::BaseWorld->DestroyChunk(NetworkingClient::GetDataFromServer<Vector3<int>>());
 			break;
 		}
 		}
@@ -94,41 +79,32 @@ void NetworkingClient::Connect()
 	ASSERT(!connectionResult, "Failed to connect to the server");
 
 	//Send name and UUID
-	Packet<CredentialsPacketSize> CredentialsPacket;
-	CredentialsPacket.InitMemory();
-	CredentialsPacket.AddPacketData<Credentials>(*credentials);
-	NetworkingClient::SendPacketToServer(CredentialsPacket);
+	NetworkingClient::SendDataToServer(Packet::None,*credentials);
 
 	//Receive Player data
-	Packet<StartPacketSize> StartPacket;
-	StartPacket = NetworkingClient::GetPacketFromServer<StartPacketSize>();
-	Player player = StartPacket.ExtractPacketData<Player>();
-	int BlockCount = StartPacket.ExtractPacketData<int>();
-	int ItemCount = StartPacket.ExtractPacketData<int>();
-	Block::FillerBlock = StartPacket.ExtractPacketData<int>();
-	Block::UndergroundBlock = StartPacket.ExtractPacketData<int>();
-	Block::DirtBlock = StartPacket.ExtractPacketData<int>();
-	Block::DryTopBlock = StartPacket.ExtractPacketData<int>();
-	Block::WetTopBlock = StartPacket.ExtractPacketData<int>();
-	Block::DeadTopBlock = StartPacket.ExtractPacketData<int>();
-	Block::StoneTopBlock = StartPacket.ExtractPacketData<int>();
-	Block::OreBlock = StartPacket.ExtractPacketData<int>();
+	StartData data = NetworkingClient::GetDataFromServer<StartData>();
 
-	for (int i = 0; i < BlockCount; i++)
+	//TEMPORARY
+	//TRY TO REMOVE THIS CODE TO SEE IF IT WORKS
+	Block::FillerBlock = data.WorldGen[0];
+	Block::UndergroundBlock = data.WorldGen[1];
+	Block::DirtBlock = data.WorldGen[2];
+	Block::DryTopBlock = data.WorldGen[3];
+	Block::WetTopBlock = data.WorldGen[4];
+	Block::DeadTopBlock = data.WorldGen[5];
+	Block::StoneTopBlock = data.WorldGen[6];
+	Block::OreBlock = data.WorldGen[7];
+
+	for (int i = 0; i < data.BlockCount; i++)
 	{
-		Packet<BlockPropertiesSize> BlockPacket;
-		BlockPacket = NetworkingClient::GetPacketFromServer<BlockPropertiesSize>();
-		Block::blockProperties.push_back(BlockPacket.ExtractPacketData<BlockProperties>());
+		Block::blockProperties.push_back(NetworkingClient::GetDataFromServer<BlockProperties>());
 	}
-	for (int i = 0; i < ItemCount; i++)
+	for (int i = 0; i < data.ItemCount; i++)
 	{
-		Packet<ItemPropertiesSize> ItemPacket;
-		ItemPacket = NetworkingClient::GetPacketFromServer<ItemPropertiesSize>();
-		Item::itemProperties.push_back(ItemPacket.ExtractPacketData<ItemProperties>());
+		Item::itemProperties.push_back(NetworkingClient::GetDataFromServer<ItemProperties>());
 	}
 
-	EntityManagerClient::CreateSelf(*NetworkingClient::credentials, &player);
-
+	EntityManagerClient::CreateSelf(*NetworkingClient::credentials, &data.player);
 
 	INFO("Connected to the server with UUID: ", NetworkingClient::credentials->UUID);
 

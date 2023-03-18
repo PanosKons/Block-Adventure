@@ -25,19 +25,8 @@ void WorldManagerServer::SendAppropriateChunks()
 							WorldManager::BaseWorld->CreateChunk(NewChunkPosition, WorldManager::GenerateChunk(NewChunkPosition));
 							WorldManager::BaseWorld->GetChunkDirect(NewChunkPosition)->Refresh();
 						}
-						{
-							Packet<SendNewChunk> packet;
-							packet.InitMemory();
-							packet.AddPacketData(PACKET_ID::NewChunk);
-							packet.AddPacketData(NewChunkPosition);
-							NetworkingServer::SendPacketToClient(player->credentials, packet);
-						}
-						{
-							Packet<ChunkPacketSize> SendPacket;
-							SendPacket.SetPacket((std::array<char, ChunkPacketSize>*)WorldManager::BaseWorld->GetChunkDirect(NewChunkPosition)->GetBlocks());
-							NetworkingServer::SendPacketToClient(player->credentials, SendPacket);
-							SendPacket.SetPacket(nullptr);
-						}
+						NetworkingServer::SendDataToClient(player->credentials.UUID,Packet::NewChunk, NewChunkPosition);
+						NetworkingServer::SendDataToClient(player->credentials.UUID,Packet::None, *WorldManager::BaseWorld->GetChunkDirect(NewChunkPosition)->GetBlocks());
 						PlayerChunks.push_back(NewChunkPosition);
 					}
 				}
@@ -47,11 +36,7 @@ void WorldManagerServer::SendAppropriateChunks()
 		{
 			if (Math::Abs(ExixstingChunkPosition.x - ChunkPosition.x) > UnloadRenderDistance || Math::Abs(ExixstingChunkPosition.y - ChunkPosition.y) > UnloadRenderDistance || Math::Abs(ExixstingChunkPosition.z - ChunkPosition.z) > UnloadRenderDistance)
 			{
-				Packet<SendDeleteChunk> packet;
-				packet.InitMemory();
-				packet.AddPacketData(PACKET_ID::DeleteChunk);
-				packet.AddPacketData(ExixstingChunkPosition);
-				NetworkingServer::SendPacketToClient(player->credentials, packet);
+				NetworkingServer::SendDataToClient(player->credentials.UUID,Packet::DeleteChunk, ExixstingChunkPosition);
 				PlayerChunks.erase(std::find(PlayerChunks.begin(), PlayerChunks.end(), ExixstingChunkPosition));
 			}
 		}

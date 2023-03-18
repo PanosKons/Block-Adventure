@@ -2,6 +2,7 @@
 #include "Common/Networking/Packet.h"
 #include "pch.h"
 #include "Logger.h"
+#include "Common/World/Chunk.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -16,32 +17,54 @@ public:
 	static void Connect();
 	static void ShutDown();
 
-	template<int TSize>
-	static void SendPacketToServer(Packet<TSize>& packet)
+	template<typename T>
+	static void SendDataToServer(Packet id,T& data)
 	{
+		if (id != Packet::None) {
+			//Send PacketId
+			{
+				int TotalSentBytes = 0;
+				do
+				{
+					int SentBytes = send(clientSocket, (char*)&id + TotalSentBytes, sizeof(Packet) - TotalSentBytes, 0);
+					TotalSentBytes += SentBytes;
+				} while (TotalSentBytes != sizeof(Packet));
+			}
+		}
+		//Send data
 		{
 			int TotalSentBytes = 0;
 			do
 			{
-				int SentBytes = send(clientSocket, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes, 0);
+				int SentBytes = send(clientSocket, (char*)&data + TotalSentBytes, sizeof(T) - TotalSentBytes, 0);
 				TotalSentBytes += SentBytes;
-			} while (TotalSentBytes != packet.GetPacketSize());
+			} while (TotalSentBytes != sizeof(T));
 		}
 	}
-	template<int TSize>
-	static Packet<TSize> GetPacketFromServer()
+	template<typename T>
+	static T GetDataFromServer()
 	{
-		Packet<TSize> packet;
-		packet.InitMemory();
-
+		T data;
 		int TotalReceivedBytes = 0;
 		do
 		{
-			int ReceivedBytes = recv(clientSocket, packet.GetPacket() + TotalReceivedBytes, packet.GetPacketSize() - TotalReceivedBytes, 0);
+			int ReceivedBytes = recv(clientSocket, (char*)&data + TotalReceivedBytes, sizeof(T) - TotalReceivedBytes, 0);
 			TotalReceivedBytes += ReceivedBytes;
-		} while (TotalReceivedBytes != packet.GetPacketSize());
+		} while (TotalReceivedBytes != sizeof(T));
 
-		return packet;
+		return data;
+	}
+	static BlockArray* GetChunkDataFromServer()
+	{
+		BlockArray* data = new BlockArray();
+		int TotalReceivedBytes = 0;
+		do
+		{
+			int ReceivedBytes = recv(clientSocket, (char*)data + TotalReceivedBytes, sizeof(BlockArray) - TotalReceivedBytes, 0);
+			TotalReceivedBytes += ReceivedBytes;
+		} while (TotalReceivedBytes != sizeof(BlockArray));
+
+		return data;
 	}
 };
 

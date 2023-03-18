@@ -2,54 +2,68 @@
 #include "pch.h"
 #include "EntityManagerServer.h"
 #include "Common/Entities/Player/Player.h"
+#include "Common/Math/Vector.h"
+
 namespace NetworkingServer{
 	int Send(uint64_t UUID, const char* buffer, int len);
 	int Receive(uint64_t UUID, char* buf, int len);
-	template<int TSize>
-	void SendPacketToClient(Credentials& credentials, Packet<TSize>& packet)
+
+	template<typename T>
+	void SendDataToClient(uint64_t UUID, Packet id, T& data)
 	{
-		int TotalSentBytes = 0;
-		do
+		if (id != Packet::None) {
+			//SendPacketID
+			{
+				int TotalSentBytes = 0;
+				do
+				{
+					int SentBytes = Send(UUID, (char*)&id + TotalSentBytes, sizeof(Packet) - TotalSentBytes);
+					TotalSentBytes += SentBytes;
+				} while (TotalSentBytes != sizeof(Packet));
+			}
+		}
+		//SendData
 		{
-			int SentBytes = Send(credentials.UUID, packet.GetPacket() + TotalSentBytes, packet.GetPacketSize() - TotalSentBytes);
-			TotalSentBytes += SentBytes;
-		} while (TotalSentBytes != packet.GetPacketSize());
+			int TotalSentBytes = 0;
+			do
+			{
+				int SentBytes = Send(UUID, (char*)&data + TotalSentBytes, sizeof(T) - TotalSentBytes);
+				TotalSentBytes += SentBytes;
+			} while (TotalSentBytes != sizeof(T));
+		}
 
 	}
-	template<int TSize>
-	void SendAllExceptClient(uint64_t uuid, Packet<TSize>& packet)
+	template<typename T>
+	void SendDataAllExceptClient(uint64_t uuid, Packet id, T& data)
 	{
 		for (auto& [UUID, player] : EntityManagerServer::Players)
 		{
 			if(UUID != uuid && player->IsReadyToReceivePackets == true)
-				SendPacketToClient(player->credentials, packet);
+				SendDataToClient(player->credentials.UUID, id, data);
 		}
 	}
-	template<int TSize>
-	void SendAllClients(Packet<TSize>& packet)
+	template<typename T>
+	void SendDataAllClients(Packet id,T& data)
 	{
 		for (auto&[UUID, player] : EntityManagerServer::Players)
 		{
 			if(player->IsReadyToReceivePackets == true)
-				SendPacketToClient(player->credentials, packet);
+				SendDataToClient(player->credentials.UUID, id, data);
 		}
 	}
-	template<int TSize>
-	Packet<TSize> GetPacketFromClient(Credentials& credentials)
+	template<typename T>
+	T GetDataFromClient(Credentials& credentials)
 	{
-		Packet<TSize> packet;
-		packet.InitMemory();
+		T data;
 		int TotalReceivedBytes = 0;
 		do
 		{
-			int ReceivedBytes = Receive(credentials.UUID, packet.GetPacket() + TotalReceivedBytes, packet.GetPacketSize() - TotalReceivedBytes);
+			int ReceivedBytes = Receive(credentials.UUID, (char*)&data + TotalReceivedBytes, sizeof(T) - TotalReceivedBytes);
 			TotalReceivedBytes += ReceivedBytes;
-		} while (TotalReceivedBytes != packet.GetPacketSize());
+		} while (TotalReceivedBytes != sizeof(T));
 
-		return packet;
+		return data;
 	}
-	void SendPlayerPositionPacket(uint64_t UUID);
-	void SendReplaceBlockPacket(Block block, BlockType newType);
 	void ListenForClients();
 	void Shutdown();
 }

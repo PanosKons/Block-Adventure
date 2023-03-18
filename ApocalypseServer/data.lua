@@ -52,7 +52,7 @@ WorldGeneration = {
 	 BiomeStretch = 4
  }
  function OnLeftMouseClickEvent(UUID)
-	block = GetPlayerFacingBlock(UUID)
+	local block = GetPlayerFacingBlock(UUID)
 	if(block:IsValid()) then
 		ReplaceBlock(block, WorldGeneration.Filler)
 	end

@@ -6,12 +6,10 @@
 
 void EntityManagerClient::Tick()
 {
-	Packet<SendPlayerPosition> packet;
-	packet.InitMemory();
-	packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-	packet.AddPacketData<uint64_t>(NetworkingClient::credentials->UUID);
-	packet.AddPacketData<Vector3<double>>(EntityManagerClient::GetPlayer().Position);
-	NetworkingClient::SendPacketToServer(packet);
+	PlayerPositionData data;
+	data.playerPosition = EntityManagerClient::GetPlayer().Position;
+	data.UUID = NetworkingClient::credentials->UUID;
+	NetworkingClient::SendDataToServer(Packet::PlayerPosition,data);
 }
 
 PlayerClient& EntityManagerClient::GetPlayer()

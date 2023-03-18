@@ -20,54 +20,36 @@ namespace NetworkingServer {
 		INFO("Thread with id:", std::this_thread::get_id(), " started!");
 		while (true)
 		{
-			Packet<SizePacket> packetID = GetPacketFromClient<SizePacket>(credentials);
-			switch (packetID.ExtractPacketData<PACKET_ID>())
+			switch (GetDataFromClient<Packet>(credentials))
 			{
-				case PACKET_ID::PlayerPosition:
+				case Packet::PlayerPosition:
 				{
-					Packet<ReceivePlayerPosition> packet = GetPacketFromClient<ReceivePlayerPosition>(credentials);
-					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
-					Vector3<double> playerPosition = packet.ExtractPacketData<Vector3<double>>();
-					EntityManagerServer::GetPlayer(UUID)->Position = playerPosition;
+					PlayerPositionData data = GetDataFromClient<PlayerPositionData>(credentials);
+					EntityManagerServer::GetPlayer(data.UUID)->Position = data.playerPosition;
 
-					Packet<SendPlayerPosition> SendPacket;
-					SendPacket.InitMemory();
-					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-					SendPacket.AddPacketData<uint64_t>(UUID);
-					SendPacket.AddPacketData<Vector3<double>>(EntityManager::GetPlayer(UUID)->Position);
-					SendAllExceptClient(UUID, SendPacket);
+					SendDataAllExceptClient(credentials.UUID, Packet::PlayerPosition, data);
 					break;
 				}
-				case PACKET_ID::PlayerRotation:
+				case Packet::PlayerRotation:
 				{
-					Packet<ReceivePlayerRotation> packet = GetPacketFromClient<ReceivePlayerRotation>(credentials);
-					uint64_t UUID = packet.ExtractPacketData<uint64_t>();
-					Vector2<float> playerRotation = packet.ExtractPacketData<Vector2<float>>();
-					EntityManagerServer::GetPlayer(UUID)->Pitch = playerRotation.x;
-					EntityManagerServer::GetPlayer(UUID)->Yaw = playerRotation.y;
+					PlayerRotationData data = GetDataFromClient<PlayerRotationData>(credentials);
 
-					Packet<SendPlayerPosition> SendPacket;
-					SendPacket.InitMemory();
-					SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerRotation);
-					SendPacket.AddPacketData<uint64_t>(UUID);
-					SendPacket.AddPacketData<Vector2<float>>(playerRotation);
-					SendAllExceptClient(credentials.UUID, SendPacket);
+					EntityManagerServer::GetPlayer(data.UUID)->Pitch = data.playerRotation.x;
+					EntityManagerServer::GetPlayer(data.UUID)->Yaw = data.playerRotation.y;
+
+					SendDataAllExceptClient(credentials.UUID, Packet::PlayerRotation, data);
 					break;
 				}
-				case PACKET_ID::SelectSlot:
+				case Packet::SelectSlot:
 				{
-					Packet<ReceiveSelectSlot> packet = GetPacketFromClient<ReceiveSelectSlot>(credentials);
-					char ActiveSlot = packet.ExtractPacketData<char>();
-					EntityManagerServer::GetPlayer(credentials.UUID)->ActiveSlot = ActiveSlot;
+					SelectSlotData data = GetDataFromClient<SelectSlotData>(credentials);
+					EntityManagerServer::GetPlayer(credentials.UUID)->ActiveSlot = data.ActiveSlot;
 					break;
 				}
-				case PACKET_ID::MouseState:
+				case Packet::MouseState:
 				{
-					Packet<ReceiveMouseState> packet = GetPacketFromClient<ReceiveMouseState>(credentials);
-					MouseState LeftMouse = packet.ExtractPacketData<MouseState>();
-					MouseState RightMouse = packet.ExtractPacketData<MouseState>();
-					MouseState MiddleMouse = packet.ExtractPacketData<MouseState>();
-					LuaManager::MouseEvent(credentials.UUID, LeftMouse, RightMouse, MiddleMouse);
+					auto data = GetDataFromClient<MouseStateData>(credentials);
+					LuaManager::MouseEvent(credentials.UUID, data.LeftMouse, data.RightMouse, data.MiddleMouse);
 				}
 			}
 		}
@@ -76,19 +58,17 @@ namespace NetworkingServer {
 	{
 		WSACleanup();
 	}
-	template<int TSize>
-	Packet<TSize> GetPacketFromClient(SOCKET* socket)
+	Credentials GetCredentials(SOCKET* socket)
 	{
-		Packet<TSize> packet;
-		packet.InitMemory();
+		Credentials credentials;
 		int TotalReceivedBytes = 0;
 		do
 		{
-			int ReceivedBytes = recv(*socket, packet.GetPacket() + TotalReceivedBytes, packet.GetPacketSize() - TotalReceivedBytes, 0);
+			int ReceivedBytes = recv(*socket, (char*)&credentials + TotalReceivedBytes, sizeof(Credentials) - TotalReceivedBytes, 0);
 			TotalReceivedBytes += ReceivedBytes;
-		} while (TotalReceivedBytes != packet.GetPacketSize());
+		} while (TotalReceivedBytes != sizeof(Credentials));
 
-		return packet;
+		return credentials;
 	}
 	int Send(uint64_t UUID, const char* buffer, int len)
 	{
@@ -97,24 +77,6 @@ namespace NetworkingServer {
 	int Receive(uint64_t UUID, char* buf, int len)
 	{
 		return recv(*sockets[UUID],buf,len, 0);
-	}
-	void SendPlayerPositionPacket(uint64_t UUID)
-	{
-		Packet<SendPlayerPosition> SendPacket;
-		SendPacket.InitMemory();
-		SendPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerPosition);
-		SendPacket.AddPacketData<uint64_t>(UUID);
-		SendPacket.AddPacketData<Vector3<double>>(EntityManager::GetPlayer(UUID)->Position);
-		SendAllClients(SendPacket);
-	}
-	void SendReplaceBlockPacket(Block block, BlockType newType)
-	{
-		Packet<SendReplaceBlock> SendPacket;
-		SendPacket.InitMemory();
-		SendPacket.AddPacketData(PACKET_ID::ReplaceBlock);
-		SendPacket.AddPacketData(block.Position);
-		SendPacket.AddPacketData(newType);
-		SendAllClients(SendPacket);
 	}
 	void ListenForClients()
 	{
@@ -149,8 +111,7 @@ namespace NetworkingServer {
 			ASSERT(*client, "Client failed to connect");
 
 			//Receive name and UUID
-			Packet<CredentialsPacketSize> CredentialsPacket = GetPacketFromClient<CredentialsPacketSize>(client);
-			Credentials credentials = CredentialsPacket.ExtractPacketData<Credentials>();
+			Credentials credentials = GetCredentials(client);
 
 			std::mutex mutex;
 			mutex.lock();
@@ -159,58 +120,42 @@ namespace NetworkingServer {
 
 			EntityManagerServer::CreatePlayer(credentials);
 
-			Packet<SendPlayerJoin> packet;
-			packet.InitMemory();
-			packet.AddPacketData<PACKET_ID>(PACKET_ID::PlayerJoin);
-			packet.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
-			SendAllClients(packet);
+			SendDataAllClients(Packet::PlayerJoin, *EntityManagerServer::GetPlayer(credentials.UUID));
 
-			Packet<StartPacketSize> StartPacket;
-			StartPacket.InitMemory();
-			StartPacket.AddPacketData<Player>(*EntityManagerServer::GetPlayer(credentials.UUID));
-			StartPacket.AddPacketData<int>(Block::GetBlockCount());
-			StartPacket.AddPacketData<int>(Item::GetItemCount());
-			StartPacket.AddPacketData<int>(Block::FillerBlock);
-			StartPacket.AddPacketData<int>(Block::UndergroundBlock);
-			StartPacket.AddPacketData<int>(Block::DirtBlock);
-			StartPacket.AddPacketData<int>(Block::DryTopBlock);
-			StartPacket.AddPacketData<int>(Block::WetTopBlock);
-			StartPacket.AddPacketData<int>(Block::DeadTopBlock);
-			StartPacket.AddPacketData<int>(Block::StoneTopBlock);
-			StartPacket.AddPacketData<int>(Block::OreBlock);
-			SendPacketToClient(credentials, StartPacket);
+			StartData data;
+			data.player = *EntityManagerServer::GetPlayer(credentials.UUID);
+			data.BlockCount = Block::GetBlockCount();
+			data.ItemCount = Item::GetItemCount();
+			data.WorldGen = {
+				Block::FillerBlock,
+				Block::UndergroundBlock,
+				Block::DirtBlock,
+				Block::DryTopBlock,
+				Block::WetTopBlock,
+				Block::DeadTopBlock,
+				Block::StoneTopBlock,
+				Block::OreBlock,
+			};
+			SendDataToClient(credentials.UUID,Packet::None, data);
 
 			for (int i = 0; i < Block::GetBlockCount(); i++)
 			{
-				Packet<BlockPropertiesSize> BlockPacket;
-				BlockPacket.InitMemory();
-				BlockPacket.AddPacketData<BlockProperties>(Block::blockProperties[i]);
-				SendPacketToClient(credentials, BlockPacket);
+				SendDataToClient(credentials.UUID, Packet::None, Block::blockProperties[i]);
 			}
 			for (int i = 0; i < Item::GetItemCount(); i++)
 			{
-				Packet<ItemPropertiesSize> ItemPacket;
-				ItemPacket.InitMemory();
-				ItemPacket.AddPacketData<ItemProperties>(Item::itemProperties[i]);
-				SendPacketToClient(credentials, ItemPacket);
+				SendDataToClient(credentials.UUID, Packet::None, Item::itemProperties[i]);
 			}
-
 			EntityManagerServer::GetPlayer(credentials.UUID)->IsReadyToReceivePackets = true;
 
 			for (auto&[UUID, player] : EntityManagerServer::Players)
 			{
 				if (UUID != credentials.UUID)
 				{
-					Packet<SendPlayerJoin> JoinPacket;
-					JoinPacket.InitMemory();
-					JoinPacket.AddPacketData<PACKET_ID>(PACKET_ID::PlayerJoin);
-					JoinPacket.AddPacketData<Player>(*player);
-					SendPacketToClient(credentials, JoinPacket);
+					SendDataToClient(credentials.UUID, Packet::PlayerJoin, *player);
 				}
 			}
-
 			INFO("Client with name: ", credentials.Name, " and UUID:", credentials.UUID, " connected to the server");
-
 			std::thread work(HandleClientPacket, credentials);
 			work.detach();
 		}

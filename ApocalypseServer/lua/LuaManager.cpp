@@ -52,7 +52,12 @@ int Lua_SetPlayerPosition(lua_State* L)
 	Vector3<double>* vec = (Vector3<double>*)lua_touserdata(L, -1);
 
 	EntityManagerServer::GetPlayer(UUID)->Position = *vec;
-	NetworkingServer::SendPlayerPositionPacket(UUID);
+
+	PlayerPositionData data;
+	data.playerPosition = *vec;
+	data.UUID = UUID;
+	NetworkingServer::SendDataAllClients(Packet::PlayerPosition, data);
+
 	return 0;
 }
 int Lua_GetPlayerFacingBlock(lua_State* L)
@@ -70,7 +75,12 @@ int Lua_ReplaceBlock(lua_State* L)
 	std::string newblock = lua_tostring(L, -1);
 	BlockType newtype = Block::GetBlockType(newblock);
 	WorldManagerServer::ReplaceBlock(*block, newtype);
-	NetworkingServer::SendReplaceBlockPacket(*block, newtype);
+
+	ReplaceBlockData data;
+	data.blockType = newtype;
+	data.Position = block->Position;
+	NetworkingServer::SendDataAllClients(Packet::ReplaceBlock, data);
+
 	return 0;
 }
 struct Lua_Block
@@ -103,9 +113,9 @@ struct IntVector3
 	}
 	static int Set(lua_State* l)
 	{
-		int x = lua_tointeger(l, -3);
-		int y = lua_tointeger(l, -2);
-		int z = lua_tointeger(l, -1);
+		int x = (int)lua_tointeger(l, -3);
+		int y = (int)lua_tointeger(l, -2);
+		int z = (int)lua_tointeger(l, -1);
 		Vector3<int>* vec = (Vector3<int>*)lua_newuserdata(l, sizeof(Vector3<int>));
 		*vec = { x,y,z };
 
@@ -142,9 +152,9 @@ struct DoubleVector3
 	}
 	static int Set(lua_State* l)
 	{
-		int x = lua_tonumber(l, -3);
-		int y = lua_tonumber(l, -2);
-		int z = lua_tonumber(l, -1);
+		int x = (int)lua_tonumber(l, -3);
+		int y = (int)lua_tonumber(l, -2);
+		int z = (int)lua_tonumber(l, -1);
 		Vector3<double>* vec = (Vector3<double>*)lua_newuserdata(l, sizeof(Vector3<double>));
 		*vec = Vector3<double>( x,y,z );
 

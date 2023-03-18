@@ -10,16 +10,16 @@
 #include "Networking/NetworkingClient.h"
 void ReplaceBlockAndNotify(Block block, BlockType blockType)
 {
-	WorldManager::ReplaceBlock(block, blockType);
-	//Notify the server
-	{
-		Packet<SendReplaceBlock> packet;
-		packet.InitMemory();
-		packet.AddPacketData(PACKET_ID::ReplaceBlock);
-		packet.AddPacketData<Vector3<int>>(block.Position);
-		packet.AddPacketData<BlockType>(blockType);
-		NetworkingClient::SendPacketToServer(packet);
-	}
+	//WorldManager::ReplaceBlock(block, blockType);
+	////Notify the server
+	//{
+	//	Packet<SendReplaceBlock> packet;
+	//	packet.InitMemory();
+	//	packet.AddPacketData(PACKET_ID::ReplaceBlock);
+	//	packet.AddPacketData<Vector3<int>>(block.Position);
+	//	packet.AddPacketData<BlockType>(blockType);
+	//	NetworkingClient::SendPacketToServer(packet);
+	//}
 }
 void Commands::ExecuteCommand(const std::string& command)
 {
