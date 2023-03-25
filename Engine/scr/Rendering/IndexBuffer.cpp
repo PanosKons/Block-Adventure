@@ -34,6 +34,19 @@ void IndexBuffer::AddRectangle()
 	m_Indices.push_back(0 + m_Index);
 	m_Index += 4;
 }
+void IndexBuffer::AddRectangle(unsigned int first, unsigned int second, unsigned int third, unsigned int fourth)
+{
+	m_Indices.push_back(m_Index + first);
+	m_Indices.push_back(m_Index + second);
+	m_Indices.push_back(m_Index + third);
+	m_Indices.push_back(m_Index + third);
+	m_Indices.push_back(m_Index + fourth);
+	m_Indices.push_back(m_Index + first);
+}
+void IndexBuffer::AddIndex(unsigned int increment)
+{
+	m_Index += increment;
+}
 void IndexBuffer::Clear()
 {
 	m_Indices.clear();

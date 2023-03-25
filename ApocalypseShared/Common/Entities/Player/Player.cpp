@@ -24,19 +24,6 @@ Player::Player(Credentials& credentials)
 	Godmode = true;
 }
 Player::~Player() {}
-
-int Player::GetFirstAvaiableSlot(ItemStack itemStack)
-{
-	for (unsigned int i = 0; i < Inventory.size(); i++)
-	{
-		if (Inventory[i].GetItemStackType() == itemStack.GetItemStackType() && Inventory[i].GetItemType() == itemStack.GetItemType()) return i;
-	}
-	for (unsigned int i = 0; i < Inventory.size(); i++)
-	{
-		if (Inventory[i].GetCount() == 0) return i;
-	}
-	return -1;
-}
 Vector3<double> Player::GetLookPosition()
 {
 	return { Position.x,Position.y + 1.6, Position.z };

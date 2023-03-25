@@ -7,6 +7,21 @@
 #include "EntityManagerServer.h"
 #include "NetworkingServer.h"
 #include "World/WorldManagerServer.h"
+#include "Common/Entities/Inventory/ItemStack.h"
+#include "Common/World/WorldConstants.h"
+
+static int GetFirstAvaiableSlot(std::array<ItemStack, InventorySize> Inventory, ItemStack itemStack)
+{
+	for (unsigned int i = 0; i < Inventory.size(); i++)
+	{
+		if (Inventory[i].GetItemStackType() == itemStack.GetItemStackType() && Inventory[i].GetItemType() == itemStack.GetItemType()) return i;
+	}
+	for (unsigned int i = 0; i < Inventory.size(); i++)
+	{
+		if (Inventory[i].GetCount() == 0) return i;
+	}
+	return -1;
+}
 
 static lua_State* l;
 void Lua(int r, lua_State* L)
@@ -69,6 +84,24 @@ int Lua_GetPlayerFacingBlock(lua_State* L)
 	lua_setmetatable(l, -2);
 	return 1;
 }
+int Lua_GetPlayerBlockToPlace(lua_State* L)
+{
+	uint64_t UUID = lua_tointeger(L, -1);
+	Block* block = (Block*)lua_newuserdata(L, sizeof(Block));
+	*block = EntityManagerServer::GetPlayer(UUID)->GetBlockToPlace();
+	luaL_getmetatable(l, "BlockMetaTable");
+	lua_setmetatable(l, -2);
+	return 1;
+}
+int Lua_GetBlock(lua_State* L)
+{
+	Vector3<int>* vec = (Vector3<int>*)lua_touserdata(L, -1);
+	Block* block = (Block*)lua_newuserdata(L, sizeof(Block));
+	*block = WorldManager::BaseWorld->GetBlock(*vec);
+	luaL_getmetatable(l, "BlockMetaTable");
+	lua_setmetatable(l, -2);
+	return 1;
+}
 int Lua_ReplaceBlock(lua_State* L)
 {
 	Block* block = (Block*)lua_touserdata(L, -2);
@@ -82,6 +115,49 @@ int Lua_ReplaceBlock(lua_State* L)
 	NetworkingServer::SendDataAllClients(Packet::ReplaceBlock, data);
 
 	return 0;
+}
+int Lua_AddToInventory(lua_State* L)
+{
+	uint64_t UUID = lua_tointeger(L, -2);
+	ItemStack item = *(ItemStack*)lua_touserdata(L, -1);
+	PlayerInventoryData data;
+	data.UUID = UUID;
+	data.Inventory = EntityManager::GetPlayer(UUID)->Inventory;
+	ItemStack& stack = data.Inventory[GetFirstAvaiableSlot(data.Inventory, item)];
+	stack = { item.GetItemStackType(),item.GetItemType(),item.GetCount() + stack.GetCount() };
+	EntityManager::GetPlayer(UUID)->Inventory = data.Inventory;
+	NetworkingServer::SendDataAllClients(Packet::PlayerInventory,data);
+	return 0;
+}
+int Lua_CreateItemStack(lua_State* L)
+{
+	ItemStackType itemstacktype = (ItemStackType)lua_tointeger(L, -3);
+	std::string itemType = lua_tostring(L, -2);
+	unsigned int count = (unsigned int)lua_tointeger(L, -1);
+	ItemStack* item = (ItemStack*)lua_newuserdata(L, sizeof(ItemStack));
+	*item = { itemstacktype,Item::GetItemType(itemType),count };
+	return 1;
+}
+int Lua_RemoveFromInventory(lua_State* L)
+{
+	uint64_t UUID = lua_tointeger(L, -2);
+	ItemStack item = *(ItemStack*)lua_touserdata(L, -1);
+	PlayerInventoryData data;
+	data.UUID = UUID;
+	data.Inventory = EntityManager::GetPlayer(UUID)->Inventory;
+	ItemStack& stack = data.Inventory[GetFirstAvaiableSlot(data.Inventory, item)];
+	if (item.GetCount() <= stack.GetCount())
+	{
+		stack = { item.GetItemStackType(),item.GetItemType(), stack.GetCount() - item.GetCount()};
+		EntityManager::GetPlayer(UUID)->Inventory = data.Inventory;
+		NetworkingServer::SendDataAllClients(Packet::PlayerInventory, data);
+		lua_pushboolean(l, true);
+	}
+	else
+	{
+		lua_pushboolean(l, false);
+	}
+	return 1;
 }
 struct Lua_Block
 {
@@ -98,6 +174,12 @@ struct Lua_Block
 	{
 		Block* block = (Block*)lua_touserdata(L, -1);
 		lua_pushboolean(L, block->IsValid());
+		return 1;
+	}
+	static int GetId(lua_State* L)
+	{
+		Block* block = (Block*)lua_touserdata(L, -1);
+		lua_pushstring(L,Block::GetBlockProperties(block->GetBlockId()).name.data());
 		return 1;
 	}
 };
@@ -118,6 +200,8 @@ struct IntVector3
 		int z = (int)lua_tointeger(l, -1);
 		Vector3<int>* vec = (Vector3<int>*)lua_newuserdata(l, sizeof(Vector3<int>));
 		*vec = { x,y,z };
+		luaL_getmetatable(l, "IntVector3MetaTable");
+		lua_setmetatable(l, -2);
 
 		return 1;
 	}
@@ -181,6 +265,11 @@ struct DoubleVector3
 };
 void LuaManager::LoadScripts()
 {
+	if (l != nullptr)
+	{
+		WARN("Resetting lua...");
+		lua_close(l);
+	}
 	l = luaL_newstate();
 	Lua(luaL_dofile(l, "data.lua"),l);
 
@@ -195,8 +284,18 @@ void LuaManager::LoadScripts()
 	lua_setglobal(l, "GetPlayerPosition");
 	lua_pushcfunction(l, Lua_GetPlayerFacingBlock);
 	lua_setglobal(l, "GetPlayerFacingBlock");
+	lua_pushcfunction(l, Lua_GetPlayerBlockToPlace);
+	lua_setglobal(l, "GetPlayerBlockToPlace");
 	lua_pushcfunction(l, Lua_ReplaceBlock);
 	lua_setglobal(l, "ReplaceBlock");
+	lua_pushcfunction(l, Lua_AddToInventory);
+	lua_setglobal(l, "AddToInventory");
+	lua_pushcfunction(l, Lua_RemoveFromInventory);
+	lua_setglobal(l, "RemoveFromInventory");
+	lua_pushcfunction(l, Lua_CreateItemStack);
+	lua_setglobal(l, "CreateItemStack");
+	lua_pushcfunction(l, Lua_GetBlock);
+	lua_setglobal(l, "GetBlock");
 
 	lua_newtable(l);
 	int IntVector3Table = lua_gettop(l);
@@ -256,6 +355,8 @@ void LuaManager::LoadScripts()
 	lua_setfield(l, -2, "GetPosition");
 	lua_pushcfunction(l, Lua_Block::IsValid);
 	lua_setfield(l, -2, "IsValid");
+	lua_pushcfunction(l, Lua_Block::GetId);
+	lua_setfield(l, -2, "GetId");
 
 	luaL_newmetatable(l, "BlockMetaTable");
 	lua_pushvalue(l, BlockTable);
@@ -399,9 +500,7 @@ void LuaManager::LoadScripts()
 			}
 		}
 	}
-	//lua_close(L);
 }
-
 void LuaManager::MouseEvent(uint64_t UUID, MouseState LeftMouse, MouseState RightMouse, MouseState MiddleMouse)
 {
 	if (LeftMouse == MouseState::Click)

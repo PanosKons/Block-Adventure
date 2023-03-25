@@ -23,6 +23,7 @@ enum class Packet
 
 	//ServerBound
 	MouseState, //Server
+	KeyPress,
 };
 
 constexpr int MAX_PLAYERS = 20;
@@ -44,6 +45,11 @@ struct PlayerRotationData
 	uint64_t UUID;
 	Vector2<float> playerRotation;
 };
+struct PlayerInventoryData
+{
+	uint64_t UUID;
+	std::array<ItemStack, InventorySize> Inventory;
+};
 struct StartData
 {
 	Player player;
@@ -55,6 +61,11 @@ struct ReplaceBlockData
 {
 	Vector3<int> Position;
 	BlockType blockType;
+};
+struct KeyData
+{
+	bool PKeyPressed = false;
+	bool RKeyPressed = false;
 };
 //constexpr int SizePacket = sizeof(PACKET_ID);
 //

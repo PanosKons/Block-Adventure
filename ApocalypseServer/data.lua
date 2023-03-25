@@ -51,18 +51,41 @@ WorldGeneration = {
 	 YLevelStretch = 96,
 	 BiomeStretch = 4
  }
+ ItemStackType = 
+ {
+	 BlockItem = 0,Item = 1
+ }
  function OnLeftMouseClickEvent(UUID)
+
 	local block = GetPlayerFacingBlock(UUID)
 	if(block:IsValid()) then
 		ReplaceBlock(block, WorldGeneration.Filler)
 	end
+
+	local pos = block:GetPosition()
+	pos = IntVector3.Set(pos:GetX(),pos:GetY() - 1,pos:GetZ())
+	local block2 = GetBlock(pos)
+	if(block2:IsValid()) then
+		ReplaceBlock(block2, WorldGeneration.Filler)
+	end
  end
 
   function OnRightMouseClickEvent(UUID)
+	local block = GetPlayerBlockToPlace(UUID)
+	if(block:IsValid()) then
+		ReplaceBlock(block,WorldGeneration.Ore)
+	end
+	local item = CreateItemStack(ItemStackType.Item, "stick", 2)
+	RemoveFromInventory(UUID,item)
   end
-
   function OnMiddleMouseClickEvent(UUID)
+	local item = CreateItemStack(ItemStackType.Item, "stick", 3)
+	AddToInventory(UUID,item)
   end
-
+  timer = 0
   function Update()
+  timer = timer + 1
+  if(timer % 10 == 0) then
+	INFO(timer)
+	end
   end

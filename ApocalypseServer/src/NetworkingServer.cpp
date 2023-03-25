@@ -27,7 +27,7 @@ namespace NetworkingServer {
 					PlayerPositionData data = GetDataFromClient<PlayerPositionData>(credentials);
 					EntityManagerServer::GetPlayer(data.UUID)->Position = data.playerPosition;
 
-					SendDataAllExceptClient(credentials.UUID, Packet::PlayerPosition, data);
+					SendDataAllExceptClient(data.UUID, Packet::PlayerPosition, data);
 					break;
 				}
 				case Packet::PlayerRotation:
@@ -37,7 +37,7 @@ namespace NetworkingServer {
 					EntityManagerServer::GetPlayer(data.UUID)->Pitch = data.playerRotation.x;
 					EntityManagerServer::GetPlayer(data.UUID)->Yaw = data.playerRotation.y;
 
-					SendDataAllExceptClient(credentials.UUID, Packet::PlayerRotation, data);
+					SendDataAllExceptClient(data.UUID, Packet::PlayerRotation, data);
 					break;
 				}
 				case Packet::SelectSlot:
@@ -50,6 +50,13 @@ namespace NetworkingServer {
 				{
 					auto data = GetDataFromClient<MouseStateData>(credentials);
 					LuaManager::MouseEvent(credentials.UUID, data.LeftMouse, data.RightMouse, data.MiddleMouse);
+					break;
+				}
+				case Packet::KeyPress:
+				{
+					auto data = GetDataFromClient<KeyData>(credentials);
+					if (data.PKeyPressed == true) LuaManager::LoadScripts();
+					break;
 				}
 			}
 		}
@@ -146,8 +153,6 @@ namespace NetworkingServer {
 			{
 				SendDataToClient(credentials.UUID, Packet::None, Item::itemProperties[i]);
 			}
-			EntityManagerServer::GetPlayer(credentials.UUID)->IsReadyToReceivePackets = true;
-
 			for (auto&[UUID, player] : EntityManagerServer::Players)
 			{
 				if (UUID != credentials.UUID)
@@ -155,6 +160,7 @@ namespace NetworkingServer {
 					SendDataToClient(credentials.UUID, Packet::PlayerJoin, *player);
 				}
 			}
+			EntityManagerServer::GetPlayer(credentials.UUID)->IsReadyToReceivePackets = true;
 			INFO("Client with name: ", credentials.Name, " and UUID:", credentials.UUID, " connected to the server");
 			std::thread work(HandleClientPacket, credentials);
 			work.detach();

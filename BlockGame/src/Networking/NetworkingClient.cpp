@@ -16,16 +16,18 @@ void HandleMessage()
 		case Packet::PlayerPosition:
 		{
 			PlayerPositionData data = NetworkingClient::GetDataFromServer<PlayerPositionData>();
-			EntityManagerClient::Players[data.UUID]->Position = data.playerPosition;
-			WARN("Got player pos data");
+			if(EntityManagerClient::Players.contains(data.UUID))
+				EntityManagerClient::Players[data.UUID]->Position = data.playerPosition;
 			break;
 		}
 		case Packet::PlayerRotation:
 		{
 			PlayerRotationData data = NetworkingClient::GetDataFromServer<PlayerRotationData>();
-			EntityManagerClient::Players[data.UUID]->Pitch = data.playerRotation.x;
-			EntityManagerClient::Players[data.UUID]->Yaw = data.playerRotation.y;
-			WARN("Got player rot data");
+			if (EntityManagerClient::Players.contains(data.UUID))
+			{
+				EntityManagerClient::Players[data.UUID]->Pitch = data.playerRotation.x;
+				EntityManagerClient::Players[data.UUID]->Yaw = data.playerRotation.y;
+			}
 			break;
 		}
 		case Packet::PlayerJoin:
@@ -55,6 +57,11 @@ void HandleMessage()
 		{
 			WorldManager::BaseWorld->DestroyChunk(NetworkingClient::GetDataFromServer<Vector3<int>>());
 			break;
+		}
+		case Packet::PlayerInventory:
+		{
+			PlayerInventoryData data = NetworkingClient::GetDataFromServer<PlayerInventoryData>();
+			EntityManager::GetPlayer(data.UUID)->Inventory = data.Inventory;
 		}
 		}
 	}

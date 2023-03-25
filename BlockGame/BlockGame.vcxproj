@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\MeshParser.cpp" />
     <ClCompile Include="src\Core\RendererClient.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Entities\PlayerClient.cpp" />
@@ -103,6 +104,7 @@
     <ClCompile Include="src\World\WorldManagerClient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\MeshParser.h" />
     <ClInclude Include="src\Core\RendererClient.h" />
     <ClInclude Include="src\Core\Input.h" />
     <ClInclude Include="src\Entities\PlayerClient.h" />

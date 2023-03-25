@@ -5,9 +5,12 @@
 #include "GameManager.h"
 #include "GameScene.h"
 #include "Logger.h"
+
+#include "MeshParser.h"
 void MainMenuScene::Start()
 {
 	INFO("MainMenuScene Started");
+
 	RenderBuilder::Begin(m_RenderData);
 	RenderBuilder::AddSquare(m_RenderData, { (float)Client::ScreenWidth / 2,(float)Client::ScreenHeight / 2 }, { 200.0f,200.0f }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, { 1,1 }, 15);
 	RenderBuilder::End(m_RenderData);

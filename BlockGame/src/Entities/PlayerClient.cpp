@@ -103,6 +103,18 @@ void PlayerClient::InputTick(double TimeStep)
 			EntityManagerClient::GetPlayer().Fov = 70.0f;
 		}
 	}
+	//Use P to reload lua
+	{
+		static bool prev = false;
+		if (Input::GetKeyState(Key::P) == Action::Press && !IsGUIOpen && !prev)
+		{
+			prev = true;
+			KeyData data;
+			data.PKeyPressed = true;
+			NetworkingClient::SendDataToServer(Packet::KeyPress, data);
+		}
+		else if(Input::GetKeyState(Key::P) == Action::Release) prev = false;
+	}
 	//Use K to toggle godmode
 	{
 		static Action lastState = Action::Release;
