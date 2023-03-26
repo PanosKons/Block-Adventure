@@ -6,168 +6,190 @@
 #include "Logger.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
+#include "MeshParser.h"
 #define ONEOVER16 0.0625f
-void RendererClient::RenderWorld(World* world)
+float GetDistanceSquaredFromPlayer(Chunk* chunk)
 {
-	for (auto&[key, chunk] : *world->GetChunkMap())
+	Vector3<float> Pos = { chunk->GetPosition().x * ChunkSize + (float)ChunkSize / 2,chunk->GetPosition().y * ChunkSize + (float)ChunkSize / 2,chunk->GetPosition().z * ChunkSize + (float)ChunkSize / 2 };
+	Pos -= Vector::FloatVector(EntityManagerClient::GetPlayer().Position);
+	return Pos.x * Pos.x + Pos.y * Pos.y + Pos.z * Pos.z;
+}
+void RendererClient::RenderChunk(Chunk* chunk)
+{
+	ASSERT(chunk, "Invalid chunk in rendering");
+	ChunkRenderData& rd = ChunkData[WorldManager::GetChunkKey(chunk->GetPosition())];
+	if (rd.Populated == false || chunk->MeshChanged == true)
 	{
-		ASSERT(chunk, "Invalid chunk in rendering");
-		ChunkRenderData& rd = ChunkData[WorldManager::GetChunkKey(chunk->GetPosition())];
-		if (rd.Populated == false || chunk->MeshChanged == true)
+		rd.Solid.vertexBuffer.Clear();
+		rd.Solid.indexBuffer.Clear();
+		rd.Transparent.vertexBuffer.Clear();
+		rd.Transparent.indexBuffer.Clear();
+		for (int x = 0; x < ChunkSize; x++)
 		{
-			rd.Solid.vertexBuffer.Clear();
-			rd.Solid.indexBuffer.Clear();
-			rd.Transparent.vertexBuffer.Clear();
-			rd.Transparent.indexBuffer.Clear();
-			for (int x = 0; x < ChunkSize; x++)
+			for (int y = 0; y < ChunkSize; y++)
 			{
-				for (int y = 0; y < ChunkSize; y++)
+				for (int z = 0; z < ChunkSize; z++)
 				{
-					for (int z = 0; z < ChunkSize; z++)
-					{
-						Block block = chunk->GetBlock({ x, y, z });
-						if (block.GetBlockProperties().render == false) continue;
-						VertexBuffer* vertexBuffer;
-						block.GetBlockProperties().transparent ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
-						IndexBuffer* indexBuffer;
-						block.GetBlockProperties().transparent ? indexBuffer = &rd.Transparent.indexBuffer : indexBuffer = &rd.Solid.indexBuffer;
-						std::array<unsigned char, 6> arr = block.GetBlockProperties().textureSides;
-						Vertex a;
-						a.texId = 0.0f;
-						float alpha = 1.0f;
-						//if (block.GetBlockId() == Block::Water) alpha = 0.4f;
-						if (block.data->RenderedSides & (unsigned char)8) {
-							float texcordsX = ((arr[0]) % 16) / 16.0f;
-							float texcordsY = ((arr[0]) / 16) / 16.0f;
-							a.color = { 0.9f,0.9f,0.9f,alpha };
-							a.texCords = { texcordsX, texcordsY };
-							a.position = Vector::FloatVector(block.Position);
-							vertexBuffer->Add(a);
-							a.position.x += 1.0f;
-							a.texCords.x += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.y += 1.0f;
-							a.texCords.y += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.x = (float)block.Position.x;
-							a.texCords.x = texcordsX;
-							vertexBuffer->Add(a);
-						}
-						if (block.data->RenderedSides & (unsigned char)1) {
-							float texcordsX = ((arr[1]) % 16) / 16.0f;
-							float texcordsY = ((arr[1]) / 16) / 16.0f;
-							a.color = { 0.85f,0.85f,0.85f,alpha };
-							a.position = Vector::FloatVector(block.Position);
-							a.texCords = { texcordsX, texcordsY };
-							a.position.x += 1.0f;
-							vertexBuffer->Add(a);
-							a.position.z += 1.0f;
-							a.texCords.x += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.y += 1.0f;
-							a.texCords.y += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.z = (float)block.Position.z;
-							a.texCords.x = texcordsX;
-							vertexBuffer->Add(a);
-						}
-						if (block.data->RenderedSides & (unsigned char)4) {
-							float texcordsX = ((arr[2]) % 16) / 16.0f;
-							float texcordsY = ((arr[2]) / 16) / 16.0f;
-							a.color = { 0.75f,0.75f,0.75f,alpha };
-							a.position = Vector::FloatVector(block.Position);
-							a.texCords = { texcordsX, texcordsY };
-							a.position.z += 1.0f;
-							a.position.x += 1.0f;
-							vertexBuffer->Add(a);
-							a.position.x = (float)block.Position.x;
-							a.texCords.x += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.y += 1.0f;
-							a.texCords.y += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.x += 1.0f;
-							a.texCords.x = texcordsX;
-							vertexBuffer->Add(a);
-						}
-						if (block.data->RenderedSides & (unsigned char)2) {
-							float texcordsX = ((arr[3]) % 16) / 16.0f;
-							float texcordsY = ((arr[3]) / 16) / 16.0f;
-							a.color = { 0.8f,0.8f,0.8f,alpha };
-							a.position = Vector::FloatVector(block.Position);
-							a.position.z += 1.0f;
-							a.texCords = { texcordsX, texcordsY };
-							vertexBuffer->Add(a);
-							a.position.z = (float)block.Position.z;
-							a.texCords.x += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.y += 1.0f;
-							a.texCords.y += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.z += 1.0f;
-							a.texCords.x = texcordsX;
-							vertexBuffer->Add(a);
-						}
-						if (block.data->RenderedSides & (unsigned char)32) {
-							float texcordsX = ((arr[4]) % 16) / 16.0f;
-							float texcordsY = ((arr[4]) / 16) / 16.0f;
-							a.color = { 0.7f,0.7f,0.7f,alpha };
-							a.position = Vector::FloatVector(block.Position);
-							a.texCords = { texcordsX, texcordsY };
-							vertexBuffer->Add(a);
-							a.position.z += 1.0f;
-							a.texCords.x += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.x += 1.0f;
-							a.texCords.y += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.z = (float)block.Position.z;
-							a.texCords.x = texcordsX;
-							vertexBuffer->Add(a);
-						}
-						if (block.data->RenderedSides & (unsigned char)16) {
-							float texcordsX = ((arr[5]) % 16) / 16.0f;
-							float texcordsY = ((arr[5]) / 16) / 16.0f;
-							a.color = { 1.0f,1.0f,1.0f,alpha };
-							a.position = Vector::FloatVector(block.Position);
-							a.position.y += 1.0f;
-							a.texCords = { texcordsX, texcordsY };
-							vertexBuffer->Add(a);
-							a.position.x += 1.0f;
-							a.texCords.x += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.z += 1.0f;
-							a.texCords.y += ONEOVER16;
-							vertexBuffer->Add(a);
-							a.position.x = (float)block.Position.x;
-							a.texCords.x = texcordsX;
-							vertexBuffer->Add(a);
-						}
-						indexBuffer->AddCuboid(block.data->RenderedSides);
+					Block block = chunk->GetBlock({ x, y, z });
+					if (!block.IsValid()) continue;
+					if (block.GetBlockProperties().render == false) continue;
+					VertexBuffer* vertexBuffer;
+					block.GetBlockProperties().translucency != 1.0f ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
+					IndexBuffer* indexBuffer;
+					block.GetBlockProperties().translucency != 1.0f ? indexBuffer = &rd.Transparent.indexBuffer : indexBuffer = &rd.Solid.indexBuffer;
+					std::array<unsigned char, 6> arr = block.GetBlockProperties().textureSides;
+					Vertex a;
+					a.texId = 0.0f;
+					float alpha = block.GetBlockProperties().translucency;
+					if (block.data->RenderedSides & (unsigned char)8) {
+						float texcordsX = ((arr[0]) % 16) / 16.0f;
+						float texcordsY = ((arr[0]) / 16) / 16.0f;
+						a.color = { 0.9f,0.9f,0.9f,alpha };
+						a.texCords = { texcordsX, texcordsY };
+						a.position = Vector::FloatVector(block.Position);
+						vertexBuffer->Add(a);
+						a.position.x += 1.0f;
+						a.texCords.x += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.y += 1.0f;
+						a.texCords.y += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.x = (float)block.Position.x;
+						a.texCords.x = texcordsX;
+						vertexBuffer->Add(a);
 					}
+					if (block.data->RenderedSides & (unsigned char)1) {
+						float texcordsX = ((arr[1]) % 16) / 16.0f;
+						float texcordsY = ((arr[1]) / 16) / 16.0f;
+						a.color = { 0.85f,0.85f,0.85f,alpha };
+						a.position = Vector::FloatVector(block.Position);
+						a.texCords = { texcordsX, texcordsY };
+						a.position.x += 1.0f;
+						vertexBuffer->Add(a);
+						a.position.z += 1.0f;
+						a.texCords.x += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.y += 1.0f;
+						a.texCords.y += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.z = (float)block.Position.z;
+						a.texCords.x = texcordsX;
+						vertexBuffer->Add(a);
+					}
+					if (block.data->RenderedSides & (unsigned char)4) {
+						float texcordsX = ((arr[2]) % 16) / 16.0f;
+						float texcordsY = ((arr[2]) / 16) / 16.0f;
+						a.color = { 0.75f,0.75f,0.75f,alpha };
+						a.position = Vector::FloatVector(block.Position);
+						a.texCords = { texcordsX, texcordsY };
+						a.position.z += 1.0f;
+						a.position.x += 1.0f;
+						vertexBuffer->Add(a);
+						a.position.x = (float)block.Position.x;
+						a.texCords.x += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.y += 1.0f;
+						a.texCords.y += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.x += 1.0f;
+						a.texCords.x = texcordsX;
+						vertexBuffer->Add(a);
+					}
+					if (block.data->RenderedSides & (unsigned char)2) {
+						float texcordsX = ((arr[3]) % 16) / 16.0f;
+						float texcordsY = ((arr[3]) / 16) / 16.0f;
+						a.color = { 0.8f,0.8f,0.8f,alpha };
+						a.position = Vector::FloatVector(block.Position);
+						a.position.z += 1.0f;
+						a.texCords = { texcordsX, texcordsY };
+						vertexBuffer->Add(a);
+						a.position.z = (float)block.Position.z;
+						a.texCords.x += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.y += 1.0f;
+						a.texCords.y += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.z += 1.0f;
+						a.texCords.x = texcordsX;
+						vertexBuffer->Add(a);
+					}
+					if (block.data->RenderedSides & (unsigned char)32) {
+						float texcordsX = ((arr[4]) % 16) / 16.0f;
+						float texcordsY = ((arr[4]) / 16) / 16.0f;
+						a.color = { 0.7f,0.7f,0.7f,alpha };
+						a.position = Vector::FloatVector(block.Position);
+						a.texCords = { texcordsX, texcordsY };
+						vertexBuffer->Add(a);
+						a.position.z += 1.0f;
+						a.texCords.x += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.x += 1.0f;
+						a.texCords.y += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.z = (float)block.Position.z;
+						a.texCords.x = texcordsX;
+						vertexBuffer->Add(a);
+					}
+					if (block.data->RenderedSides & (unsigned char)16) {
+						float texcordsX = ((arr[5]) % 16) / 16.0f;
+						float texcordsY = ((arr[5]) / 16) / 16.0f;
+						a.color = { 1.0f,1.0f,1.0f,alpha };
+						a.position = Vector::FloatVector(block.Position);
+						a.position.y += 1.0f;
+						a.texCords = { texcordsX, texcordsY };
+						vertexBuffer->Add(a);
+						a.position.x += 1.0f;
+						a.texCords.x += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.z += 1.0f;
+						a.texCords.y += ONEOVER16;
+						vertexBuffer->Add(a);
+						a.position.x = (float)block.Position.x;
+						a.texCords.x = texcordsX;
+						vertexBuffer->Add(a);
+					}
+					indexBuffer->AddCuboid(block.data->RenderedSides);
 				}
 			}
-			rd.Solid.vertexBuffer.Bind();
-			rd.Solid.vertexBuffer.Allocate();
-			rd.Transparent.vertexBuffer.Bind();
-			rd.Transparent.vertexBuffer.Allocate();
 		}
-		rd.Populated = true;
-		chunk->MeshChanged = false;
+		rd.Solid.vertexBuffer.Bind();
+		rd.Solid.vertexBuffer.Allocate();
+		rd.Transparent.vertexBuffer.Bind();
+		rd.Transparent.vertexBuffer.Allocate();
+	}
+	rd.Populated = true;
+	chunk->MeshChanged = false;
+	{
+		Renderer::RenderCommand command;
+		command.view = Renderer::View::Player;
+		command.Depth = true;
+		command.renderData = &rd.Solid;
+		Renderer::AddCommand(command);
+	}
+	{
+		Renderer::RenderCommand command;
+		command.view = Renderer::View::Player;
+		command.Depth = true;
+		command.renderData = &rd.Transparent;
+		Renderer::AddCommand(command);
+	}
+}
+void RendererClient::RenderWorld(World* world)
+{
+	std::vector<Chunk*> chunks;
+	for (auto& [key, chunk] : *world->GetChunkMap())
+	{
+		chunks.push_back(chunk);
+	}
+	std::sort(chunks.begin(), chunks.end(), [](Chunk* first, Chunk* second) {return GetDistanceSquaredFromPlayer(first) > GetDistanceSquaredFromPlayer(second); });
+	for (Chunk* chunk : chunks)
+	{
+		if (chunk->DontRender == true)
 		{
-			Renderer::RenderCommand command;
-			command.view = Renderer::View::Player;
-			command.Depth = true;
-			command.renderData = &rd.Solid;
-			Renderer::AddCommand(command);
+			chunk->DontRender = false;
+			continue;
 		}
-		{
-			Renderer::RenderCommand command;
-			command.view = Renderer::View::Player;
-			command.Depth = true;
-			command.renderData = &rd.Transparent;
-			Renderer::AddCommand(command);
-		}
+		RenderChunk(chunk);
 	}
 }
 
@@ -458,7 +480,6 @@ void RendererClient::RenderEntities()
 			EntityRenderData.indexBuffer.AddRectangle();
 		}
 	}
-
 	RenderBuilder::End(EntityRenderData);
 	Renderer::RenderCommand command;
 	command.view = Renderer::View::Player;

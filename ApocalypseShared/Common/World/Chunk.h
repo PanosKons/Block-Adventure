@@ -21,6 +21,7 @@ public:
 	Vector3<int> GetPosition() const { return Position; };
 	BlockArray* GetBlocks() { return blocks; }
 	bool MeshChanged = true;
+	bool DontRender = true;
 private:
 	World* world;
 	Vector3<int> Position;

@@ -132,10 +132,18 @@ int Lua_AddToInventory(lua_State* L)
 int Lua_CreateItemStack(lua_State* L)
 {
 	ItemStackType itemstacktype = (ItemStackType)lua_tointeger(L, -3);
-	std::string itemType = lua_tostring(L, -2);
+	std::string type = lua_tostring(L, -2);
 	unsigned int count = (unsigned int)lua_tointeger(L, -1);
 	ItemStack* item = (ItemStack*)lua_newuserdata(L, sizeof(ItemStack));
-	*item = { itemstacktype,Item::GetItemType(itemType),count };
+	int ftype = itemstacktype == ItemStackType::Item ? Item::GetItemType(type) : Block::GetBlockType(type);
+	*item = { itemstacktype,(ItemType)ftype,count };
+	return 1;
+}
+int Lua_GetHoldingItemStack(lua_State* L)
+{
+	uint64_t UUID = lua_tointeger(L, -1);
+	ItemStack* item = (ItemStack*)lua_newuserdata(L, sizeof(ItemStack));
+	*item = EntityManagerServer::GetPlayer(UUID)->Inventory[EntityManagerServer::GetPlayer(UUID)->ActiveSlot];
 	return 1;
 }
 int Lua_RemoveFromInventory(lua_State* L)
@@ -173,7 +181,10 @@ struct Lua_Block
 	static int IsValid(lua_State* L)
 	{
 		Block* block = (Block*)lua_touserdata(L, -1);
-		lua_pushboolean(L, block->IsValid());
+		if (block != nullptr)
+			lua_pushboolean(L, block->IsValid());
+		else
+			lua_pushboolean(L, false);
 		return 1;
 	}
 	static int GetId(lua_State* L)
@@ -296,6 +307,8 @@ void LuaManager::LoadScripts()
 	lua_setglobal(l, "CreateItemStack");
 	lua_pushcfunction(l, Lua_GetBlock);
 	lua_setglobal(l, "GetBlock");
+	lua_pushcfunction(l, Lua_GetHoldingItemStack);
+	lua_setglobal(l, "GetHoldingItemStack");
 
 	lua_newtable(l);
 	int IntVector3Table = lua_gettop(l);
@@ -383,6 +396,11 @@ void LuaManager::LoadScripts()
 			lua_getfield(l, -1, "Transparent");
 			ASSERT(lua_isboolean(l, -1), "Invalid lua script(blocks)");
 			bp.transparent = lua_toboolean(l, -1);
+			lua_pop(l, 1);
+
+			lua_getfield(l, -1, "Translucency");
+			ASSERT(lua_isnumber(l, -1), "Invalid lua script(blocks)");
+			bp.translucency = lua_tonumber(l, -1);
 			lua_pop(l, 1);
 
 			lua_getfield(l, -1, "Texture");

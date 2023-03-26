@@ -8,19 +8,6 @@
 #include "Entities/EntityManagerClient.h"
 #include "Common/World/WorldManager.h"
 #include "Networking/NetworkingClient.h"
-void ReplaceBlockAndNotify(Block block, BlockType blockType)
-{
-	//WorldManager::ReplaceBlock(block, blockType);
-	////Notify the server
-	//{
-	//	Packet<SendReplaceBlock> packet;
-	//	packet.InitMemory();
-	//	packet.AddPacketData(PACKET_ID::ReplaceBlock);
-	//	packet.AddPacketData<Vector3<int>>(block.Position);
-	//	packet.AddPacketData<BlockType>(blockType);
-	//	NetworkingClient::SendPacketToServer(packet);
-	//}
-}
 void Commands::ExecuteCommand(const std::string& command)
 {
 	//std::vector<std::string> tokens;

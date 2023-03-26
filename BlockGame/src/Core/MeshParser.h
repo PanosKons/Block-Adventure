@@ -1,8 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "Rendering/RenderData.h"
-
-
 class MeshParser
 {
 public:

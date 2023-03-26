@@ -61,7 +61,7 @@ namespace Renderer {
 		Texture::Load("res/textures/selected_slot.png", 15);
 		Texture::Load("res/textures/text.png", 13);
 		Texture::Load("res/textures/slot.png", 14);
-		Texture::Load("res/textures/TextureAtlas.png", 0);
+		Texture::Load("res/textures/Robbie.png", 0);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);

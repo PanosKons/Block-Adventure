@@ -13,6 +13,7 @@ struct BlockProperties //Each block is paired with some properties at global var
 	std::array<unsigned char, 6> textureSides;
 	bool render;
 	bool transparent;
+	float translucency;
 };
 struct ItemProperties
 {

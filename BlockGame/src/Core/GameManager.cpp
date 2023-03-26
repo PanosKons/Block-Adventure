@@ -27,8 +27,8 @@ void GameManager::Start()
 		strcpy_s(Name.data(),Name.size()-1, in.c_str());
 		NetworkingClient::credentials = new Credentials(Name, Credentials::ConvertToUUID(Name));
 	}
-	Client::ScreenWidth = 1920 / 2;
-	Client::ScreenHeight = 1080 / 2;
+	Client::ScreenWidth = 1920 / 1.5;
+	Client::ScreenHeight = 1080 / 1.5;
 
 	Renderer::CreateWindow("GAME");
 

@@ -53,7 +53,7 @@ void WorldManager::UpdateBlock(Block block)
 	for (int i = 0; i < blocks.size(); i++)
 	{
 		if (blocks[i].IsValid())
-			if (!blocks[i].GetBlockProperties().render || blocks[i].GetBlockProperties().transparent)
+			if (!blocks[i].GetBlockProperties().render || (blocks[i].GetBlockProperties().transparent && blocks[i].GetBlockId() != block.GetBlockId()))
 			{
 				block.data->RenderedSides = block.data->RenderedSides | Math::Powi(2,i);
 			}
@@ -113,7 +113,7 @@ BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 				int level = HeightMap[x + z * ChunkSize];
 				if (ylevel > level && ylevel <= 30)
 				{
-					(*blocks)[x][y][z].blockId = Block::FillerBlock; // WATER
+					(*blocks)[x][y][z].blockId = Block::OreBlock; // WATER
 				}
 				else if (ylevel == level)
 				{
