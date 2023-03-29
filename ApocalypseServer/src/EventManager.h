@@ -27,7 +27,8 @@ public:
 };
 struct KeyEvent
 {
-
+	bool PKeyPressed;
+	bool RKeyPressed;
 };
 class EventManager
 {

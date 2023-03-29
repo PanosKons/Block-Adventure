@@ -7,7 +7,9 @@
 World::World() : ChunkMap()
 {
 }
-
+inline int positive_modulo(int f, int s) {
+	return (s + (f % s)) % s;
+}
 Block World::GetBlock(Vector3<int> AbsolutePosition) const
 {
 	int x = Math::Floor(AbsolutePosition.x / (float)ChunkSize);
@@ -15,14 +17,14 @@ Block World::GetBlock(Vector3<int> AbsolutePosition) const
 	int z = Math::Floor(AbsolutePosition.z / (float)ChunkSize);
 	auto it = ChunkMap.find(WorldManager::GetChunkKey({ x, y, z }));
 	if (it != ChunkMap.end())
-		return it->second->GetBlock({ (AbsolutePosition.x + BIG_NUMBER) % ChunkSize, (AbsolutePosition.y + BIG_NUMBER) % ChunkSize, (AbsolutePosition.z + BIG_NUMBER) % ChunkSize });
+		return it->second->GetBlock({ positive_modulo(AbsolutePosition.x,ChunkSize), positive_modulo(AbsolutePosition.y,ChunkSize), positive_modulo(AbsolutePosition.z,ChunkSize) });
 	return Block();
 }
 Chunk* World::GetChunkAbsolute(Vector3<int> AbsolutePosition) const
 {
-	int x = AbsolutePosition.x / ChunkSize;
-	int y = AbsolutePosition.y / ChunkSize;
-	int z = AbsolutePosition.z / ChunkSize;
+	int x = Math::Floor(AbsolutePosition.x / (float)ChunkSize);
+	int y = Math::Floor(AbsolutePosition.y / (float)ChunkSize);
+	int z = Math::Floor(AbsolutePosition.z / (float)ChunkSize);
 	auto it = ChunkMap.find(WorldManager::GetChunkKey({ x, y, z }));
 	if (it != ChunkMap.end())
 		return it->second;
@@ -47,16 +49,3 @@ void World::DestroyChunk(Vector3<int> ChunkPosition)
 	ChunkMap.erase(WorldManager::GetChunkKey(ChunkPosition));
 	delete chunk;
 }
-
-//void World::SubmitChunkChanges()
-//{
-//	for (auto[id, chunk] : ChunkMap)
-//	{
-//		if (chunk->ShouldUpdate)
-//			chunk->UpdateAllBlocks();
-//		else if (chunk->ShouldUpdateBorders)
-//			chunk->UpdateBorderBlocks();
-//		chunk->ShouldUpdate = false;
-//		chunk->ShouldUpdateBorders = false;
-//	}
-//}

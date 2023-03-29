@@ -2,11 +2,13 @@
 #include "EntityManager.h"
 #include "Common/Networking/Packet.h"
 #include "Common/World/WorldManager.h"
+#include "Common/Math/EngineMath.h"
+
 void EntityManager::Start(){}
 bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox)
 {
-	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
-	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
+	Vector3<int> Point1 = { Math::Floor(Position.x - Hitbox.x / 2), Math::Floor(Position.y), Math::Floor(Position.z - Hitbox.z / 2) };
+	Vector3<int> Point2 = { Math::Floor(Position.x + Hitbox.x / 2), Math::Floor(Position.y + Hitbox.y), Math::Floor(Position.z + Hitbox.z / 2) };
 	for (int x = Point1.x; x <= Point2.x; x++)
 	{
 		for (int y = Point1.y; y <= Point2.y; y++)
@@ -18,25 +20,6 @@ bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hit
 				{
 					if(block.GetBlockProperties().render)
 						return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-bool EntityManager::CheckCollision(Vector3<double> Position, Vector3<double> Hitbox, Vector3<int> block)
-{
-	Vector3<int> Point1 = { (int)(Position.x - Hitbox.x / 2), (int)Position.y, (int)(Position.z - Hitbox.z / 2) };
-	Vector3<int> Point2 = { (int)(Position.x + Hitbox.x / 2), (int)(Position.y + Hitbox.y), (int)(Position.z + Hitbox.z / 2) };
-	for (int x = Point1.x; x <= Point2.x; x++)
-	{
-		for (int y = Point1.y; y <= Point2.y; y++)
-		{
-			for (int z = Point1.z; z <= Point2.z; z++)
-			{
-				if (block == Vector3<int>{x, y, z})
-				{
-					return true;
 				}
 			}
 		}

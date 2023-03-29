@@ -7,7 +7,7 @@
 Player::Player(Credentials& credentials)
 	:credentials(credentials),IsReadyToReceivePackets(false)
 {
-	Position = { 2600,80,2600 };
+	Position = { 20,60,260 };
 	Hitbox = { 0.6, 1.8 ,0.6 };
 	Velocity = { 0,0,0 };
 	MaxHealth = 100.0f;
@@ -32,7 +32,7 @@ Block Player::GetFacingBlock()
 {
 	auto vec = GetLookPosition();
 	Ray ray({vec.x, vec.y, vec.z}, Pitch, Yaw);
-	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Block block = WorldManager::BaseWorld->GetBlock({ Math::Floor(ray.getEnd().x), Math::Floor(ray.getEnd().y), Math::Floor(ray.getEnd().z) });
 	while (true)
 	{
 		if (!block.IsValid()) break;
@@ -40,7 +40,7 @@ Block Player::GetFacingBlock()
 		ray.step(0.1f);
 		if (ray.getLength() > 5.9f)
 			return Block();
-		block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+		block = WorldManager::BaseWorld->GetBlock({ Math::Floor(ray.getEnd().x), Math::Floor(ray.getEnd().y), Math::Floor(ray.getEnd().z) });
 	}
 	return block;
 }
@@ -48,7 +48,7 @@ Block Player::GetBlockToPlace()
 {
 	auto vec = GetLookPosition();
 	Ray ray({ vec.x, vec.y, vec.z }, Pitch, Yaw);
-	Block block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+	Block block = WorldManager::BaseWorld->GetBlock({ Math::Floor(ray.getEnd().x), Math::Floor(ray.getEnd().y), Math::Floor(ray.getEnd().z) });
 	Block lastBlock = Block();
 	while (true)
 	{
@@ -58,7 +58,7 @@ Block Player::GetBlockToPlace()
 		if (ray.getLength() > 5.9f)
 			return Block();
 		lastBlock = block;
-		block = WorldManager::BaseWorld->GetBlock({ (int)ray.getEnd().x, (int)ray.getEnd().y, (int)ray.getEnd().z });
+		block = WorldManager::BaseWorld->GetBlock({ Math::Floor(ray.getEnd().x), Math::Floor(ray.getEnd().y), Math::Floor(ray.getEnd().z) });
 	}
 	return lastBlock;
 }

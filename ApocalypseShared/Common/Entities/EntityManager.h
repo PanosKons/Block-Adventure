@@ -10,7 +10,6 @@ public:
 	static void ShutDown();
 	static Player* GetPlayer(uint64_t UUID);
 	static bool CheckCollision(Vector3<double> Position, Vector3<double> Hitbox);
-	static bool CheckCollision(Vector3<double> Position, Vector3<double> Hitbox, Vector3<int> block);
 	inline static std::unordered_map<uint64_t,Player*> Players;
 };
 

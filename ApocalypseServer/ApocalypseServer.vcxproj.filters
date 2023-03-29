@@ -73,7 +73,4 @@
     <Library Include="mono\lib\Debug\libmono-static-sgen.lib" />
     <Library Include="mono\lib\Release\libmono-static-sgen.lib" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="data.lua" />
-  </ItemGroup>
 </Project>

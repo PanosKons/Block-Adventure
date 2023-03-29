@@ -8,7 +8,6 @@ public:
 	inline unsigned int GetCount() { return Count; };
 	inline int GetItemType() { return ItemType; };
 	inline bool IsValid() { return ItemType >= 0; };
-private:
 	int ItemType;
 	int Count;
 };

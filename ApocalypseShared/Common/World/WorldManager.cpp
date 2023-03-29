@@ -113,7 +113,7 @@ BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 				int level = HeightMap[x + z * ChunkSize];
 				if (ylevel > level && ylevel <= 30)
 				{
-					(*blocks)[x][y][z].blockId = Block::OreBlock; // WATER
+					(*blocks)[x][y][z].blockId = Block::WaterBlock;
 				}
 				else if (ylevel == level)
 				{
@@ -121,15 +121,15 @@ BlockArray* WorldManager::GenerateChunk(Vector3<int> ChunkPosition)
 					{
 						(*blocks)[x][y][z].blockId = Block::DirtBlock;
 					}
-					else if (BiomeMap[x + z * ChunkSize] == 0)
+					else if (BiomeMap[x + z * ChunkSize] >= 0 && BiomeMap[x + z * ChunkSize] <= 10)
 					{
 						(*blocks)[x][y][z].blockId = Block::StoneTopBlock;
 					}
-					else if (BiomeMap[x + z * ChunkSize] == 1)
+					else if (BiomeMap[x + z * ChunkSize] >= 10 && BiomeMap[x + z * ChunkSize] <= 20)
 					{
 						(*blocks)[x][y][z].blockId = Block::DeadTopBlock;
 					}
-					else if (BiomeMap[x + z * ChunkSize] == 2)
+					else if (BiomeMap[x + z * ChunkSize] >= 20 && BiomeMap[x + z * ChunkSize] <= 30)
 					{
 						(*blocks)[x][y][z].blockId = Block::DryTopBlock;
 					}

@@ -33,8 +33,6 @@ public:
 	static BlockProperties& GetBlockProperties(BlockType blocktype);
 	bool operator!=(Block& other);
 	bool IsValid();
-	//static BlockType GetBlockType(std::string&& key);
-	//static BlockType GetBlockType(std::string& key);
 	inline static int GetBlockCount() { return (int)blockProperties.size(); }
 
 	Vector3<int> Position;
@@ -48,6 +46,7 @@ public:
 	inline static BlockType DeadTopBlock;
 	inline static BlockType StoneTopBlock;
 	inline static BlockType OreBlock;
+	inline static BlockType WaterBlock;
 	//TEMPORARY (UNTIL NETWORKINGSERVER BECOMES A CLASS)
 	inline static std::vector<BlockProperties> blockProperties;
 private:
@@ -63,7 +62,6 @@ class Item
 public:
 	static ItemProperties& GetItemProperties(int ItemType);
 	inline static int GetItemCount() { return (int)itemProperties.size(); };
-	//TEMPORARY (UNTIL NETWORKINGSERVER BECOMES A CLASS)
 	inline static std::vector<ItemProperties> itemProperties;
 private:
 	friend class LuaManager;

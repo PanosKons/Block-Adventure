@@ -6,6 +6,7 @@
 #include "Common/World/WorldConstants.h"
 #include "Common/Entities/Credentials.h"
 #include "Common/Entities/Player/Player.h"
+
 enum class Packet
 {
 	None,
@@ -71,84 +72,3 @@ struct CommandData
 {
 	Command command;
 };
-//constexpr int SizePacket = sizeof(PACKET_ID);
-//
-//constexpr int CredentialsPacketSize = sizeof(Credentials);
-//constexpr int StartPacketSize = sizeof(Player) + sizeof(int) + sizeof(int) + 8 * sizeof(int);
-//constexpr int BlockPropertiesSize = sizeof(BlockProperties);
-//constexpr int ItemPropertiesSize = sizeof(ItemProperties);
-//
-//constexpr int ReceivePlayerPosition = sizeof(uint64_t) + sizeof(Vector3<double>);
-//constexpr int SendPlayerPosition = SizePacket + ReceivePlayerPosition;
-//
-//constexpr int ReceivePlayerRotation = sizeof(uint64_t) + sizeof(Vector2<float>);
-//constexpr int SendPlayerRotation = SizePacket + ReceivePlayerRotation;
-//
-//constexpr int ReceivePlayerJoin = sizeof(Player);
-//constexpr int SendPlayerJoin = SizePacket + ReceivePlayerJoin;
-//
-//constexpr int ReceiveNewChunk = sizeof(Vector3<int>);
-//constexpr int SendNewChunk = SizePacket + ReceiveNewChunk;
-//constexpr int ChunkPacketSize = ChunkVolume * sizeof(BlockData);
-//
-//constexpr int ReceiveDeleteChunk = sizeof(Vector3<int>);
-//constexpr int SendDeleteChunk = SizePacket + ReceiveDeleteChunk;
-//
-//constexpr int ReceiveReplaceBlock = sizeof(Vector3<int>) + sizeof(unsigned short);
-//constexpr int SendReplaceBlock = ReceiveReplaceBlock + SizePacket;
-//
-//constexpr int ReceiveSelectSlot = sizeof(char);
-//constexpr int SendSelectSlot = SizePacket + ReceiveSelectSlot;
-//
-//constexpr int ReceiveMouseState = 3 * sizeof(int);
-//constexpr int SendMouseState = SizePacket + ReceiveMouseState;
-
-//template<int TSize>
-//class Packet
-//{
-//public:
-//	Packet() {}
-//	template<typename T>
-//	const T& ExtractPacketData()
-//	{
-//		LastIndex += sizeof(T);
-//		ASSERT((LastIndex <= GetPacketSize()), "Attempting to access fobidden memory!");
-//		return *(T*)(this->PacketData->data() + LastIndex - sizeof(T));
-//	}
-//	template<typename T>
-//	void AddPacketData(T Data)
-//	{
-//		if (PacketData == nullptr)
-//			InitMemory();
-//		ASSERT((LastIndex + sizeof(T) <= GetPacketSize()), "Attempting to write forbidden memory!");
-//		*(T*)((char*)PacketData->data() + LastIndex) = Data;
-//		LastIndex += sizeof(T);
-//	}
-//
-//	char* GetPacket()
-//	{
-//		return PacketData->data();
-//	}
-//	int GetPacketSize()
-//	{
-//		return sizeof(*PacketData);
-//	}
-//
-//	void SetPacket(std::array<char, TSize>* PacketData)
-//	{
-//		this->PacketData = PacketData;
-//	}
-//
-//	void InitMemory()
-//	{
-//		PacketData = new std::array<char, TSize>();
-//	}
-//	~Packet()
-//	{
-//		//if(PacketData != nullptr)
-//		//	delete PacketData;
-//	}
-//private:
-//	std::array<char, TSize>* PacketData = nullptr;
-//	int LastIndex = 0;
-//};

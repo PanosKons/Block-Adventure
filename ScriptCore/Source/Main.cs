@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Scripting
 {
@@ -15,35 +13,30 @@ namespace Scripting
     }
     public struct WorldGenerationData
     {
-        public WorldGenerationData(int Octaves, double Frequency, int YLevelStretch, int BiomeStretch)
-        {
-            this.Octaves = Octaves;
-            this.Frequency = Frequency;
-            this.YLevelStretch = YLevelStretch;
-            this.BiomeStretch = BiomeStretch;
-        }
+        public WorldGenerationData()
+        {}
         public int Octaves = 8;
         public double Frequency = 256.0;
         public int YLevelStretch = 96;
-        public int BiomeStretch = 4;
+        public int BiomeNoiseRange = 40;
+        public BlockType Filler = BlockType.Air;
+        public BlockType UnderGround = BlockType.Stone;
+        public BlockType Dirt = BlockType.Dirt;
+        public BlockType DryTop = BlockType.DryGrass;
+        public BlockType WetTop = BlockType.Grass;
+        public BlockType DeadTop = BlockType.Dirt;
+        public BlockType StoneTop = BlockType.Stone;
+        public BlockType Ore = BlockType.Iron;
+        public BlockType Water = BlockType.Water;
     }
     public static class Data
     {
         public static List<BlockProperties> Blocks = new List<BlockProperties>();
         public static List<ItemProperties> Items = new List<ItemProperties>();
 
-        public static BlockType Filler = BlockType.Air;
-        public static BlockType UnderGround = BlockType.Stone;
-        public static BlockType Dirt = BlockType.Dirt;
-        public static BlockType DryTop = BlockType.Dirt;
-        public static BlockType WetTop = BlockType.Grass;
-        public static BlockType DeadTop = BlockType.Dirt;
-        public static BlockType StoneTop = BlockType.Stone;
-        public static BlockType Ore = BlockType.Water;
-
         public static WorldGenerationData GetWorldGenerationData()
         {
-            return new WorldGenerationData(8,256.0,96,4);
+            return new WorldGenerationData();
         }
 
         static int j = -1;
@@ -85,9 +78,10 @@ namespace Scripting
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void GetBlock(Vector3<int> Position, out Block block);
-
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void GetPlayerFacingBlock(ulong UUID, out Block block);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void GetPlayerBlockToPlace(ulong UUID, out Block block);
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void ReplaceBlock(Block block, BlockType NewBlockType);
     }
@@ -111,6 +105,8 @@ namespace Scripting
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void RemoveItemFromInventory(ulong UUID, ItemStack Item);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void GetHoldingItemStack(ulong UUID, out ItemStack Item);
     }
     public struct Texture
     {
@@ -173,11 +169,11 @@ namespace Scripting
             Data.Blocks[(int)BlockType.Log] = new BlockProperties(true, false, 1.0f, new Texture(4, 4, 4, 4, 5, 5));
             Data.Blocks[(int)BlockType.Dirt] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(2));
             Data.Blocks[(int)BlockType.Stone] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(3));
-            Data.Blocks[(int)BlockType.Glass] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(7));
+            Data.Blocks[(int)BlockType.Glass] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(7));
             Data.Blocks[(int)BlockType.DryGrass] = new BlockProperties(true, false, 1.0f, new Texture(12, 12, 12, 12, 2, 10));
             Data.Blocks[(int)BlockType.Iron] =  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(6));
-            Data.Blocks[(int)BlockType.Leaves] =  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(8));
-            Data.Blocks[(int)BlockType.Water] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(14));
+            Data.Blocks[(int)BlockType.Leaves] =  new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(8));
+            Data.Blocks[(int)BlockType.Water] = new BlockProperties(true, true, 0.4f, Texture.SimpleBlock(14));
 
             for (int i = 0; i < (int)ItemType.ItemTypeSize; i++)
                 Data.Items.Add(new ItemProperties());
@@ -201,12 +197,19 @@ namespace Scripting
         {
             Console.WriteLine("Update C# with:" + TimeStep + two);
         }
-        public static void Print(string msg)
-        {
-            Console.WriteLine(msg);
-        }
         public static void OnRightClick(ulong UUID)
         {
+            Block.GetPlayerBlockToPlace(UUID, out Block block);
+            if (block.Type != BlockType.Invalid)
+            {
+                Player.GetHoldingItemStack(UUID, out ItemStack Item);
+                if(Item.Count > 0 && (int)Item.Type < (int)BlockType.BlockTypeSize)
+                {
+                    Block.ReplaceBlock(block, (BlockType)Item.Type);
+                    Item.Count = 1;
+                    Player.RemoveItemFromInventory(UUID, Item);
+                }
+            }
         }
         public static void OnLeftClick(ulong UUID)
         {
@@ -221,6 +224,7 @@ namespace Scripting
         }
         public static void OnMiddleClick(ulong UUID)
         {
+            Player.AddItemToInventory(UUID, new ItemStack((ItemType)BlockType.Glass, 3));
         }
         public static void OnCommand(ulong UUID, string Command)
         {

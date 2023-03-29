@@ -14,7 +14,7 @@ static std::thread* ListeningThread;
 void ServerManager::Start()
 {
 	INFO("Starting server...");
-	ScriptingManager::Load();
+	ScriptingManager::Start();
 	EntityManagerServer::Start();
 	WorldManager::BaseWorld = new World();
 	ListeningThread = new std::thread(NetworkingServer::ListenForClients);

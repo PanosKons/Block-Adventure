@@ -59,7 +59,8 @@ namespace NetworkingServer {
 				case Packet::KeyPress:
 				{
 					auto data = GetDataFromClient<KeyData>(credentials);
-					//if (data.PKeyPressed == true) LuaManager::LoadScripts();
+					KeyEvent keyEvent(data.PKeyPressed, data.RKeyPressed);
+					EventManager::AddKeyEvent(keyEvent);
 					break;
 				}
 				case Packet::Command:
