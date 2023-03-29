@@ -5,19 +5,16 @@ constexpr unsigned int seed = 12;
 const siv::PerlinNoise perlin(seed);
 int Noise::GetYLevel(int x, int z)
 {
-	double a = perlin.accumulatedOctaveNoise2D_0_1(x / frequency, z / frequency, octaves);
-	return (int)(a * YLevelStretch);
+	double a = perlin.accumulatedOctaveNoise2D_0_1(x / worldGenerationData.frequency, z / worldGenerationData.frequency, worldGenerationData.octaves);
+	return (int)(a * worldGenerationData.YLevelStretch);
 }
 int Noise::GetBiomeTemperature(int x, int z)
 {
-	double a = perlin.accumulatedOctaveNoise2D_0_1(x / frequency + 10000, z / frequency + 10000, octaves);
-	return (int)(a * BiomeStretch);
+	double a = perlin.accumulatedOctaveNoise2D_0_1(x / worldGenerationData.frequency + 10000, z / worldGenerationData.frequency + 10000, worldGenerationData.octaves);
+	return (int)(a * worldGenerationData.BiomeStretch);
 }
 
-void Noise::SetNoiseSettings(int Octaves, double Frequency, int YlevelStretch, int biomeStretch)
+void Noise::SetNoiseSettings(WorldGenerationData& worldgendata)
 {
-	octaves = Octaves;
-	frequency = Frequency;
-	YLevelStretch = YlevelStretch;
-	BiomeStretch = biomeStretch;
+	worldGenerationData = worldgendata;
 }

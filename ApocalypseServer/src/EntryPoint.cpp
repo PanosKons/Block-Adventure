@@ -22,5 +22,7 @@ int main()
 		ServerManager::Tick();
 	}
 	ServerManager::Shutdown();
+
+	while (true);
 	return 0;
 }

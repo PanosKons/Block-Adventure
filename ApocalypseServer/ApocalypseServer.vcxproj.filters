@@ -36,10 +36,10 @@
     <ClCompile Include="src\World\WorldManagerServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lua\LuaManager.cpp">
+    <ClCompile Include="src\EventManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EventManager.cpp">
+    <ClCompile Include="src\ScriptingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,30 +62,16 @@
     <ClInclude Include="src\World\WorldManagerServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lua\include\lauxlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lua\include\lua.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lua\include\lua.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lua\include\luaconf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lua\include\lualib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lua\LuaManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\EventManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScriptingManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lua\lua54.lib" />
+    <Library Include="mono\lib\Debug\libmono-static-sgen.lib" />
+    <Library Include="mono\lib\Release\libmono-static-sgen.lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data.lua" />

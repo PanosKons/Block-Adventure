@@ -525,15 +525,7 @@ void RendererClient::RenderUI(double TimeStep)
 			ItemStack& itemStack = EntityManagerClient::GetPlayer().Inventory[i];
 			if (itemStack.GetCount() != 0)
 			{
-				unsigned char TextureId;
-				if (itemStack.GetItemStackType() == ItemStackType::BlockItem)
-				{
-					TextureId = Block::GetBlockProperties((BlockType)itemStack.GetItemType()).textureSides[0];
-				}
-				else
-				{
-					TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
-				}
+				unsigned char TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
 				RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + 8, SlotPosition.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (TextureId % 16) / 16.0f, (TextureId / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f,BaseLayer - 0.2f);
 			}
 			SlotPosition.x += SlotWidth;

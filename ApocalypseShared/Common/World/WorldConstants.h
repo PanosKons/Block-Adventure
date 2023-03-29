@@ -1,4 +1,8 @@
 #pragma once
+#include "pch.h"
+
+constexpr int MaxCommandLength = 256;
+typedef std::array<char, MaxCommandLength> Command;
 enum class Context
 {
 	Server, Client

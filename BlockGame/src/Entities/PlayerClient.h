@@ -1,5 +1,6 @@
 #pragma once
 #include "Common\Entities\Player\Player.h"
+
 class PlayerClient : public Player
 {
 public:

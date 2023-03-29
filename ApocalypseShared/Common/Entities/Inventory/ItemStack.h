@@ -1,20 +1,14 @@
 #pragma once
 #include "pch.h"
-enum class ItemStackType
-{
-	BlockItem, Item
-};
-typedef unsigned short ItemType;
 class ItemStack
 {
 public:
 	ItemStack();
-	ItemStack(ItemStackType itemStackType,ItemType type, unsigned int count);
-	inline unsigned int GetCount() { return count; };
-	inline ItemStackType GetItemStackType() { return itemStackType; };
-	inline ItemType GetItemType() { return itemType; };
+	ItemStack(int type, unsigned int count);
+	inline unsigned int GetCount() { return Count; };
+	inline int GetItemType() { return ItemType; };
+	inline bool IsValid() { return ItemType >= 0; };
 private:
-	ItemStackType itemStackType;
-	ItemType itemType;
-	unsigned int count;
+	int ItemType;
+	int Count;
 };

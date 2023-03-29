@@ -7,14 +7,14 @@
 #include "EntityManagerServer.h"
 #include "Common/Entities/Player/Player.h"
 #include "Logger.h"
-#include "../lua/LuaManager.h"
+#include "ScriptingManager.h"
 
 static std::thread* ListeningThread;
 
 void ServerManager::Start()
 {
 	INFO("Starting server...");
-	LuaManager::LoadScripts();
+	ScriptingManager::Load();
 	EntityManagerServer::Start();
 	WorldManager::BaseWorld = new World();
 	ListeningThread = new std::thread(NetworkingServer::ListenForClients);
@@ -24,7 +24,7 @@ void ServerManager::Tick()
 {
 	WorldManagerServer::SendAppropriateChunks();
 	WorldManagerServer::RemoveUnusedChunks();
-	LuaManager::UpdateEvent();
+	ScriptingManager::UpdateEvent();
 }
 
 void ServerManager::Shutdown()

@@ -18,7 +18,8 @@ enum Key
 	n0 = 48, n1, n2, n3, n4, n5, n6, n7, n8, n9,
 	A = 65, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 	Shift = 340, Control, Alt,
-	EscapeKey = 256, Enter, Tab, BackSpace
+	EscapeKey = 256, Enter, Tab, BackSpace,
+	RightArrow = 262, LeftArrow, DownArrow, UpArrow
 };
 enum MouseState
 {
@@ -39,7 +40,6 @@ public:
 
 	Block GetFacingBlock();
 	Block GetBlockToPlace();
-	int GetFirstAvaiableSlot(ItemStack itemStack);
 	Vector3<double> GetLookPosition();
 
 	Credentials credentials;

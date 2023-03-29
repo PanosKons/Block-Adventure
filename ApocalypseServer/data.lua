@@ -32,7 +32,6 @@ Blocks = {
 	water = {Render = true, Texture = {14,14,14,14,14,14}, Transparent = true, Translucency = 0.4, Material = MaterialDefault},
 	leaves = {Render = true, Texture = SimpleBlock(8), Transparent = true,Translucency = 1.0, Material = MaterialDefault},
 }
-
 Items = {
 	 drygrassblade = { Texture = 9},
 	 stick = {Texture = 11},
@@ -74,19 +73,46 @@ WorldGeneration = {
 	end
 
 	end
-
- end
-
+end
   function OnRightMouseClickEvent(UUID)
   end
 
   function OnMiddleMouseClickEvent(UUID)
 	local block = GetPlayerBlockToPlace(UUID)
 	if(block:IsValid()) then
-		ReplaceBlock(block,"water")
+		ReplaceBlock(block,"glass")
 	end
   end
 
 
   function Update()
+  end
+
+  function OnCommand(UUID, Command, Args)
+
+	if Command == "/give" then
+	local type = -1
+	if Args:Get(0) == "item" then
+		type = 1
+	elseif Args:Get(0) == "block" then
+		type = 0
+	end
+		local item = CreateItemStack(type,Args:Get(1),tonumber(Args:Get(2)))
+		AddToInventory(UUID,item)
+	end
+
+	if Command == "/clear" then
+	if Args:Get(0) == "item" then
+		type = 1
+	elseif Args:Get(0) == "block" then
+		type = 0
+	end
+		local item = CreateItemStack(type,Args:Get(1),tonumber(Args:Get(2)))
+		RemoveFromInventory(UUID,item)
+	end
+
+	if Command == "/tp" then
+		pos = DoubleVector3.Set(tonumber(Args:Get(0)),tonumber(Args:Get(1)),tonumber(Args:Get(2)))
+		SetPlayerPosition(UUID,pos)
+	end
   end

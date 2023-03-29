@@ -8,7 +8,8 @@
 #include "Common/World/World.h"
 #include "EntityManagerServer.h"
 #include "Logger.h"
-#include "../lua/LuaManager.h"
+#include "ScriptingManager.h"
+#include "EventManager.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -49,13 +50,23 @@ namespace NetworkingServer {
 				case Packet::MouseState:
 				{
 					auto data = GetDataFromClient<MouseStateData>(credentials);
-					LuaManager::MouseEvent(credentials.UUID, data.LeftMouse, data.RightMouse, data.MiddleMouse);
+
+					MouseEvent mouseEvent(credentials.UUID,data.LeftMouse, data.RightMouse, data.MiddleMouse);
+					if (data.LeftMouse == MouseState::Click || data.MiddleMouse == MouseState::Click || data.RightMouse == MouseState::Click)
+						EventManager::AddMouseEvent(mouseEvent);
 					break;
 				}
 				case Packet::KeyPress:
 				{
 					auto data = GetDataFromClient<KeyData>(credentials);
-					if (data.PKeyPressed == true) LuaManager::LoadScripts();
+					//if (data.PKeyPressed == true) LuaManager::LoadScripts();
+					break;
+				}
+				case Packet::Command:
+				{
+					auto data = GetDataFromClient<CommandData>(credentials);
+					CommandEvent commandEvent(credentials.UUID, data.command);
+					EventManager::AddCommandEvent(commandEvent);
 					break;
 				}
 			}
@@ -133,16 +144,6 @@ namespace NetworkingServer {
 			data.player = *EntityManagerServer::GetPlayer(credentials.UUID);
 			data.BlockCount = Block::GetBlockCount();
 			data.ItemCount = Item::GetItemCount();
-			data.WorldGen = {
-				Block::FillerBlock,
-				Block::UndergroundBlock,
-				Block::DirtBlock,
-				Block::DryTopBlock,
-				Block::WetTopBlock,
-				Block::DeadTopBlock,
-				Block::StoneTopBlock,
-				Block::OreBlock,
-			};
 			SendDataToClient(credentials.UUID,Packet::None, data);
 
 			for (int i = 0; i < Block::GetBlockCount(); i++)

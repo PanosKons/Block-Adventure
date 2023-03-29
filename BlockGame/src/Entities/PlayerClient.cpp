@@ -7,7 +7,6 @@
 #include "Common/World/WorldManager.h"
 #include "Logger.h"
 #include "Networking/NetworkingClient.h"
-#include "UI/Commands.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
@@ -37,9 +36,18 @@ void PlayerClient::KeyPressed(int key, int action)
 	{
 		IsGUIOpen = true;
 	}
+	if (key == Key::UpArrow)
+	{
+		chatbox = lastCommand;
+	}
 	if (key == Key::Enter && IsGUIOpen)
 	{
-		Commands::ExecuteCommand(chatbox);
+		{
+			CommandData data;
+			strcpy_s(data.command.data(),data.command.size() - 1, chatbox.c_str());
+			NetworkingClient::SendDataToServer(Packet::Command, data);
+		}
+		lastCommand = chatbox;
 		chatbox = "";
 		IsGUIOpen = false;
 	}

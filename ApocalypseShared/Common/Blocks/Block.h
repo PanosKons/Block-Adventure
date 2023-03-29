@@ -2,24 +2,18 @@
 #include "Common/Math/Vector.h"
 #include "Common/Entities/Inventory/ItemStack.h"
 
-constexpr int MaxIdLength = 32;
-constexpr int MaxItemTagCount = 8;
 typedef unsigned short BlockType;
-typedef unsigned short ItemTag;
 
 struct BlockProperties //Each block is paired with some properties at global variables
 {
-	std::array<char, MaxIdLength> name;
 	std::array<unsigned char, 6> textureSides;
+	float translucency;
 	bool render;
 	bool transparent;
-	float translucency;
 };
 struct ItemProperties
 {
-	std::array<char, MaxIdLength> name;
 	unsigned char texture;
-	std::array<ItemTag, MaxItemTagCount> itemTags;
 };
 struct BlockData
 {
@@ -39,8 +33,8 @@ public:
 	static BlockProperties& GetBlockProperties(BlockType blocktype);
 	bool operator!=(Block& other);
 	bool IsValid();
-	static BlockType GetBlockType(std::string&& key);
-	static BlockType GetBlockType(std::string& key);
+	//static BlockType GetBlockType(std::string&& key);
+	//static BlockType GetBlockType(std::string& key);
 	inline static int GetBlockCount() { return (int)blockProperties.size(); }
 
 	Vector3<int> Position;
@@ -67,9 +61,7 @@ private:
 class Item
 {
 public:
-	static ItemType GetItemType(std::string&& key);
-	static ItemType GetItemType(std::string& key);
-	static ItemProperties& GetItemProperties(ItemType itemType);
+	static ItemProperties& GetItemProperties(int ItemType);
 	inline static int GetItemCount() { return (int)itemProperties.size(); };
 	//TEMPORARY (UNTIL NETWORKINGSERVER BECOMES A CLASS)
 	inline static std::vector<ItemProperties> itemProperties;

@@ -99,7 +99,6 @@
     <ClCompile Include="src\Core\EntryPoint.cpp" />
     <ClCompile Include="src\Core\GameManager.cpp" />
     <ClCompile Include="src\Core\Client.cpp" />
-    <ClCompile Include="src\UI\Commands.cpp" />
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\World\WorldManagerClient.cpp" />
   </ItemGroup>
@@ -115,7 +114,6 @@
     <ClInclude Include="src\Scenes\Scene.h" />
     <ClInclude Include="src\Core\GameManager.h" />
     <ClInclude Include="src\Core\Client.h" />
-    <ClInclude Include="src\UI\Commands.h" />
     <ClInclude Include="src\Core\Renderer.h" />
     <ClInclude Include="src\World\WorldManagerClient.h" />
   </ItemGroup>

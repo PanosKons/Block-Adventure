@@ -91,17 +91,6 @@ void NetworkingClient::Connect()
 	//Receive Player data
 	StartData data = NetworkingClient::GetDataFromServer<StartData>();
 
-	//TEMPORARY
-	//TRY TO REMOVE THIS CODE TO SEE IF IT WORKS
-	Block::FillerBlock = data.WorldGen[0];
-	Block::UndergroundBlock = data.WorldGen[1];
-	Block::DirtBlock = data.WorldGen[2];
-	Block::DryTopBlock = data.WorldGen[3];
-	Block::WetTopBlock = data.WorldGen[4];
-	Block::DeadTopBlock = data.WorldGen[5];
-	Block::StoneTopBlock = data.WorldGen[6];
-	Block::OreBlock = data.WorldGen[7];
-
 	for (int i = 0; i < data.BlockCount; i++)
 	{
 		Block::blockProperties.push_back(NetworkingClient::GetDataFromServer<BlockProperties>());

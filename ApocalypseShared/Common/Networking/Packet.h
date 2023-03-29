@@ -23,7 +23,8 @@ enum class Packet
 
 	//ServerBound
 	MouseState, //Server
-	KeyPress,
+	KeyPress, //Server
+	Command, // Server
 };
 
 constexpr int MAX_PLAYERS = 20;
@@ -55,7 +56,6 @@ struct StartData
 	Player player;
 	int BlockCount;
 	int ItemCount;
-	std::array<int, 8> WorldGen; // TEMPORARY
 };
 struct ReplaceBlockData
 {
@@ -66,6 +66,10 @@ struct KeyData
 {
 	bool PKeyPressed = false;
 	bool RKeyPressed = false;
+};
+struct CommandData
+{
+	Command command;
 };
 //constexpr int SizePacket = sizeof(PACKET_ID);
 //
