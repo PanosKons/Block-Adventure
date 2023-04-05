@@ -5,6 +5,7 @@
 #include "Common/Math/Vector.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
+#undef CreateWindow
 
 namespace Renderer
 {
@@ -31,5 +32,6 @@ namespace RenderBuilder
 	void AddSquare(RenderData& renderData, Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID, float layer = 0.0f);
 	void AddText(RenderData& renderData, std::string_view Text, Vector2<float> Position, float layer = 0.0f);
 	void AddCube(RenderData& renderData, Vector3<float> Position, Vector3<float> Size, Vector4<float> Color);
+	void AddMesh(RenderData& renderData, Vector3<float> Position, Vector3<float> Size, Vector4<float> Color, unsigned int slot);
 	void End(RenderData& renderData);
 };

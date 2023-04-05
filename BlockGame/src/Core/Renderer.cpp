@@ -6,6 +6,7 @@
 #include "Rendering/Shader.h"
 #include "Rendering/Texture.h"
 #include "Rendering/VertexBufferLayout.h"
+#include "Rendering/MeshParser.h"
 #include "GameManager.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
@@ -62,6 +63,8 @@ namespace Renderer {
 		Texture::Load("res/textures/text.png", 13);
 		Texture::Load("res/textures/slot.png", 14);
 		Texture::Load("res/textures/Robbie.png", 0);
+
+		MeshParser::ParseMesh("untitled.obj",0);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -69,7 +72,7 @@ namespace Renderer {
 	}
 	void Render()
 	{
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.4f, 0.6f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (RenderCommand& renderCommand : RenderCommandQueue)
@@ -165,6 +168,28 @@ namespace RenderBuilder {
 		vertex.position.y -= Size.y;
 		renderData.vertexBuffer.Add(vertex);
 		renderData.indexBuffer.AddRectangle();
+	}
+	void AddMesh(RenderData& renderData, Vector3<float> Position, Vector3<float> Size, Vector4<float> Color, unsigned int slot)
+	{
+		VertexIndexData& vid = MeshParser::GetMesh(0);
+
+		Vertex vertex;
+		vertex.color = {1.0f,1.0f,1.0f,1.0f};
+		vertex.texCords = { 0,0 };
+		vertex.texId = -1;
+
+		for (size_t i = 0; i < vid.indices.size(); i += 4)
+		{
+			vertex.position = Position + vid.vertices[i+1];
+			renderData.vertexBuffer.Add(vertex);
+			vertex.position = Position + vid.vertices[i];
+			renderData.vertexBuffer.Add(vertex);
+			vertex.position = Position + vid.vertices[i+2];
+			renderData.vertexBuffer.Add(vertex);
+			vertex.position = Position + vid.vertices[i+3];
+			renderData.vertexBuffer.Add(vertex);
+			renderData.indexBuffer.AddRectangle();
+		}
 	}
 	void AddText(RenderData& renderData, std::string_view Text, Vector2<float> Position, float layer)
 	{

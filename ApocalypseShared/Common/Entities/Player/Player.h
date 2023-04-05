@@ -29,6 +29,18 @@ enum Action
 {
 	Release, Press, Repeat
 };
+constexpr int MaxGUISlots = 10;
+struct Gui
+{
+	struct Slot
+	{
+		Vector2<float> Position;
+		bool Active = false;
+	};
+
+	Vector4<float> Color;
+	std::array<Slot, MaxGUISlots> Slots;
+};
 
 class Player : public Entity
 {

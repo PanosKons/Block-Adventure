@@ -7,7 +7,7 @@
 Player::Player(Credentials& credentials)
 	:credentials(credentials),IsReadyToReceivePackets(false)
 {
-	Position = { 20,60,260 };
+	Position = { 2600,80,2600 };
 	Hitbox = { 0.6, 1.8 ,0.6 };
 	Velocity = { 0,0,0 };
 	MaxHealth = 100.0f;

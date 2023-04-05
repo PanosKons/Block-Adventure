@@ -7,6 +7,7 @@
 #include "Common/World/WorldManager.h"
 #include "Logger.h"
 #include "Networking/NetworkingClient.h"
+#include "Renderer.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
@@ -100,6 +101,7 @@ void PlayerClient::CursorMoved(double xpos, double ypos)
 
 void PlayerClient::InputTick(double TimeStep)
 {
+	Renderer::HideCursor(!IsGUIOpen);
 	//Use C to zoom
 	{
 		if (Input::GetKeyState(Key::C) == Action::Press && !IsGUIOpen)

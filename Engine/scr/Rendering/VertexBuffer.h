@@ -15,6 +15,7 @@ public:
 	VertexBuffer();
 	~VertexBuffer();
 	void Add(Vertex& Element);
+
 	void Allocate();
 	void Bind();
 	void Clear();

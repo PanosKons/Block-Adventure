@@ -4,6 +4,7 @@
 #include "NetworkingServer.h"
 #include "Common/Math/EngineMath.h"
 
+
 void WorldManagerServer::SendAppropriateChunks()
 {
 	for (auto& [UUID, player] : EntityManagerServer::Players)
@@ -41,6 +42,11 @@ void WorldManagerServer::SendAppropriateChunks()
 			}
 		}
 	}
+}
+void WorldManagerServer::IncrementRenderDistance(int value)
+{
+	RenderDistance += value;
+	UnloadRenderDistance = RenderDistance + 1;
 }
 bool WorldManagerServer::ShouldRemoveChunk(Chunk* chunk)
 {

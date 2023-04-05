@@ -6,7 +6,6 @@
 #include "GameScene.h"
 #include "Logger.h"
 
-#include "MeshParser.h"
 void MainMenuScene::Start()
 {
 	INFO("MainMenuScene Started");

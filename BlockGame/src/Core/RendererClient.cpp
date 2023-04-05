@@ -6,7 +6,6 @@
 #include "Logger.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
-#include "MeshParser.h"
 #define ONEOVER16 0.0625f
 float GetDistanceSquaredFromPlayer(Chunk* chunk)
 {
@@ -202,6 +201,8 @@ void RendererClient::RenderEntities()
 		if(UUID != EntityManagerClient::GetPlayer().credentials.UUID)
 			RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(player->Position), Vector::FloatVector(player->Hitbox), { 0.8f,1.0f,0.9f,1.0f });
 	}
+	//RenderBuilder::AddMesh(EntityRenderData, {2600,80,2600},{1,1,1}, { 0.8f,1.0f,0.9f,1.0f },0);
+	// 
 	//Render block selection
 	#define WIDTH 0.04f
 	#define OP_WIDTH 1.0f - WIDTH
@@ -480,7 +481,10 @@ void RendererClient::RenderEntities()
 			EntityRenderData.indexBuffer.AddRectangle();
 		}
 	}
+
+
 	RenderBuilder::End(EntityRenderData);
+
 	Renderer::RenderCommand command;
 	command.view = Renderer::View::Player;
 	command.Depth = true;
@@ -493,6 +497,7 @@ constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
 constexpr float SlotsX = 64.0f;
 constexpr float charHeight = 16.0f;
+
 void RendererClient::RenderUI(double TimeStep)
 {
 	RenderBuilder::Begin(UIRenderData);
@@ -544,6 +549,21 @@ void RendererClient::RenderUI(double TimeStep)
 			Vector2<float> TypingText = { 0.0f,160.0f };
 			RenderBuilder::AddText(UIRenderData, EntityManagerClient::GetPlayer().chatbox, TypingText);
 			RenderBuilder::AddSquare(UIRenderData,{ 0.0f,0.0f}, { (float)Client::ScreenWidth, charHeight }, { 0.2f, 0.2f, 0.2f, 0.6f }, { 0.0f,0.0f }, { 1.0f,1.0f }, -1,BaseLayer - 0.1f);
+		}
+	}
+	//Add Gui
+	{
+		if (EntityManagerClient::GetPlayer().IsGUIOpen == true)
+		{
+			Gui& gui = EntityManagerClient::GetPlayer().gui;
+			RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 4, (float)Client::ScreenHeight / 4 }, { (float)Client::ScreenWidth / 2, (float)Client::ScreenHeight / 2 }, gui.Color, { 0,0 }, { 1,1 }, -1);
+			for (auto& slot : gui.Slots)
+			{
+				if (slot.Active == true)
+				{
+					RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 4 + SlotsX * slot.Position.x + 2, (float)Client::ScreenHeight / 4 + SlotsX * slot.Position.y + 2 }, { SlotsX - 2,SlotsX -2 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, {0,0}, -1);
+				}
+			}
 		}
 	}
 	RenderBuilder::End(UIRenderData);

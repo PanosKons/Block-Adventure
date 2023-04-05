@@ -63,6 +63,12 @@ void HandleMessage()
 			PlayerInventoryData data = NetworkingClient::GetDataFromServer<PlayerInventoryData>();
 			EntityManager::GetPlayer(data.UUID)->Inventory = data.Inventory;
 		}
+		case Packet::HandleGui:
+		{
+			GuiData data = NetworkingClient::GetDataFromServer<GuiData>();
+			EntityManagerClient::GetPlayer().IsGUIOpen = data.Open;
+			EntityManagerClient::GetPlayer().gui = data.gui;
+		}
 		}
 	}
 }

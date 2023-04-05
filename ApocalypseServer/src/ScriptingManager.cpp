@@ -259,6 +259,18 @@ static void SetPosition(uint64_t UUID, Vector3<double> Position)
     data.UUID = UUID;
     NetworkingServer::SendDataAllClients(Packet::PlayerPosition, data);
 }
+static void IncrementRenderDistance(int value)
+{
+    WorldManagerServer::IncrementRenderDistance(value);
+}
+static void HandleGui(uint64_t UUID,Vector4<float> Color,Gui::Slot* Slots,int SlotCount, bool Open)
+{
+    GuiData data;
+    data.gui.Color = Color;
+    std::copy(Slots, Slots + SlotCount, data.gui.Slots.begin());
+    data.Open = Open;
+    NetworkingServer::SendDataToClient(UUID,Packet::HandleGui, data);
+}
 
 void ScriptingManager::RegisterInternalCalls()
 {
@@ -266,10 +278,13 @@ void ScriptingManager::RegisterInternalCalls()
     mono_add_internal_call("Scripting.Block::GetPlayerFacingBlock", GetPlayerFacingBlock);
     mono_add_internal_call("Scripting.Block::GetPlayerBlockToPlace", GetPlayerBlockToPlace);
     mono_add_internal_call("Scripting.Block::ReplaceBlock", ReplaceBlock);
+
     mono_add_internal_call("Scripting.Player::AddItemToInventory", AddItemToInventory);
     mono_add_internal_call("Scripting.Player::RemoveItemFromInventory", RemoveItemFromInventory);
     mono_add_internal_call("Scripting.Player::SetPosition", SetPosition);
     mono_add_internal_call("Scripting.Player::GetHoldingItemStack", GetHoldingItemStack);
+    mono_add_internal_call("Scripting.Player::IncrementRenderDistance", IncrementRenderDistance);
+    mono_add_internal_call("Scripting.Player::HandleGui", HandleGui);
 }
 
 void ScriptingManager::OnMouseEvent(uint64_t UUID, MouseState LeftMouse, MouseState RightMouse, MouseState MiddleMouse)
@@ -347,13 +362,11 @@ void ScriptingManager::Start()
     MonoMethod* GetBlockCount = mono_class_get_method_from_name(DataClass, "GetBlockCount", 0);
     MonoObject* countObj = mono_runtime_invoke(GetBlockCount, nullptr, nullptr, nullptr);
     int BlockCount = *(int*)mono_object_unbox(countObj);
-    MonoMethod* GetBlock = mono_class_get_method_from_name(DataClass, "GetBlock", 0);
-    for (int i = 0; i < BlockCount; i++)
-    {
-        MonoObject* blocksObj = mono_runtime_invoke(GetBlock, nullptr, nullptr, nullptr);
-        auto blockProperties = *(BlockProperties*)mono_object_unbox(blocksObj);
-        Block::blockProperties.push_back(blockProperties);
-    }
+    MonoMethod* GetBlocks = mono_class_get_method_from_name(DataClass, "GetBlocks", 0);
+    MonoObject* blocksObj = mono_runtime_invoke(GetBlocks, nullptr, nullptr, nullptr);
+    auto blockProperties = *(BlockProperties**)mono_object_unbox(blocksObj);
+    Block::blockProperties = std::vector(blockProperties, blockProperties + BlockCount);
+
     Block::FillerBlock = worldgendata.Filler;
     Block::UndergroundBlock = worldgendata.UnderGround;
     Block::DirtBlock = worldgendata.Dirt;
@@ -367,10 +380,8 @@ void ScriptingManager::Start()
     MonoMethod* GetItemCount = mono_class_get_method_from_name(DataClass, "GetItemCount", 0);
     MonoObject* icountObj = mono_runtime_invoke(GetItemCount, nullptr, nullptr, nullptr);
     int ItemCount = *(int*)mono_object_unbox(icountObj);
-    MonoMethod* GetItem = mono_class_get_method_from_name(DataClass, "GetItem", 0);
-    for (int i = 0; i < ItemCount; i++)
-    {
-        MonoObject* itemsObj = mono_runtime_invoke(GetItem, nullptr, nullptr, nullptr);
-        Item::itemProperties.push_back(*(ItemProperties*)mono_object_unbox(itemsObj));
-    }
+    MonoMethod* GetItems = mono_class_get_method_from_name(DataClass, "GetItems", 0);
+    MonoObject* itemsObj = mono_runtime_invoke(GetItems, nullptr, nullptr, nullptr);
+    auto itemProperties = *(ItemProperties**)mono_object_unbox(itemsObj);
+    Item::itemProperties = std::vector(itemProperties, itemProperties + ItemCount);
 }

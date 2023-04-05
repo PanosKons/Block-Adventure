@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Scripting
@@ -29,36 +30,44 @@ namespace Scripting
         public BlockType Ore = BlockType.Iron;
         public BlockType Water = BlockType.Water;
     }
-    public static class Data
+    public unsafe static class Data
     {
-        public static List<BlockProperties> Blocks = new List<BlockProperties>();
-        public static List<ItemProperties> Items = new List<ItemProperties>();
-
+        public static BlockProperties[] Blocks = new BlockProperties[(int)BlockType.BlockTypeSize];
+        public static ItemProperties[] Items = new ItemProperties[(int)ItemType.ItemTypeSize];
         public static WorldGenerationData GetWorldGenerationData()
         {
             return new WorldGenerationData();
         }
-
-        static int j = -1;
-        public static ItemProperties GetItem()
+        public static void* GetItems()
         {
-            j++;
-            return Items[j];
+            fixed (void* pointer = Items)
+            {
+                return pointer;
+            }
         }
         public static int GetItemCount()
         {
-            return Items.Count;
+            return Items.Length;
         }
         public static int GetBlockCount()
         {
-            return Blocks.Count;
+            return Blocks.Length;
         }
-
-        static int i = -1;
-        public static BlockProperties GetBlock()
+        public static void* GetBlocks()
         {
-            i++;
-            return Blocks[i];
+            fixed (void* pointer = Blocks)
+            {
+                return pointer;
+            }
+        }
+    }
+    public struct Vector2<T>
+    {
+        public T x;
+        public T y;
+        public Vector2(T x, T y)
+        {
+            this.x = x; this.y = y;
         }
     }
     public struct Vector3<T>
@@ -70,6 +79,27 @@ namespace Scripting
         {
             this.x = x; this.y = y; this.z = z;
         }
+    }
+    public struct Vector4<T>
+    {
+        public T x;
+        public T y;
+        public T z;
+        public T w;
+        public Vector4(T x, T y, T z, T w)
+        {
+            this.x = x; this.y = y; this.z = z; this.w = w;
+        }
+    }
+    public struct Slot
+    {
+        public Vector2<float> Position;
+        public bool Active;
+    }
+    public struct Gui
+    {
+        public Vector4<float> Color;
+        public Slot[] Slots;
     }
     public struct Block
     {
@@ -95,7 +125,7 @@ namespace Scripting
         public ItemType Type;
         public int Count;
     }
-    public struct Player
+    public unsafe struct Player
     {
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void AddItemToInventory(ulong UUID, ItemStack Item);
@@ -107,6 +137,18 @@ namespace Scripting
         public extern static void RemoveItemFromInventory(ulong UUID, ItemStack Item);
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void GetHoldingItemStack(ulong UUID, out ItemStack Item);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void IncrementRenderDistance(int value);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void HandleGui(ulong UUID, Vector4<float> Color,void* Slots, int SlotCount, bool Open);
+
+        public static void HandleGui(ulong UUID, Gui gui, bool Open)
+        {
+            fixed(void* Slots = gui.Slots)
+            {
+                HandleGui(UUID, gui.Color, Slots,gui.Slots.Length, Open);
+            }
+        }
     }
     public struct Texture
     {
@@ -155,14 +197,11 @@ namespace Scripting
         }
         public byte ItemTexture;
     }
-    public static class Event
+    public unsafe static class Event
     {
         public static void Initialize()
         {
             Console.WriteLine("Initialized C# !");
-
-            for(int i = 0; i < (int)BlockType.BlockTypeSize; i++)
-                Data.Blocks.Add(new BlockProperties());
 
             Data.Blocks[(int)BlockType.Air] = new BlockProperties(false, false, 1.0f, new Texture( 0, 0, 0, 0, 0, 0 ));
             Data.Blocks[(int)BlockType.Grass] = new BlockProperties(true, false, 1.0f, new Texture( 1, 1, 1, 1, 2, 0 ));
@@ -174,9 +213,6 @@ namespace Scripting
             Data.Blocks[(int)BlockType.Iron] =  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(6));
             Data.Blocks[(int)BlockType.Leaves] =  new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(8));
             Data.Blocks[(int)BlockType.Water] = new BlockProperties(true, true, 0.4f, Texture.SimpleBlock(14));
-
-            for (int i = 0; i < (int)ItemType.ItemTypeSize; i++)
-                Data.Items.Add(new ItemProperties());
 
             Data.Items[(int)BlockType.Air] = new ItemProperties(0);
             Data.Items[(int)BlockType.Grass] = new ItemProperties(1);
@@ -200,6 +236,7 @@ namespace Scripting
         public static void OnRightClick(ulong UUID)
         {
             Block.GetPlayerBlockToPlace(UUID, out Block block);
+            Block.GetPlayerFacingBlock(UUID, out Block block2);
             if (block.Type != BlockType.Invalid)
             {
                 Player.GetHoldingItemStack(UUID, out ItemStack Item);
@@ -208,6 +245,10 @@ namespace Scripting
                     Block.ReplaceBlock(block, (BlockType)Item.Type);
                     Item.Count = 1;
                     Player.RemoveItemFromInventory(UUID, Item);
+                }
+                else if(Item.Count == 0 && block2.Type == BlockType.DryGrass)
+                {
+                    Block.ReplaceBlock(block2, BlockType.Dirt);
                 }
             }
         }
@@ -224,24 +265,85 @@ namespace Scripting
         }
         public static void OnMiddleClick(ulong UUID)
         {
-            Player.AddItemToInventory(UUID, new ItemStack((ItemType)BlockType.Glass, 3));
+            Player.IncrementRenderDistance(1);
+            Gui gui = new()
+            {
+                Color = new(0.6f, 0.6f, 0.6f, 0.7f),
+                Slots = new Slot[] {
+                    new() { Position = new Vector2<float>(1, 1), Active = true},
+                    new() { Position = new Vector2<float>(0, 0), Active = true},
+                    new() { Position = new Vector2<float>(0, 1), Active = true},
+                    new() { Position = new Vector2<float>(1, 0), Active = true},
+                }
+            };
+            fixed (void* pointer = gui.Slots)
+            {
+                Console.WriteLine("RERE:" + (int)pointer);
+            };
+            Player.HandleGui(UUID, gui, true);
         }
         public static void OnCommand(ulong UUID, string Command)
         {
             string[] Tokens = Command.Split(' ');
             if (Tokens[0].Equals("/give"))
             {
-                Player.AddItemToInventory(UUID, new ItemStack(ItemType.Stick, 3));
+                int type;
+                if (Tokens[1] == "block")
+                {
+                    Enum.TryParse(Tokens[2], out BlockType Type);
+                    type = (int)Type;
+                }
+                else
+                {
+                    Enum.TryParse(Tokens[2], out ItemType Type);
+                    type = (int)Type;
+                }
+                Player.AddItemToInventory(UUID, new ItemStack((ItemType)type, int.Parse(Tokens[3])));
+
             }
             else if (Tokens[0].Equals("/clear"))
             {
-                Player.RemoveItemFromInventory(UUID, new ItemStack(ItemType.Stick, 1));
+                int type;
+                if (Tokens[1] == "block")
+                {
+                    Enum.TryParse(Tokens[2], out BlockType Type);
+                    type = (int)Type;
+                }
+                else
+                {
+                    Enum.TryParse(Tokens[2], out ItemType Type);
+                    type = (int)Type;
+                }
+                Player.RemoveItemFromInventory(UUID, new ItemStack((ItemType)type, int.Parse(Tokens[3])));
             }
             else if (Tokens[0].Equals("/tp"))
             {
-                if(Tokens.Length == 4)
+                if (Tokens.Length == 4)
                 {
                     Player.SetPosition(UUID, new Vector3<double>(double.Parse(Tokens[1]), double.Parse(Tokens[2]), double.Parse(Tokens[3])));
+                }
+            }
+            else if (Tokens[0].Equals("/set") && Tokens.Length == 5)
+            {
+                Block.GetBlock(new Vector3<int> ( int.Parse(Tokens[1]), int.Parse(Tokens[2]), int.Parse(Tokens[3])),out Block block);
+                Enum.TryParse(Tokens[4], out BlockType Type);
+                Block.ReplaceBlock(block, Type);
+            }
+            else if (Tokens[0].Equals("/set") && Tokens.Length == 8)
+            {
+                Vector3<int> StartPosition = new Vector3<int>(int.Parse(Tokens[1]), int.Parse(Tokens[2]), int.Parse(Tokens[3]));
+                Vector3<int> EndPosition = new Vector3<int>(int.Parse(Tokens[4]), int.Parse(Tokens[5]), int.Parse(Tokens[6]));
+                for (int x = StartPosition.x; x <= EndPosition.x; x++)
+                {
+                    for (int y = StartPosition.y; y <= EndPosition.y; y++)
+                    {
+                        for (int z = StartPosition.z; z <= EndPosition.z; z++)
+                        {
+                            Block.GetBlock(new Vector3<int>(x,y,z), out Block block);
+                            Enum.TryParse(Tokens[7], out BlockType Type);
+                            Block.ReplaceBlock(block, Type); 
+                        }
+                    }
                 }
             }
         }

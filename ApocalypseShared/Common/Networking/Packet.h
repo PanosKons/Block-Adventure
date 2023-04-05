@@ -15,6 +15,7 @@ enum class Packet
 	ReplaceBlock, //Client
 	NewChunk, //Client
 	DeleteChunk, //Client
+	HandleGui, //Client
 
 	//Mutual
 	PlayerPosition, //Server, Client
@@ -71,4 +72,9 @@ struct KeyData
 struct CommandData
 {
 	Command command;
+};
+struct GuiData
+{
+	Gui gui;
+	bool Open;
 };
