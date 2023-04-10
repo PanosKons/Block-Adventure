@@ -58,6 +58,7 @@ struct StartData
 	Player player;
 	int BlockCount;
 	int ItemCount;
+	int ModelCount;
 };
 struct ReplaceBlockData
 {

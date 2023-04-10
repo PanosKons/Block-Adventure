@@ -7,6 +7,7 @@ typedef unsigned short BlockType;
 struct BlockProperties //Each block is paired with some properties at global variables
 {
 	std::array<unsigned char, 6> textureSides;
+	int model;
 	float translucency;
 	bool render;
 	bool transparent;
@@ -19,7 +20,24 @@ struct BlockData
 {
 	BlockType blockId;
 	unsigned char RenderedSides = 64;
-	//unsigned char BlockProperties;
+	unsigned char Properties;
+};
+constexpr int MaxFaceCount = 6;
+enum class Direction
+{
+	Forward, Backward, Right, Left, Up, Down
+};
+struct Face
+{
+	Vector3<float> position;
+	Vector2<float> size;
+	Direction direction;
+	unsigned char condition;
+	unsigned char textureIndex;
+};
+struct Model
+{
+	std::array<Face, MaxFaceCount> Faces;
 };
 class Block
 {
@@ -31,9 +49,11 @@ public:
 	BlockType GetBlockId() const;
 	BlockProperties& GetBlockProperties() const;
 	static BlockProperties& GetBlockProperties(BlockType blocktype);
+	Model& GetBlockModel() const;
 	bool operator!=(Block& other);
 	bool IsValid();
 	inline static int GetBlockCount() { return (int)blockProperties.size(); }
+	inline static int GetBlockModelCount() { return (int)blockModels.size(); }
 
 	Vector3<int> Position;
 
@@ -49,11 +69,11 @@ public:
 	inline static BlockType WaterBlock;
 	//TEMPORARY (UNTIL NETWORKINGSERVER BECOMES A CLASS)
 	inline static std::vector<BlockProperties> blockProperties;
+	inline static std::vector<Model> blockModels;
 private:
 	BlockData* data;
 
 	friend class WorldManager;
-	friend class LuaManager;
 	friend class RendererClient;
 	friend class Networking;
 };
@@ -63,6 +83,4 @@ public:
 	static ItemProperties& GetItemProperties(int ItemType);
 	inline static int GetItemCount() { return (int)itemProperties.size(); };
 	inline static std::vector<ItemProperties> itemProperties;
-private:
-	friend class LuaManager;
 };

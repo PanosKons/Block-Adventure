@@ -1,24 +1,16 @@
 #pragma once
-#include "../Engine/scr/vendor/glm/glm.hpp"
-#include "../Engine/scr/vendor/glm/gtc/matrix_transform.hpp"
-#include "../Engine/scr/vendor/glm/gtc/type_ptr.hpp"
+#include "Vector.h"
 
 class Ray {
 public:
-	Ray(const glm::vec3& position, float pitch, float yaw);
+	Ray(const Vector3<double>& position, float pitch, float yaw);
+	void Step(double scale);
+	Vector3<double> GetDirection();
+	inline double GetLengthSquared() const { return (CurrentPosition.x - StartPosition.x) * (CurrentPosition.x - StartPosition.x) + (CurrentPosition.y - StartPosition.y) * (CurrentPosition.y - StartPosition.y) + (CurrentPosition.z - StartPosition.z) * (CurrentPosition.z - StartPosition.z); };
 
-	void step(float scale);
-
-	const glm::vec3& getEnd() const;
-
-	float getLength() const;
-
-	const glm::vec3& getLast() const;
-
-private:
-	glm::vec3 m_rayStart;
-	glm::vec3 m_rayEnd;
-	glm::vec3 m_last;
-	float m_pitch;
-	float m_yaw;
+	Vector3<double> StartPosition;
+	Vector3<double> CurrentPosition;
+	Vector3<double> LastPosition;
+	float Yaw;
+	float Pitch;
 };

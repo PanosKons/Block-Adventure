@@ -6,11 +6,15 @@ namespace Scripting
 {
     public enum BlockType
     {
-        Invalid = -1, Air, Grass, Dirt, Stone, Glass, Leaves, Log, Water, DryGrass, Iron, BlockTypeSize
+        Invalid = -1, Air, Grass, Dirt, Stone, Glass, Leaves, Log, Water, DryGrass, Iron, DirtSlab, BlockTypeSize
     }
     public enum ItemType
     {
         Invalid = -1, Drygrassblade = BlockType.BlockTypeSize, Stick, StonePickaxe, ItemTypeSize
+    }
+    public enum ModelType
+    {
+        SolidBlock, Slab, ModelTypeSize
     }
     public struct WorldGenerationData
     {
@@ -34,6 +38,7 @@ namespace Scripting
     {
         public static BlockProperties[] Blocks = new BlockProperties[(int)BlockType.BlockTypeSize];
         public static ItemProperties[] Items = new ItemProperties[(int)ItemType.ItemTypeSize];
+        public static Model[] Models = new Model[(int)ModelType.ModelTypeSize];
         public static WorldGenerationData GetWorldGenerationData()
         {
             return new WorldGenerationData();
@@ -59,6 +64,21 @@ namespace Scripting
             {
                 return pointer;
             }
+        }
+        public static int GetModelCount()
+        {
+            return Models.Length;
+        }
+        public static void* GetModel(int index)
+        {
+            fixed (void* pointer = Models[index].faces)
+            {
+                return pointer;
+            }
+        }
+        public static int GetFaceCount(int index)
+        {
+            return Models[index].faces.Length;
         }
     }
     public struct Vector2<T>
@@ -95,6 +115,30 @@ namespace Scripting
     {
         public Vector2<float> Position;
         public bool Active;
+    }
+    public struct Model
+    {
+        public Face[] faces;
+    }
+    public enum Direction
+    {
+        Forward, Backward, Right, Left, Up, Down
+    }
+    public struct Face
+    {
+        public Face(Vector3<float> Position, Vector2<float> Size, Direction Direction, byte Condition, byte TextureIndex)
+        {
+            this.Position = Position;
+            this.Size = Size;
+            this.Direction = Direction;
+            this.Condition = Condition;
+            this.TextureIndex = TextureIndex;
+        }
+        public Vector3<float> Position;
+        public Vector2<float> Size;
+        public Direction Direction;
+        public byte Condition;
+        public byte TextureIndex;
     }
     public struct Gui
     {
@@ -176,15 +220,17 @@ namespace Scripting
     }
     public struct BlockProperties
     {
-        public BlockProperties( bool Render, bool Transparent, float Translucency, Texture BlockTexture)
+        public BlockProperties( bool Render, bool Transparent, float Translucency, Texture BlockTexture, ModelType Model = ModelType.SolidBlock)
         {
             this.Render = Render;
             this.Transparent = Transparent;
             this.Translucency = Translucency;
             this.BlockTexture = BlockTexture;
+            this.Model = Model;
         }
 
         public Texture BlockTexture;
+        public ModelType Model = ModelType.SolidBlock;
         public float Translucency = 1.0f;
         public bool Render = false;
         public bool Transparent = false;
@@ -204,15 +250,16 @@ namespace Scripting
             Console.WriteLine("Initialized C# !");
 
             Data.Blocks[(int)BlockType.Air] = new BlockProperties(false, false, 1.0f, new Texture( 0, 0, 0, 0, 0, 0 ));
-            Data.Blocks[(int)BlockType.Grass] = new BlockProperties(true, false, 1.0f, new Texture( 1, 1, 1, 1, 2, 0 ));
+            Data.Blocks[(int)BlockType.Grass] = new BlockProperties(true, false, 1.0f, new Texture( 1, 1, 1, 1, 0, 2 ));
             Data.Blocks[(int)BlockType.Log] = new BlockProperties(true, false, 1.0f, new Texture(4, 4, 4, 4, 5, 5));
             Data.Blocks[(int)BlockType.Dirt] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(2));
             Data.Blocks[(int)BlockType.Stone] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(3));
             Data.Blocks[(int)BlockType.Glass] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(7));
-            Data.Blocks[(int)BlockType.DryGrass] = new BlockProperties(true, false, 1.0f, new Texture(12, 12, 12, 12, 2, 10));
+            Data.Blocks[(int)BlockType.DryGrass] = new BlockProperties(true, false, 1.0f, new Texture(12, 12, 12, 12, 10, 2));
             Data.Blocks[(int)BlockType.Iron] =  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(6));
             Data.Blocks[(int)BlockType.Leaves] =  new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(8));
             Data.Blocks[(int)BlockType.Water] = new BlockProperties(true, true, 0.4f, Texture.SimpleBlock(14));
+            Data.Blocks[(int)BlockType.DirtSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2),ModelType.Slab);
 
             Data.Items[(int)BlockType.Air] = new ItemProperties(0);
             Data.Items[(int)BlockType.Grass] = new ItemProperties(1);
@@ -224,10 +271,36 @@ namespace Scripting
             Data.Items[(int)BlockType.Iron] = new ItemProperties(6);
             Data.Items[(int)BlockType.Leaves] = new ItemProperties(8);
             Data.Items[(int)BlockType.Water] = new ItemProperties(14);
+            Data.Items[(int)BlockType.DirtSlab] = new ItemProperties(2);
 
             Data.Items[(int)ItemType.Drygrassblade] = new ItemProperties(9);
             Data.Items[(int)ItemType.Stick] = new ItemProperties(11);
             Data.Items[(int)ItemType.StonePickaxe] = new ItemProperties(13);
+
+            Data.Models[(int)ModelType.SolidBlock] = new Model()
+            {
+                faces = new Face[]
+                {
+                    new Face(new Vector3<float>(1.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Left, 2, 1),
+                    new Face(new Vector3<float>(0.0f,0.0f,1.0f), new Vector2<float>(1.0f,1.0f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,1.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32, 5),
+                }
+            };
+            Data.Models[(int)ModelType.Slab] = new Model()
+            {
+                faces = new Face[]
+    {
+                    new Face(new Vector3<float>(1.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Left, 2, 1),
+                    new Face(new Vector3<float>(0.0f,0.0f,1.0f), new Vector2<float>(1.0f,0.5f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,0.5f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32 ,5),
+    }
+            };
         }
         public static void Update(double TimeStep,int two)
         {

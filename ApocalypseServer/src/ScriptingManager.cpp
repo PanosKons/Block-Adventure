@@ -384,4 +384,21 @@ void ScriptingManager::Start()
     MonoObject* itemsObj = mono_runtime_invoke(GetItems, nullptr, nullptr, nullptr);
     auto itemProperties = *(ItemProperties**)mono_object_unbox(itemsObj);
     Item::itemProperties = std::vector(itemProperties, itemProperties + ItemCount);
+
+    MonoMethod* GetModelCount = mono_class_get_method_from_name(DataClass, "GetModelCount", 0);
+    MonoObject* mcountObj = mono_runtime_invoke(GetModelCount, nullptr, nullptr, nullptr);
+    int ModelCount = *(int*)mono_object_unbox(mcountObj);
+    MonoMethod* GetModel = mono_class_get_method_from_name(DataClass, "GetModel", 1);
+    MonoMethod* GetFaceCount = mono_class_get_method_from_name(DataClass, "GetFaceCount", 1);
+    for (size_t i = 0; i < ModelCount; i++)
+    {
+        void* p = &i;
+        MonoObject* faceObj = mono_runtime_invoke(GetFaceCount, nullptr, &p, nullptr);
+        int FaceCount = *(int*)mono_object_unbox(faceObj);
+
+        MonoObject* modelObj = mono_runtime_invoke(GetModel, nullptr, &p, nullptr);
+        auto faces = *(Face**)mono_object_unbox(modelObj);
+        Block::blockModels.emplace_back();
+        std::copy(faces, faces + FaceCount, Block::blockModels[i].Faces.begin());
+    }
 }

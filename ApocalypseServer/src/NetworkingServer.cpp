@@ -145,11 +145,16 @@ namespace NetworkingServer {
 			data.player = *EntityManagerServer::GetPlayer(credentials.UUID);
 			data.BlockCount = Block::GetBlockCount();
 			data.ItemCount = Item::GetItemCount();
+			data.ModelCount = Block::GetBlockModelCount();
 			SendDataToClient(credentials.UUID,Packet::None, data);
 
 			for (int i = 0; i < Block::GetBlockCount(); i++)
 			{
 				SendDataToClient(credentials.UUID, Packet::None, Block::blockProperties[i]);
+			}
+			for (int i = 0; i < Block::GetBlockModelCount(); i++)
+			{
+				SendDataToClient(credentials.UUID, Packet::None, Block::blockModels[i]);
 			}
 			for (int i = 0; i < Item::GetItemCount(); i++)
 			{

@@ -23,6 +23,10 @@ BlockProperties& Block::GetBlockProperties(BlockType blocktype)
 {
 	return blockProperties[blocktype];
 }
+Model& Block::GetBlockModel() const
+{
+	return blockModels[GetBlockProperties().model];
+}
 BlockProperties& Block::GetBlockProperties() const
 {
 	ASSERT(data, "Invalid block");

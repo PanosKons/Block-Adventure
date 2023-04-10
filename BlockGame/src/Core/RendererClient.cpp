@@ -7,12 +7,269 @@
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
 #define ONEOVER16 0.0625f
+void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction, unsigned char texture, float alpha)
+{
+	Vertex a;
+	a.texId = 0.0f;
+	float texcordsX = (texture % 16) / 16.0f;
+	float texcordsY = (texture / 16) / 16.0f;
+	a.texCords = { texcordsX, texcordsY };
+	switch (direction)
+	{
+	case Direction::Backward:
+	{
+		a.color = { 0.9f,0.9f,0.9f,alpha };
+		a.position = Position;
+		vertexBuffer->Add(a);
+		a.position.x += Size.x;
+		a.texCords.x += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.x = (float)Position.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Forward:
+	{
+		a.color = { 0.85f,0.85f,0.85f,alpha };
+		a.position = Position;
+		a.position.x += Size.x;
+		vertexBuffer->Add(a);
+		a.position.x = Position.x;
+		a.texCords.x += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.x += Size.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Up:
+	{
+		a.color = { 1.0f,1.0f,1.0f,alpha };
+		a.position = Position;
+		a.texCords = { texcordsX, texcordsY };
+		vertexBuffer->Add(a);
+		a.position.x += Size.x;
+		a.texCords.x += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.z += Size.y;
+		a.texCords.y += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.x = Position.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Down:
+	{
+		a.color = { 0.7f,0.7f,0.7f,alpha };
+		a.position = Position;
+		a.texCords = { texcordsX, texcordsY };
+		vertexBuffer->Add(a);
+		a.position.z += Size.x;
+		a.texCords.x += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.x += Size.y;
+		a.texCords.y += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.z = Position.z;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Left:
+	{
+		a.color = { 0.8f,0.8f,0.8f,alpha };
+		a.position = Position;
+		a.position.z += Size.x;
+		a.texCords = { texcordsX, texcordsY };
+		vertexBuffer->Add(a);
+		a.position.z = Position.z;
+		a.texCords.x += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.z += Size.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Right:
+	{
+		a.color = { 0.75f,0.75f,0.75f,alpha };
+		a.position = Position;
+		vertexBuffer->Add(a);
+		a.position.z += Size.x;
+		a.texCords.x += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += ONEOVER16;
+		vertexBuffer->Add(a);
+		a.position.z = Position.z;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	}
+	indexBuffer->AddRectangle();
+}
+void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction)
+{
+	Vertex a;
+	a.texId = 1.0f;
+	float texcordsX = 0.0f;
+	float texcordsY = 0.0f;
+	a.texCords = { texcordsX, texcordsY };
+	switch (direction)
+	{
+	case Direction::Backward:
+	{
+		a.color = { 0.9f,0.9f,0.9f,1 };
+		a.position = Position;
+		vertexBuffer->Add(a);
+		a.position.x += Size.x;
+		a.texCords.x += 1;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += 1;
+		vertexBuffer->Add(a);
+		a.position.x = (float)Position.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Forward:
+	{
+		a.color = { 0.85f,0.85f,0.85f,1 };
+		a.position = Position;
+		a.position.x += Size.x;
+		vertexBuffer->Add(a);
+		a.position.x = Position.x;
+		a.texCords.x += 1;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += 1;
+		vertexBuffer->Add(a);
+		a.position.x += Size.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Up:
+	{
+		a.color = { 1.0f,1.0f,1.0f,1 };
+		a.position = Position;
+		a.texCords = { texcordsX, texcordsY };
+		vertexBuffer->Add(a);
+		a.position.x += Size.x;
+		a.texCords.x += 1;
+		vertexBuffer->Add(a);
+		a.position.z += Size.y;
+		a.texCords.y += 1;
+		vertexBuffer->Add(a);
+		a.position.x = Position.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Down:
+	{
+		a.color = { 0.7f,0.7f,0.7f,1 };
+		a.position = Position;
+		a.texCords = { texcordsX, texcordsY };
+		vertexBuffer->Add(a);
+		a.position.z += Size.x;
+		a.texCords.x += 1;
+		vertexBuffer->Add(a);
+		a.position.x += Size.y;
+		a.texCords.y += 1;
+		vertexBuffer->Add(a);
+		a.position.z = Position.z;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Left:
+	{
+		a.color = { 0.8f,0.8f,0.8f,1 };
+		a.position = Position;
+		a.position.z += Size.x;
+		a.texCords = { texcordsX, texcordsY };
+		vertexBuffer->Add(a);
+		a.position.z = Position.z;
+		a.texCords.x += 1;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += 1;
+		vertexBuffer->Add(a);
+		a.position.z += Size.x;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	case Direction::Right:
+	{
+		a.color = { 0.75f,0.75f,0.75f,1 };
+		a.position = Position;
+		vertexBuffer->Add(a);
+		a.position.z += Size.x;
+		a.texCords.x += 1;
+		vertexBuffer->Add(a);
+		a.position.y += Size.y;
+		a.texCords.y += 1;
+		vertexBuffer->Add(a);
+		a.position.z = Position.z;
+		a.texCords.x = texcordsX;
+		vertexBuffer->Add(a);
+		break;
+	}
+	}
+	indexBuffer->AddRectangle();
+}
 float GetDistanceSquaredFromPlayer(Chunk* chunk)
 {
 	Vector3<float> Pos = { chunk->GetPosition().x * ChunkSize + (float)ChunkSize / 2,chunk->GetPosition().y * ChunkSize + (float)ChunkSize / 2,chunk->GetPosition().z * ChunkSize + (float)ChunkSize / 2 };
 	Pos -= Vector::FloatVector(EntityManagerClient::GetPlayer().Position);
 	return Pos.x * Pos.x + Pos.y * Pos.y + Pos.z * Pos.z;
 }
+void RendererClient::RenderBlock(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Block& block)
+{
+	BlockProperties& bp = block.GetBlockProperties();
+	Vertex a;
+	a.texId = 0.0f;
+	float alpha = block.GetBlockProperties().translucency;
+	//if (block.data->RenderedSides & (unsigned char)1) {
+		//	RenderBlockFace(vertexBuffer, indexBuffer, { (float)block.Position.x + 1.0f,(float)block.Position.y ,(float)block.Position.z }, { 1.0f,1.0f }, Direction::Right, bp.textureSides[0], alpha);
+		//}
+		//if (block.data->RenderedSides & (unsigned char)2) {
+		//	RenderBlockFace(vertexBuffer, indexBuffer, { (float)block.Position.x,(float)block.Position.y,(float)block.Position.z }, { 1.0f,1.0f }, Direction::Left, bp.textureSides[1], alpha);
+		//}
+		//if (block.data->RenderedSides & (unsigned char)4) {
+		//	RenderBlockFace(vertexBuffer, indexBuffer, { (float)block.Position.x,(float)block.Position.y,(float)block.Position.z + 1.0f }, { 1.0f,1.0f }, Direction::Forward, bp.textureSides[2], alpha);
+		//}
+		//if (block.data->RenderedSides & (unsigned char)8) {
+		//	RenderBlockFace(vertexBuffer, indexBuffer, { (float)block.Position.x,(float)block.Position.y,(float)block.Position.z }, { 1.0f,1.0f }, Direction::Backward, bp.textureSides[3], alpha);
+		//}
+		//if (block.data->RenderedSides & (unsigned char)16) {
+		//	RenderBlockFace(vertexBuffer, indexBuffer, { (float)block.Position.x,(float)block.Position.y + 1.0f ,(float)block.Position.z }, { 1.0f,1.0f }, Direction::Up, bp.textureSides[5], alpha);
+		//}
+		//if (block.data->RenderedSides & (unsigned char)32) {
+		//	RenderBlockFace(vertexBuffer, indexBuffer, { (float)block.Position.x,(float)block.Position.y,(float)block.Position.z }, { 1.0f,1.0f }, Direction::Down, bp.textureSides[4], alpha);
+		//}
+	for (Face& face : Block::blockModels[bp.model].Faces)
+	{
+		if (block.data->RenderedSides & face.condition)
+			RenderBlockFace(vertexBuffer, indexBuffer, face.position + Vector::FloatVector(block.Position), face.size, face.direction, bp.textureSides[face.textureIndex], alpha);
+	}
+}
+
 void RendererClient::RenderChunk(Chunk* chunk)
 {
 	ASSERT(chunk, "Invalid chunk in rendering");
@@ -36,118 +293,7 @@ void RendererClient::RenderChunk(Chunk* chunk)
 					block.GetBlockProperties().translucency != 1.0f ? vertexBuffer = &rd.Transparent.vertexBuffer : vertexBuffer = &rd.Solid.vertexBuffer;
 					IndexBuffer* indexBuffer;
 					block.GetBlockProperties().translucency != 1.0f ? indexBuffer = &rd.Transparent.indexBuffer : indexBuffer = &rd.Solid.indexBuffer;
-					std::array<unsigned char, 6> arr = block.GetBlockProperties().textureSides;
-					Vertex a;
-					a.texId = 0.0f;
-					float alpha = block.GetBlockProperties().translucency;
-					if (block.data->RenderedSides & (unsigned char)8) {
-						float texcordsX = ((arr[0]) % 16) / 16.0f;
-						float texcordsY = ((arr[0]) / 16) / 16.0f;
-						a.color = { 0.9f,0.9f,0.9f,alpha };
-						a.texCords = { texcordsX, texcordsY };
-						a.position = Vector::FloatVector(block.Position);
-						vertexBuffer->Add(a);
-						a.position.x += 1.0f;
-						a.texCords.x += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.y += 1.0f;
-						a.texCords.y += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.x = (float)block.Position.x;
-						a.texCords.x = texcordsX;
-						vertexBuffer->Add(a);
-					}
-					if (block.data->RenderedSides & (unsigned char)1) {
-						float texcordsX = ((arr[1]) % 16) / 16.0f;
-						float texcordsY = ((arr[1]) / 16) / 16.0f;
-						a.color = { 0.85f,0.85f,0.85f,alpha };
-						a.position = Vector::FloatVector(block.Position);
-						a.texCords = { texcordsX, texcordsY };
-						a.position.x += 1.0f;
-						vertexBuffer->Add(a);
-						a.position.z += 1.0f;
-						a.texCords.x += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.y += 1.0f;
-						a.texCords.y += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.z = (float)block.Position.z;
-						a.texCords.x = texcordsX;
-						vertexBuffer->Add(a);
-					}
-					if (block.data->RenderedSides & (unsigned char)4) {
-						float texcordsX = ((arr[2]) % 16) / 16.0f;
-						float texcordsY = ((arr[2]) / 16) / 16.0f;
-						a.color = { 0.75f,0.75f,0.75f,alpha };
-						a.position = Vector::FloatVector(block.Position);
-						a.texCords = { texcordsX, texcordsY };
-						a.position.z += 1.0f;
-						a.position.x += 1.0f;
-						vertexBuffer->Add(a);
-						a.position.x = (float)block.Position.x;
-						a.texCords.x += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.y += 1.0f;
-						a.texCords.y += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.x += 1.0f;
-						a.texCords.x = texcordsX;
-						vertexBuffer->Add(a);
-					}
-					if (block.data->RenderedSides & (unsigned char)2) {
-						float texcordsX = ((arr[3]) % 16) / 16.0f;
-						float texcordsY = ((arr[3]) / 16) / 16.0f;
-						a.color = { 0.8f,0.8f,0.8f,alpha };
-						a.position = Vector::FloatVector(block.Position);
-						a.position.z += 1.0f;
-						a.texCords = { texcordsX, texcordsY };
-						vertexBuffer->Add(a);
-						a.position.z = (float)block.Position.z;
-						a.texCords.x += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.y += 1.0f;
-						a.texCords.y += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.z += 1.0f;
-						a.texCords.x = texcordsX;
-						vertexBuffer->Add(a);
-					}
-					if (block.data->RenderedSides & (unsigned char)32) {
-						float texcordsX = ((arr[4]) % 16) / 16.0f;
-						float texcordsY = ((arr[4]) / 16) / 16.0f;
-						a.color = { 0.7f,0.7f,0.7f,alpha };
-						a.position = Vector::FloatVector(block.Position);
-						a.texCords = { texcordsX, texcordsY };
-						vertexBuffer->Add(a);
-						a.position.z += 1.0f;
-						a.texCords.x += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.x += 1.0f;
-						a.texCords.y += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.z = (float)block.Position.z;
-						a.texCords.x = texcordsX;
-						vertexBuffer->Add(a);
-					}
-					if (block.data->RenderedSides & (unsigned char)16) {
-						float texcordsX = ((arr[5]) % 16) / 16.0f;
-						float texcordsY = ((arr[5]) / 16) / 16.0f;
-						a.color = { 1.0f,1.0f,1.0f,alpha };
-						a.position = Vector::FloatVector(block.Position);
-						a.position.y += 1.0f;
-						a.texCords = { texcordsX, texcordsY };
-						vertexBuffer->Add(a);
-						a.position.x += 1.0f;
-						a.texCords.x += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.z += 1.0f;
-						a.texCords.y += ONEOVER16;
-						vertexBuffer->Add(a);
-						a.position.x = (float)block.Position.x;
-						a.texCords.x = texcordsX;
-						vertexBuffer->Add(a);
-					}
-					indexBuffer->AddCuboid(block.data->RenderedSides);
+					RenderBlock(vertexBuffer, indexBuffer, block);
 				}
 			}
 		}
@@ -201,288 +347,14 @@ void RendererClient::RenderEntities()
 		if(UUID != EntityManagerClient::GetPlayer().credentials.UUID)
 			RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(player->Position), Vector::FloatVector(player->Hitbox), { 0.8f,1.0f,0.9f,1.0f });
 	}
-	//RenderBuilder::AddMesh(EntityRenderData, {2600,80,2600},{1,1,1}, { 0.8f,1.0f,0.9f,1.0f },0);
-	// 
-	//Render block selection
-	#define WIDTH 0.04f
-	#define OP_WIDTH 1.0f - WIDTH
 	Block facingblock = EntityManagerClient::GetPlayer().GetFacingBlock();
 	if (facingblock.data != nullptr)
 	{
-		Vector3<int> FacingBlockPosition = facingblock.Position;
-		Vertex a;
-		a.texCords = { 0,0 };
-		a.texId = -1.0f;
-		a.color = { 0.0f,0.0f,0.0f,1.0f };
-		if (facingblock.data->RenderedSides & (unsigned char)8)
+		for (Face& face : facingblock.GetBlockModel().Faces)
 		{
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.y += OP_WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 0.02f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.x += OP_WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-		}
-		if (facingblock.data->RenderedSides & (unsigned char)1)
-		{
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.y += OP_WIDTH;
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += OP_WIDTH;
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-		}
-		if (facingblock.data->RenderedSides & (unsigned char)4)
-		{
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += 1.0f;
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.y += OP_WIDTH;
-			a.position.z += 1.0f;
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += 1.0f;
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.x -= OP_WIDTH;
-			a.position.z += 1.0f;
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-		}
-		if (facingblock.data->RenderedSides & (unsigned char)2)
-		{
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.y += OP_WIDTH;
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z -= OP_WIDTH;
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-		}
-		if (facingblock.data->RenderedSides & (unsigned char)32)
-		{
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.x += OP_WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += OP_WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-		}
-		if (facingblock.data->RenderedSides & (unsigned char)16)
-		{
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.z += OP_WIDTH;
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
-			a.position = Vector::FloatVector(FacingBlockPosition);
-			a.position.x += OP_WIDTH;
-			a.position.y += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x += WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.z += 1.0f;
-			EntityRenderData.vertexBuffer.Add(a);
-			a.position.x -= WIDTH;
-			EntityRenderData.vertexBuffer.Add(a);
-			EntityRenderData.indexBuffer.AddRectangle();
+			RenderSelectorFace(&EntityRenderData.vertexBuffer,&EntityRenderData.indexBuffer,face.position + Vector::FloatVector(facingblock.Position),face.size,face.direction);
 		}
 	}
-
-
 	RenderBuilder::End(EntityRenderData);
 
 	Renderer::RenderCommand command;

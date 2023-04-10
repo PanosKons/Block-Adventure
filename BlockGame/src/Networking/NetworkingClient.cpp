@@ -62,12 +62,14 @@ void HandleMessage()
 		{
 			PlayerInventoryData data = NetworkingClient::GetDataFromServer<PlayerInventoryData>();
 			EntityManager::GetPlayer(data.UUID)->Inventory = data.Inventory;
+			break;
 		}
 		case Packet::HandleGui:
 		{
 			GuiData data = NetworkingClient::GetDataFromServer<GuiData>();
 			EntityManagerClient::GetPlayer().IsGUIOpen = data.Open;
 			EntityManagerClient::GetPlayer().gui = data.gui;
+			break;
 		}
 		}
 	}
@@ -100,6 +102,10 @@ void NetworkingClient::Connect()
 	for (int i = 0; i < data.BlockCount; i++)
 	{
 		Block::blockProperties.push_back(NetworkingClient::GetDataFromServer<BlockProperties>());
+	}
+	for (int i = 0; i < data.ModelCount; i++)
+	{
+		Block::blockModels.push_back(NetworkingClient::GetDataFromServer<Model>());
 	}
 	for (int i = 0; i < data.ItemCount; i++)
 	{

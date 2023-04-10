@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "Common/World/World.h"
 #include "Rendering/RenderData.h"
-
 struct ChunkRenderData
 {
 	RenderData Solid;
@@ -12,6 +11,7 @@ struct ChunkRenderData
 class RendererClient
 {
 public:
+	static void RenderBlock(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Block& block);
 	static void RenderEntities();
 	static void RenderWorld(World* world);
 	static void RenderUI(double TimeStep);

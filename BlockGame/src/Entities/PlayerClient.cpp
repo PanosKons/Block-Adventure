@@ -144,7 +144,7 @@ void PlayerClient::InputTick(double TimeStep)
 	//Check whether to crouch or sprint
 	{
 		Crouch = false;
-		if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
+		if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen && Grounded)
 		{
 			Speed = 2.0f;
 			Crouch = true;
@@ -216,6 +216,20 @@ void PlayerClient::InputTick(double TimeStep)
 			JumpCooldown += 0.4f;
 		}
 	}
+	//Not fall over the edge of a block
+	{
+		if (Crouch && Grounded)
+		{
+			if (!EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
+			{
+				Velocity.x = 0;
+			}
+			if (!EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z + Velocity.z * TimeStep }, Hitbox))
+			{
+				Velocity.z = 0;
+			}
+		}
+	}
 	//Check collisions
 	{
 		if (EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y, Position.z }, Hitbox))
@@ -235,20 +249,6 @@ void PlayerClient::InputTick(double TimeStep)
 		if (EntityManagerClient::CheckCollision({ Position.x , Position.y, Position.z + Velocity.z * TimeStep }, Hitbox))
 		{
 			Velocity.z = 0;
-		}
-	}
-	//Not fall over the edge of a block
-	{
-		if (Crouch && Grounded)
-		{
-			if (!EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
-			{
-				Velocity.x = 0;
-			}
-			if (!EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z + Velocity.z * TimeStep }, Hitbox))
-			{
-				Velocity.z = 0;
-			}
 		}
 	}
 	//Apply the velocity to the position

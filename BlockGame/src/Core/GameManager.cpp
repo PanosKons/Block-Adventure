@@ -8,7 +8,6 @@
 #include "Networking/NetworkingClient.h"
 #undef CreateWindow
 static Scene* s_Scene;
-
 void GameManager::Tick(double TimeStep)
 {
 	s_Scene->Update(TimeStep);
@@ -29,7 +28,6 @@ void GameManager::Start()
 	}
 	Client::ScreenWidth = 1920 / 1.5;
 	Client::ScreenHeight = 1080 / 1.5;
-
 	Renderer::CreateWindow("GAME");
 
 	s_Scene = (Scene*)new MainMenuScene();

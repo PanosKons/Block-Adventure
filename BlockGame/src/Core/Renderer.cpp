@@ -62,6 +62,7 @@ namespace Renderer {
 		Texture::Load("res/textures/selected_slot.png", 15);
 		Texture::Load("res/textures/text.png", 13);
 		Texture::Load("res/textures/slot.png", 14);
+		Texture::Load("res/textures/selection.png", 1);
 		Texture::Load("res/textures/Robbie.png", 0);
 
 		MeshParser::ParseMesh("untitled.obj",0);
@@ -138,10 +139,17 @@ namespace Renderer {
 	}
 	void HideCursor(bool value)
 	{
-		if(value == true)
+		static bool prev = false;
+		if (value == true && prev == false)
+		{
 			glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		else
+			prev = true;
+		}
+		else if(value == false && prev == true)
+		{
 			glfwSetInputMode(Client::ApplicationWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			prev = false;
+		}
 	}
 }
 namespace RenderBuilder {

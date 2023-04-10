@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include "EngineMath.h"
 template<typename T>
 class Vector2
 {
@@ -83,6 +84,12 @@ public:
 		y -= other.y;
 		z -= other.z;
 	}
+	void operator/=(T value)
+	{
+		x /= value;
+		y /= value;
+		z /= value;
+	}
 	Vector3 operator=(Vector2<T> other)
 	{
 		return { other.x,other.y,(T)0 };
@@ -91,7 +98,7 @@ public:
 	{
 		return x == other.x && y == other.y && z == other.z;
 	}
-	void Magnitude()
+	T Magnitude()
 	{
 		return sqrt(powf(x, 2) + powf(y, 2) + powf(z, 2));
 	}
@@ -121,6 +128,7 @@ public:
 namespace Vector
 {
 	inline Vector3<int> IntVector(const Vector3<float>& other) { return Vector3<int>((int)other.x, (int)other.y, (int)other.z); };
+	inline Vector3<int> FloorVector(const Vector3<double>& other) { return { Math::Floor(other.x), Math::Floor(other.y), Math::Floor(other.z) }; };
 	inline Vector3<int> IntVector(const Vector3<double>& other) { return Vector3<int>((int)other.x, (int)other.y, (int)other.z); };
 	inline Vector3<float> FloatVector(const Vector3<int>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
 	inline Vector3<float> FloatVector(const Vector3<double>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
