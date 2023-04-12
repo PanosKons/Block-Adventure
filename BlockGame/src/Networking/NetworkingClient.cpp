@@ -71,6 +71,18 @@ void HandleMessage()
 			EntityManagerClient::GetPlayer().gui = data.gui;
 			break;
 		}
+		case Packet::CreateEntity:
+		{
+			EntityCreateData data = NetworkingClient::GetDataFromServer<EntityCreateData>();
+			EntityManager::CreateEntity(data.entity);
+			break;
+		}
+		case Packet::KillEntity:
+		{
+			EntityKillData data = NetworkingClient::GetDataFromServer<EntityKillData>();
+			EntityManager::KillEntity(data.UUID);
+			break;
+		}
 		}
 	}
 }

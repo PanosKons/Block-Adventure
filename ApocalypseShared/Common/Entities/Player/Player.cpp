@@ -4,6 +4,7 @@
 #include "World/WorldConstants.h"
 #include "Math/EngineMath.h"
 #include "World/WorldManager.h"
+
 Player::Player(Credentials& credentials)
 	:credentials(credentials),IsReadyToReceivePackets(false)
 {
@@ -22,11 +23,43 @@ Player::Player(Credentials& credentials)
 	JumpCooldown = 0.0f;
 	Crouch = false;
 	Godmode = true;
+	cameraMode = CameraMode::FirstPerson;
 }
 Player::~Player() {}
 Vector3<double> Player::GetLookPosition()
 {
-	return { Position.x,Position.y + 1.6, Position.z };
+	switch (cameraMode)
+	{
+	case CameraMode::FirstPerson:
+	{
+		return { Position.x ,Position.y + 1.6 , Position.z };
+		break;
+	}
+	case CameraMode::ThirdPersonBack:
+	{
+		Vector3<double> Direction = { cos(Math::Radians(Yaw)),tan(Math::Radians(Pitch)),sin(Math::Radians(Yaw)) };
+		Direction /= Direction.Magnitude();
+		Direction *= 2;
+		return { Position.x - Direction.x ,Position.y + 1.6 - Direction.y, Position.z - Direction.z };
+		break;
+	}
+	case CameraMode::ThirdPersonFront:
+	{
+		Vector3<double> Direction = { cos(Math::Radians(Yaw)),tan(Math::Radians(Pitch)),sin(Math::Radians(Yaw)) };
+		Direction /= Direction.Magnitude();
+		Direction *= 4;
+		return { Position.x + Direction.x ,Position.y + 1.6 + Direction.y, Position.z + Direction.z };
+		break;
+	}
+	}
+}
+Entity& Player::GetFacingEntity()
+{
+	Ray ray(GetLookPosition(), Pitch, Yaw);
+	while (true)
+	{
+	}
+
 }
 Block Player::GetFacingBlock()
 {

@@ -87,9 +87,18 @@ namespace Renderer {
 					glm::vec3 CameraPosition = { LookPosition.x,LookPosition.y,LookPosition.z };
 
 					glm::vec3 front;
-					front.x = cos(glm::radians(EntityManagerClient::GetPlayer().Yaw)) * cos(glm::radians(EntityManagerClient::GetPlayer().Pitch));
-					front.y = sin(glm::radians(EntityManagerClient::GetPlayer().Pitch));
-					front.z = sin(glm::radians(EntityManagerClient::GetPlayer().Yaw)) * cos(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+					if (EntityManagerClient::GetPlayer().cameraMode == CameraMode::ThirdPersonFront)
+					{
+						front.x = -cos(glm::radians(EntityManagerClient::GetPlayer().Yaw)) * cos(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+						front.y = -sin(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+						front.z = -sin(glm::radians(EntityManagerClient::GetPlayer().Yaw)) * cos(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+					}
+					else
+					{
+						front.x = cos(glm::radians(EntityManagerClient::GetPlayer().Yaw)) * cos(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+						front.y = sin(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+						front.z = sin(glm::radians(EntityManagerClient::GetPlayer().Yaw)) * cos(glm::radians(EntityManagerClient::GetPlayer().Pitch));
+					}
 					glm::normalize(front);
 
 					proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);

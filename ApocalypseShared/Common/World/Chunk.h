@@ -7,6 +7,7 @@
 
 typedef std::array<std::array<std::array<BlockData, ChunkSize>, ChunkSize>, ChunkSize> BlockArray;
 class World;
+class EntityManager;
 
 class Chunk {
 public:
@@ -22,6 +23,8 @@ public:
 	BlockArray* GetBlocks() { return blocks; }
 	bool MeshChanged = true;
 	bool DontRender = true;
+
+	std::vector<Entity> entities;
 private:
 	World* world;
 	Vector3<int> Position;

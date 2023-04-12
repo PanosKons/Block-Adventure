@@ -344,8 +344,7 @@ void RendererClient::RenderEntities()
 	//Render players
 	for (auto&[UUID, player] : EntityManagerClient::Players)
 	{
-		if(UUID != EntityManagerClient::GetPlayer().credentials.UUID)
-			RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(player->Position), Vector::FloatVector(player->Hitbox), { 0.8f,1.0f,0.9f,1.0f });
+		RenderBuilder::AddCube(EntityRenderData, { (float)(player->Position.x - player->Hitbox.x / 2),(float)(player->Position.y),(float)(player->Position.z - player->Hitbox.z / 2) }, Vector::FloatVector(player->Hitbox), { 0.6f,0.5f,0.6f,1.0f });
 	}
 	Block facingblock = EntityManagerClient::GetPlayer().GetFacingBlock();
 	if (facingblock.data != nullptr)
@@ -353,6 +352,14 @@ void RendererClient::RenderEntities()
 		for (Face& face : facingblock.GetBlockModel().Faces)
 		{
 			RenderSelectorFace(&EntityRenderData.vertexBuffer,&EntityRenderData.indexBuffer,face.position + Vector::FloatVector(facingblock.Position),face.size,face.direction);
+		}
+	}
+	for (auto& [key, chunk] : *WorldManager::BaseWorld->GetChunkMap())
+	{
+		for (int i = 0; i < chunk->entities.size(); i++)
+		{
+			Entity& entity = chunk->entities[i];
+			RenderBuilder::AddCube(EntityRenderData, { (float)(entity.Position.x - entity.Hitbox.x / 2),(float)(entity.Position.y),(float)(entity.Position.z - entity.Hitbox.z / 2) }, Vector::FloatVector(entity.Hitbox), { 0.8f,0.8f,0.8f,1.0f });
 		}
 	}
 	RenderBuilder::End(EntityRenderData);

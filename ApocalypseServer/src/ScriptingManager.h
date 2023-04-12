@@ -16,6 +16,8 @@ public:
 	static void OnMouseEvent(uint64_t UUID, MouseState LeftMouse, MouseState RightMouse, MouseState MiddleMouse);
 	static void OnCommandEvent(uint64_t UUID, Command& command);
 	static void OnKeyEvent(bool PKeyPressed, bool RKeyPressed);
-	static void UpdateEvent();
+	static void GlobalUpdateEvent(double TimeStep);
+	static void OnGlobalUpdateEvent(double TimeStep);
+	static void OnPlayerUpdateEvent(uint64_t UUID);
 };
 

@@ -20,11 +20,11 @@ void ServerManager::Start()
 	ListeningThread = new std::thread(NetworkingServer::ListenForClients);
 }
 
-void ServerManager::Tick()
+void ServerManager::Tick(double TimeStep)
 {
 	WorldManagerServer::SendAppropriateChunks();
 	WorldManagerServer::RemoveUnusedChunks();
-	ScriptingManager::UpdateEvent();
+	ScriptingManager::GlobalUpdateEvent(TimeStep);
 }
 
 void ServerManager::Shutdown()

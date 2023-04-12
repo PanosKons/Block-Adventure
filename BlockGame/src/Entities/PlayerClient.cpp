@@ -141,6 +141,27 @@ void PlayerClient::InputTick(double TimeStep)
 			lastState = Action::Release;
 		}
 	}
+	//Use F5 to toggle CameraMode
+	{
+		static Action lastState = Action::Release;
+		if (Input::GetKeyState(Key::F5) == Action::Press && !IsGUIOpen)
+		{
+			if (lastState == Action::Release)
+			{
+				if(cameraMode == CameraMode::FirstPerson)
+					cameraMode = CameraMode::ThirdPersonBack;
+				else if (cameraMode == CameraMode::ThirdPersonBack)
+					cameraMode = CameraMode::ThirdPersonFront;
+				else
+					cameraMode = CameraMode::FirstPerson;
+				lastState = Action::Press;
+			}
+		}
+		else
+		{
+			lastState = Action::Release;
+		}
+	}
 	//Check whether to crouch or sprint
 	{
 		Crouch = false;
@@ -238,7 +259,7 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		if (EntityManagerClient::CheckCollision({ Position.x , Position.y + Velocity.y * TimeStep, Position.z }, Hitbox))
 		{
-			if (Velocity.y <= -16.0f) Health -= -(float)Velocity.y / 3.0f;
+			if (Velocity.y <= -16.0f && !Godmode) Health -= -(float)Velocity.y / 3.0f;
 			Velocity.y = 0;
 			Grounded = true;
 		}

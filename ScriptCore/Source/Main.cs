@@ -6,15 +6,19 @@ namespace Scripting
 {
     public enum BlockType
     {
-        Invalid = -1, Air, Grass, Dirt, Stone, Glass, Leaves, Log, Water, DryGrass, Iron, DirtSlab, BlockTypeSize
+        Invalid = -1, Air, Grass, Dirt, Stone, Glass, Leaves, Log, Water, DryGrass, Iron, DirtSlab, DirtStairs, DirtVerticalSlab,LogCarpet, BlockTypeSize
     }
     public enum ItemType
     {
         Invalid = -1, Drygrassblade = BlockType.BlockTypeSize, Stick, StonePickaxe, ItemTypeSize
     }
-    public enum ModelType
+    public enum BlockModelType
     {
-        SolidBlock, Slab, ModelTypeSize
+        SolidBlock, Slab, Stairs, VerticalSlab,Carpet, ModelTypeSize
+    }
+    public enum EntityType
+    {
+        LivingBox
     }
     public struct WorldGenerationData
     {
@@ -38,7 +42,7 @@ namespace Scripting
     {
         public static BlockProperties[] Blocks = new BlockProperties[(int)BlockType.BlockTypeSize];
         public static ItemProperties[] Items = new ItemProperties[(int)ItemType.ItemTypeSize];
-        public static Model[] Models = new Model[(int)ModelType.ModelTypeSize];
+        public static Model[] BlockModels = new Model[(int)BlockModelType.ModelTypeSize];
         public static WorldGenerationData GetWorldGenerationData()
         {
             return new WorldGenerationData();
@@ -67,18 +71,18 @@ namespace Scripting
         }
         public static int GetModelCount()
         {
-            return Models.Length;
+            return BlockModels.Length;
         }
         public static void* GetModel(int index)
         {
-            fixed (void* pointer = Models[index].faces)
+            fixed (void* pointer = BlockModels[index].faces)
             {
                 return pointer;
             }
         }
         public static int GetFaceCount(int index)
         {
-            return Models[index].faces.Length;
+            return BlockModels[index].faces.Length;
         }
     }
     public struct Vector2<T>
@@ -133,12 +137,14 @@ namespace Scripting
             this.Direction = Direction;
             this.Condition = Condition;
             this.TextureIndex = TextureIndex;
+            this.Active = true;
         }
         public Vector3<float> Position;
         public Vector2<float> Size;
         public Direction Direction;
         public byte Condition;
         public byte TextureIndex;
+        public bool Active;
     }
     public struct Gui
     {
@@ -168,6 +174,27 @@ namespace Scripting
         }
         public ItemType Type;
         public int Count;
+    }
+    public struct Entity
+    {
+        public Entity(ulong UUID,Vector3<double> Position, Vector3<double> Hitbox,EntityType Type)
+        {
+            this.UUID = UUID;
+            this.Position = Position;
+            this.Hitbox = Hitbox;
+            this.entityType = Type;
+        }
+        public ulong UUID;
+        public Vector3<double> Position;
+        public Vector3<double> Hitbox;
+        public EntityType entityType;
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void Create(Entity entity);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void Kill(ulong UUID);
+
+        public static ulong EntityId = 0;
     }
     public unsafe struct Player
     {
@@ -220,7 +247,7 @@ namespace Scripting
     }
     public struct BlockProperties
     {
-        public BlockProperties( bool Render, bool Transparent, float Translucency, Texture BlockTexture, ModelType Model = ModelType.SolidBlock)
+        public BlockProperties( bool Render, bool Transparent, float Translucency, Texture BlockTexture, BlockModelType Model = BlockModelType.SolidBlock)
         {
             this.Render = Render;
             this.Transparent = Transparent;
@@ -230,7 +257,7 @@ namespace Scripting
         }
 
         public Texture BlockTexture;
-        public ModelType Model = ModelType.SolidBlock;
+        public BlockModelType Model = BlockModelType.SolidBlock;
         public float Translucency = 1.0f;
         public bool Render = false;
         public bool Transparent = false;
@@ -259,7 +286,10 @@ namespace Scripting
             Data.Blocks[(int)BlockType.Iron] =  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(6));
             Data.Blocks[(int)BlockType.Leaves] =  new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(8));
             Data.Blocks[(int)BlockType.Water] = new BlockProperties(true, true, 0.4f, Texture.SimpleBlock(14));
-            Data.Blocks[(int)BlockType.DirtSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2),ModelType.Slab);
+            Data.Blocks[(int)BlockType.DirtSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2),BlockModelType.Slab);
+            Data.Blocks[(int)BlockType.DirtStairs] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.Stairs);
+            Data.Blocks[(int)BlockType.DirtVerticalSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.VerticalSlab);
+            Data.Blocks[(int)BlockType.LogCarpet] = new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5),BlockModelType.Carpet);
 
             Data.Items[(int)BlockType.Air] = new ItemProperties(0);
             Data.Items[(int)BlockType.Grass] = new ItemProperties(1);
@@ -272,12 +302,15 @@ namespace Scripting
             Data.Items[(int)BlockType.Leaves] = new ItemProperties(8);
             Data.Items[(int)BlockType.Water] = new ItemProperties(14);
             Data.Items[(int)BlockType.DirtSlab] = new ItemProperties(2);
+            Data.Items[(int)BlockType.DirtStairs] = new ItemProperties(2);
+            Data.Items[(int)BlockType.DirtVerticalSlab] = new ItemProperties(2);
+            Data.Items[(int)BlockType.LogCarpet] = new ItemProperties(4);
 
             Data.Items[(int)ItemType.Drygrassblade] = new ItemProperties(9);
             Data.Items[(int)ItemType.Stick] = new ItemProperties(11);
             Data.Items[(int)ItemType.StonePickaxe] = new ItemProperties(13);
 
-            Data.Models[(int)ModelType.SolidBlock] = new Model()
+            Data.BlockModels[(int)BlockModelType.SolidBlock] = new Model()
             {
                 faces = new Face[]
                 {
@@ -289,22 +322,73 @@ namespace Scripting
                     new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32, 5),
                 }
             };
-            Data.Models[(int)ModelType.Slab] = new Model()
+            Data.BlockModels[(int)BlockModelType.Slab] = new Model()
             {
                 faces = new Face[]
-    {
+                {
                     new Face(new Vector3<float>(1.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Right, 1, 0),
                     new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Left, 2, 1),
                     new Face(new Vector3<float>(0.0f,0.0f,1.0f), new Vector2<float>(1.0f,0.5f), Direction.Forward, 4, 2),
                     new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Backward, 8, 3),
                     new Face(new Vector3<float>(0.0f,0.5f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Up, 16, 4),
                     new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32 ,5),
-    }
+                }
+            };
+            Data.BlockModels[(int)BlockModelType.Carpet] = new Model()
+            {
+                faces = new Face[]
+                {
+                    new Face(new Vector3<float>(1.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.1f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.1f), Direction.Left, 2, 1),
+                    new Face(new Vector3<float>(0.0f,0.0f,1.0f), new Vector2<float>(1.0f,0.1f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.1f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,0.1f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32 ,5),
+                }
+            };
+            Data.BlockModels[(int)BlockModelType.VerticalSlab] = new Model()
+            {
+                faces = new Face[]
+                {
+                    new Face(new Vector3<float>(0.5f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Left, 2, 1),
+                    new Face(new Vector3<float>(0.0f,0.0f,1.0f), new Vector2<float>(0.5f,1.0f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(0.5f,1.0f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,1.0f,0.0f), new Vector2<float>(0.5f,1.0f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(0.5f,1.0f), Direction.Down, 32 ,5),
+                }
+            };
+            Data.BlockModels[(int)BlockModelType.Stairs] = new Model()
+            {
+                faces = new Face[]
+                {
+                    new Face(new Vector3<float>(1.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.5f,0.5f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Left, 2, 1),
+                    new Face(new Vector3<float>(0.0f,0.0f,1.0f), new Vector2<float>(1.0f,0.5f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.5f,1.0f), new Vector2<float>(0.5f,0.5f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,0.5f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,0.5f,0.0f), new Vector2<float>(0.5f,0.5f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,1.0f,0.0f), new Vector2<float>(0.5f,1.0f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.5f,0.5f,0.0f), new Vector2<float>(0.5f,1.0f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32 ,5),
+                }
             };
         }
-        public static void Update(double TimeStep,int two)
+        public static void GlobalUpdateEvent()
         {
-            Console.WriteLine("Update C# with:" + TimeStep + two);
+            
+        }
+        public static void PlayerUpdateEvent(ulong UUID)
+        {
+            Block.GetPlayerFacingBlock(UUID, out Block block);
+            if (block.Type != BlockType.Invalid)
+            {
+                Block.ReplaceBlock(block, BlockType.Air);
+
+                ItemStack itemStack = new ItemStack((ItemType)block.Type, 1);
+                Player.AddItemToInventory(UUID, itemStack);
+            }
         }
         public static void OnRightClick(ulong UUID)
         {
@@ -338,22 +422,18 @@ namespace Scripting
         }
         public static void OnMiddleClick(ulong UUID)
         {
-            Player.IncrementRenderDistance(1);
-            Gui gui = new()
-            {
-                Color = new(0.6f, 0.6f, 0.6f, 0.7f),
-                Slots = new Slot[] {
-                    new() { Position = new Vector2<float>(1, 1), Active = true},
-                    new() { Position = new Vector2<float>(0, 0), Active = true},
-                    new() { Position = new Vector2<float>(0, 1), Active = true},
-                    new() { Position = new Vector2<float>(1, 0), Active = true},
-                }
-            };
-            fixed (void* pointer = gui.Slots)
-            {
-                Console.WriteLine("RERE:" + (int)pointer);
-            };
-            Player.HandleGui(UUID, gui, true);
+            //Player.IncrementRenderDistance(1);
+            //Gui gui = new()
+            //{
+            //    Color = new(0.6f, 0.6f, 0.6f, 0.7f),
+            //    Slots = new Slot[] {
+            //        new() { Position = new Vector2<float>(1, 1), Active = true},
+            //        new() { Position = new Vector2<float>(0, 0), Active = true},
+            //        new() { Position = new Vector2<float>(0, 1), Active = true},
+            //        new() { Position = new Vector2<float>(1, 0), Active = true},
+            //    }
+            //};
+            //Player.HandleGui(UUID, gui, true);
         }
         public static void OnCommand(ulong UUID, string Command)
         {
@@ -398,7 +478,7 @@ namespace Scripting
             }
             else if (Tokens[0].Equals("/set") && Tokens.Length == 5)
             {
-                Block.GetBlock(new Vector3<int> ( int.Parse(Tokens[1]), int.Parse(Tokens[2]), int.Parse(Tokens[3])),out Block block);
+                Block.GetBlock(new Vector3<int> (int.Parse(Tokens[1]), int.Parse(Tokens[2]), int.Parse(Tokens[3])),out Block block);
                 Enum.TryParse(Tokens[4], out BlockType Type);
                 Block.ReplaceBlock(block, Type);
             }
@@ -418,6 +498,11 @@ namespace Scripting
                         }
                     }
                 }
+            }
+            else if(Tokens[0].Equals("/summon") && Tokens.Length == 4)
+            {
+                Entity entity = new Entity(Entity.EntityId++, new Vector3<double>(double.Parse(Tokens[1]), double.Parse(Tokens[2]), double.Parse(Tokens[3])), new Vector3<double>(1, 1, 1),EntityType.LivingBox);
+                Entity.Create(entity);
             }
         }
     }

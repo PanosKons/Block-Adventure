@@ -22,7 +22,7 @@ struct BlockData
 	unsigned char RenderedSides = 64;
 	unsigned char Properties;
 };
-constexpr int MaxFaceCount = 6;
+constexpr int MaxFaceCount = 16;
 enum class Direction
 {
 	Forward, Backward, Right, Left, Up, Down
@@ -34,6 +34,7 @@ struct Face
 	Direction direction;
 	unsigned char condition;
 	unsigned char textureIndex;
+	bool Active = false;
 };
 struct Model
 {

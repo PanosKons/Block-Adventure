@@ -19,7 +19,8 @@ enum Key
 	A = 65, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 	Shift = 340, Control, Alt,
 	EscapeKey = 256, Enter, Tab, BackSpace,
-	RightArrow = 262, LeftArrow, DownArrow, UpArrow
+	RightArrow = 262, LeftArrow, DownArrow, UpArrow,
+	F1 = 290, F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12
 };
 enum MouseState
 {
@@ -41,8 +42,11 @@ struct Gui
 	Vector4<float> Color;
 	std::array<Slot, MaxGUISlots> Slots;
 };
-
-class Player : public Entity
+enum class CameraMode
+{
+	FirstPerson,ThirdPersonBack,ThirdPersonFront
+};
+class Player
 {
 public:
 
@@ -52,7 +56,18 @@ public:
 
 	Block GetFacingBlock();
 	Block GetBlockToPlace();
+	Entity& GetFacingEntity();
 	Vector3<double> GetLookPosition();
+
+	Vector3<double> Position;
+	Vector3<double> Hitbox;
+	Vector3<double> Velocity;
+	float Yaw;
+	float Pitch;
+	float MaxHealth;
+	float Health;
+	float Speed;
+	bool Grounded;
 
 	Credentials credentials;
 
@@ -64,6 +79,7 @@ public:
 	float JumpCooldown = 0.0f;
 	bool Crouch = false;
 	bool Godmode = true;
+	CameraMode cameraMode;
 
 	//Field should be used only by the server
 	bool IsReadyToReceivePackets = false;

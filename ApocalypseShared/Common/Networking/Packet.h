@@ -16,6 +16,8 @@ enum class Packet
 	NewChunk, //Client
 	DeleteChunk, //Client
 	HandleGui, //Client
+	CreateEntity, //Client
+	KillEntity, //Client
 
 	//Mutual
 	PlayerPosition, //Server, Client
@@ -42,6 +44,14 @@ struct PlayerPositionData
 {
 	uint64_t UUID;
 	Vector3<double> playerPosition;
+};
+struct EntityCreateData
+{
+	Entity entity;
+};
+struct EntityKillData
+{
+	uint64_t UUID;
 };
 struct PlayerRotationData
 {

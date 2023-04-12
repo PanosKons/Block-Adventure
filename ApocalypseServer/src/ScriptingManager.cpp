@@ -30,7 +30,9 @@ static MonoClass* DataClass = nullptr;
 static MonoMethod* LeftMouseEventMethod = nullptr;
 static MonoMethod* RightMouseEventMethod = nullptr;
 static MonoMethod* MiddleMouseEventMethod = nullptr;
+static MonoMethod* GlobalUpdateMethod = nullptr;
 static MonoMethod* CommandEventMethod = nullptr;
+static MonoMethod* PlayerUpdateMethod = nullptr;
 
 
 void PrintAssemblyTypes(MonoAssembly* assembly)
@@ -122,6 +124,8 @@ void ScriptingManager::Load()
     LeftMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnLeftClick", 1);
     RightMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnRightClick", 1);
     MiddleMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnMiddleClick", 1);
+    GlobalUpdateMethod = mono_class_get_method_from_name(EventClass, "GlobalUpdateEvent", 0);
+    PlayerUpdateMethod = mono_class_get_method_from_name(EventClass, "PlayerUpdateEvent", 1);
 
     CommandEventMethod = mono_class_get_method_from_name(EventClass, "OnCommand", 2);
 
@@ -272,6 +276,21 @@ static void HandleGui(uint64_t UUID,Vector4<float> Color,Gui::Slot* Slots,int Sl
     NetworkingServer::SendDataToClient(UUID,Packet::HandleGui, data);
 }
 
+static void CreateEntity(Entity entity)
+{
+    EntityManager::CreateEntity(entity);
+    EntityCreateData data;
+    data.entity = entity;
+    NetworkingServer::SendDataAllClients(Packet::CreateEntity, data);
+}
+static void KillEntity(uint64_t UUID)
+{
+    EntityManager::KillEntity(UUID);
+    EntityKillData data;
+    data.UUID = UUID;
+    NetworkingServer::SendDataAllClients(Packet::KillEntity, data);
+}
+
 void ScriptingManager::RegisterInternalCalls()
 {
     mono_add_internal_call("Scripting.Block::GetBlock", GetBlock);
@@ -285,6 +304,9 @@ void ScriptingManager::RegisterInternalCalls()
     mono_add_internal_call("Scripting.Player::GetHoldingItemStack", GetHoldingItemStack);
     mono_add_internal_call("Scripting.Player::IncrementRenderDistance", IncrementRenderDistance);
     mono_add_internal_call("Scripting.Player::HandleGui", HandleGui);
+
+    mono_add_internal_call("Scripting.Entity::Create", CreateEntity);
+    mono_add_internal_call("Scripting.Entity::Kill", KillEntity);
 }
 
 void ScriptingManager::OnMouseEvent(uint64_t UUID, MouseState LeftMouse, MouseState RightMouse, MouseState MiddleMouse)
@@ -306,7 +328,17 @@ void ScriptingManager::OnMouseEvent(uint64_t UUID, MouseState LeftMouse, MouseSt
         mono_runtime_invoke(MiddleMouseEventMethod, nullptr, &UUIDp, nullptr);
     }
 }
-
+void ScriptingManager::OnGlobalUpdateEvent(double TimeStep)
+{
+    if (GlobalUpdateMethod == nullptr) return;
+    mono_runtime_invoke(GlobalUpdateMethod, nullptr, nullptr, nullptr);
+}
+void ScriptingManager::OnPlayerUpdateEvent(uint64_t UUID)
+{
+    if (PlayerUpdateMethod == nullptr) return;
+    void* UUIDp = &UUID;
+    mono_runtime_invoke(PlayerUpdateMethod, nullptr, &UUIDp, nullptr);
+}
 void ScriptingManager::OnCommandEvent(uint64_t UUID, Command& command)
 {
     if (CommandEventMethod == nullptr) return;
@@ -328,8 +360,14 @@ void ScriptingManager::OnKeyEvent(bool PKeyPressed, bool RKeyPressed)
     }
 }
 
-void ScriptingManager::UpdateEvent()
+void ScriptingManager::GlobalUpdateEvent(double TimeStep)
 {
+    OnGlobalUpdateEvent(TimeStep);
+    for (auto&[UUID, player] : EntityManager::Players)
+    {
+        OnPlayerUpdateEvent(UUID);
+    }
+
     MouseEvent* mouseEvent;
     while ((mouseEvent = EventManager::GetMouseEvent()) != nullptr)
     {
