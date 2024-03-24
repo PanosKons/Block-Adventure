@@ -272,6 +272,13 @@ void PlayerClient::InputTick(double TimeStep)
 			Velocity.z = 0;
 		}
 	}
+	//Check if stuck in a block
+	{
+		if (EntityManagerClient::CheckCollision({ Position.x, Position.y, Position.z }, Hitbox))
+		{
+			Velocity.y = 2.0;
+		}
+	}
 	//Apply the velocity to the position
 	Position += Velocity * TimeStep;
 	if (!IsGUIOpen)
