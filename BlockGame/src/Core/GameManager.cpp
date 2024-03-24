@@ -22,12 +22,13 @@ void GameManager::Start()
 	{
 		GameName Name;
 		std::string in;
-		std::cin >> in;
+		//std::cin >> in;
+		in = "aes";
 		strcpy_s(Name.data(),Name.size()-1, in.c_str());
 		NetworkingClient::credentials = new Credentials(Name, Credentials::ConvertToUUID(Name));
 	}
-	Client::ScreenWidth = 1920 / 1.5;
-	Client::ScreenHeight = 1080 / 1.5;
+	Client::ScreenWidth = 1280;
+	Client::ScreenHeight = 720;
 	Renderer::CreateWindow("GAME");
 
 	s_Scene = (Scene*)new MainMenuScene();

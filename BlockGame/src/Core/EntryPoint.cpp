@@ -1,12 +1,17 @@
 #include "GameManager.h"
 #include "Client.h"
 #include "Logger.h"
+#include "FileWatcher.h"
 
 static auto Now = std::chrono::system_clock::now();
 static auto LastStep = std::chrono::system_clock::now();
 
 int Main()
 {
+	FileWatcher::WatchFile("res/shaders/Post.shader", []() {
+		INFO("re");
+		});
+
 	INFO("Starting client...");
 	GameManager::Start();
 	while (!Client::ShouldStop)
@@ -37,9 +42,8 @@ int main()
 {
 	return Main();
 }
-
 #define NOMINMAX
-#include <windows.h>
+#include <Windows.h>
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,PWSTR pCmdLine, int nCmdShow)
 {
 	return Main();

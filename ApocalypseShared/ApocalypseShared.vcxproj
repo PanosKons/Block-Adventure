@@ -115,10 +115,12 @@
     <ClInclude Include="Common\World\Chunk.h" />
     <ClInclude Include="Common\World\Structure.h" />
     <ClInclude Include="Common\World\World.h" />
+    <ClInclude Include="FileWatcher.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Common\World\WorldManager.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="vendor\FileWatch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Blocks\Block.cpp" />
@@ -135,6 +137,7 @@
     <ClCompile Include="Common\World\Chunk.cpp" />
     <ClCompile Include="Common\World\Structure.cpp" />
     <ClCompile Include="Common\World\World.cpp" />
+    <ClCompile Include="FileWatcher.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="pch.cpp">
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</MultiProcessorCompilation>

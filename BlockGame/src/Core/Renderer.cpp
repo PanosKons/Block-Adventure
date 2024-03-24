@@ -25,7 +25,7 @@ namespace Renderer {
 	static unsigned int frameBuffer;
 	static unsigned int colorBuffer;
 
-	unsigned int Temp(unsigned int* colorbuffer)
+	unsigned int PostProcessingInit(unsigned int* colorbuffer)
 	{
 		int width = Client::ScreenWidth;
 		int height = Client::ScreenHeight;
@@ -105,8 +105,7 @@ namespace Renderer {
 		glCreateVertexArrays(1, &m_RendererID);
 		glBindVertexArray(m_RendererID);
 		
-		////////////////////////////////////////
-		frameBuffer = Temp(&colorBuffer);
+		frameBuffer = PostProcessingInit(&colorBuffer);
 
 		BaseShader = std::make_unique<Shader>("res/shaders/Base.shader");
 		PostShader = std::make_unique<Shader>("res/shaders/Post.shader");

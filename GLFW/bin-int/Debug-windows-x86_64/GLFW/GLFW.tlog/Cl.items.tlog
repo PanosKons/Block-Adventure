@@ -1,0 +1,15 @@
+C:\CPP\Block-Adventure\GLFW\src\context.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\context.obj
+C:\CPP\Block-Adventure\GLFW\src\egl_context.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\egl_context.obj
+C:\CPP\Block-Adventure\GLFW\src\init.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\init.obj
+C:\CPP\Block-Adventure\GLFW\src\input.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\input.obj
+C:\CPP\Block-Adventure\GLFW\src\monitor.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\monitor.obj
+C:\CPP\Block-Adventure\GLFW\src\osmesa_context.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\osmesa_context.obj
+C:\CPP\Block-Adventure\GLFW\src\vulkan.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\vulkan.obj
+C:\CPP\Block-Adventure\GLFW\src\wgl_context.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\wgl_context.obj
+C:\CPP\Block-Adventure\GLFW\src\win32_init.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\win32_init.obj
+C:\CPP\Block-Adventure\GLFW\src\win32_joystick.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\win32_joystick.obj
+C:\CPP\Block-Adventure\GLFW\src\win32_monitor.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\win32_monitor.obj
+C:\CPP\Block-Adventure\GLFW\src\win32_thread.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\win32_thread.obj
+C:\CPP\Block-Adventure\GLFW\src\win32_time.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\win32_time.obj
+C:\CPP\Block-Adventure\GLFW\src\win32_window.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\win32_window.obj
+C:\CPP\Block-Adventure\GLFW\src\window.c;C:\CPP\Block-Adventure\GLFW\bin-int\Debug-windows-x86_64\GLFW\window.obj
