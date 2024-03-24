@@ -56,7 +56,7 @@ public:
 
 	Block GetFacingBlock();
 	Block GetBlockToPlace();
-	Entity& GetFacingEntity();
+	Entity* GetFacingEntity();
 	Vector3<double> GetLookPosition();
 
 	Vector3<double> Position;
@@ -79,6 +79,7 @@ public:
 	float JumpCooldown = 0.0f;
 	bool Crouch = false;
 	bool Godmode = true;
+	float ReachDistance;
 	CameraMode cameraMode;
 
 	//Field should be used only by the server

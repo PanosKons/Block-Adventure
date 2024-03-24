@@ -6,7 +6,7 @@ namespace Scripting
 {
     public enum BlockType
     {
-        Invalid = -1, Air, Grass, Dirt, Stone, Glass, Leaves, Log, Water, DryGrass, Iron, DirtSlab, DirtStairs, DirtVerticalSlab,LogCarpet, BlockTypeSize
+        Invalid = -1, Air, Grass, Dirt, Stone, Glass, Leaves, Log, Water, DryGrass, Iron, DirtSlab, DirtStairs, DirtVerticalSlab, LogCarpet, Haybale, BlockTypeSize
     }
     public enum ItemType
     {
@@ -14,12 +14,13 @@ namespace Scripting
     }
     public enum BlockModelType
     {
-        SolidBlock, Slab, Stairs, VerticalSlab,Carpet, ModelTypeSize
+        SolidBlock, Slab, Stairs, VerticalSlab,Carpet,FakeBall,ModelTypeSize
     }
     public enum EntityType
     {
-        LivingBox
+        Invalid, LivingBox
     }
+
     public struct WorldGenerationData
     {
         public WorldGenerationData()
@@ -28,6 +29,7 @@ namespace Scripting
         public double Frequency = 256.0;
         public int YLevelStretch = 96;
         public int BiomeNoiseRange = 40;
+
         public BlockType Filler = BlockType.Air;
         public BlockType UnderGround = BlockType.Stone;
         public BlockType Dirt = BlockType.Dirt;
@@ -192,6 +194,8 @@ namespace Scripting
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void Create(Entity entity);
         [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void GetPlayerFacingEntity(ulong UUID, out Entity entity);
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void Kill(ulong UUID);
 
         public static ulong EntityId = 0;
@@ -203,6 +207,9 @@ namespace Scripting
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void SetPosition(ulong UUID, Vector3<double> Position);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern static void GetPosition(ulong UUID, out Vector3<double> Position);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void RemoveItemFromInventory(ulong UUID, ItemStack Item);
@@ -290,6 +297,7 @@ namespace Scripting
             Data.Blocks[(int)BlockType.DirtStairs] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.Stairs);
             Data.Blocks[(int)BlockType.DirtVerticalSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.VerticalSlab);
             Data.Blocks[(int)BlockType.LogCarpet] = new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5),BlockModelType.Carpet);
+            Data.Blocks[(int)BlockType.Haybale] = new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5), BlockModelType.FakeBall);
 
             Data.Items[(int)BlockType.Air] = new ItemProperties(0);
             Data.Items[(int)BlockType.Grass] = new ItemProperties(1);
@@ -305,6 +313,7 @@ namespace Scripting
             Data.Items[(int)BlockType.DirtStairs] = new ItemProperties(2);
             Data.Items[(int)BlockType.DirtVerticalSlab] = new ItemProperties(2);
             Data.Items[(int)BlockType.LogCarpet] = new ItemProperties(4);
+            Data.Items[(int)BlockType.Haybale] = new ItemProperties(5);
 
             Data.Items[(int)ItemType.Drygrassblade] = new ItemProperties(9);
             Data.Items[(int)ItemType.Stick] = new ItemProperties(11);
@@ -374,6 +383,18 @@ namespace Scripting
                     new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(1.0f,1.0f), Direction.Down, 32 ,5),
                 }
             };
+            Data.BlockModels[(int)BlockModelType.FakeBall] = new Model()
+            {
+                faces = new Face[]
+                {
+                    new Face(new Vector3<float>(0.6f,0.0f,0.0f), new Vector2<float>(0.6f,0.6f), Direction.Right, 1, 0),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(0.6f,0.6f), Direction.Left, 2, 1),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.6f), new Vector2<float>(0.6f,0.6f), Direction.Forward, 4, 2),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(0.6f,0.6f), Direction.Backward, 8, 3),
+                    new Face(new Vector3<float>(0.0f,0.6f,0.0f), new Vector2<float>(0.6f,0.6f), Direction.Up, 16, 4),
+                    new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(0.6f,0.6f), Direction.Down, 32, 5),
+                }
+            };
         }
         public static void GlobalUpdateEvent()
         {
@@ -381,14 +402,6 @@ namespace Scripting
         }
         public static void PlayerUpdateEvent(ulong UUID)
         {
-            Block.GetPlayerFacingBlock(UUID, out Block block);
-            if (block.Type != BlockType.Invalid)
-            {
-                Block.ReplaceBlock(block, BlockType.Air);
-
-                ItemStack itemStack = new ItemStack((ItemType)block.Type, 1);
-                Player.AddItemToInventory(UUID, itemStack);
-            }
         }
         public static void OnRightClick(ulong UUID)
         {
@@ -407,10 +420,21 @@ namespace Scripting
                 {
                     Block.ReplaceBlock(block2, BlockType.Dirt);
                 }
+                else if(Item.Type == ItemType.Stick)
+                {
+                    Entity entity = new Entity(Entity.EntityId++, new Vector3<double>(block.Position.x, block.Position.y, block.Position.z), new Vector3<double>(1, 1, 1), EntityType.LivingBox);
+                    Entity.Create(entity);
+                }
             }
         }
         public static void OnLeftClick(ulong UUID)
         {
+            Entity.GetPlayerFacingEntity(UUID, out Entity entity);
+            if(entity.entityType != EntityType.Invalid)
+            {
+                Entity.Kill(entity.UUID);
+            }
+
             Block.GetPlayerFacingBlock(UUID, out Block block);
             if (block.Type != BlockType.Invalid)
             {
@@ -422,18 +446,18 @@ namespace Scripting
         }
         public static void OnMiddleClick(ulong UUID)
         {
-            //Player.IncrementRenderDistance(1);
-            //Gui gui = new()
-            //{
-            //    Color = new(0.6f, 0.6f, 0.6f, 0.7f),
-            //    Slots = new Slot[] {
-            //        new() { Position = new Vector2<float>(1, 1), Active = true},
-            //        new() { Position = new Vector2<float>(0, 0), Active = true},
-            //        new() { Position = new Vector2<float>(0, 1), Active = true},
-            //        new() { Position = new Vector2<float>(1, 0), Active = true},
-            //    }
-            //};
-            //Player.HandleGui(UUID, gui, true);
+            Player.IncrementRenderDistance(1);
+            Gui gui = new()
+            {
+                Color = new(0.6f, 0.6f, 0.6f, 0.7f),
+                Slots = new Slot[] {
+                    new() { Position = new Vector2<float>(1, 1), Active = true},
+                    new() { Position = new Vector2<float>(0, 0), Active = true},
+                    new() { Position = new Vector2<float>(0, 1), Active = true},
+                    new() { Position = new Vector2<float>(1, 0), Active = true},
+                }
+            };
+            Player.HandleGui(UUID, gui, true);
         }
         public static void OnCommand(ulong UUID, string Command)
         {

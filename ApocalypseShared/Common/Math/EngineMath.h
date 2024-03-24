@@ -21,6 +21,7 @@ public:
 	static int Floor(float a);
 	static int Floor(double a);
 	static int Powi(int a, int b);
+	static double Powd(double a, int b);
 	static int Abs(int a);
 	static double Abs(double a);
 };

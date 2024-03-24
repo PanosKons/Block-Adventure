@@ -23,6 +23,7 @@ Player::Player(Credentials& credentials)
 	JumpCooldown = 0.0f;
 	Crouch = false;
 	Godmode = true;
+	ReachDistance = 6;
 	cameraMode = CameraMode::FirstPerson;
 }
 Player::~Player() {}
@@ -53,13 +54,43 @@ Vector3<double> Player::GetLookPosition()
 	}
 	}
 }
-Entity& Player::GetFacingEntity()
+Entity* Player::GetFacingEntity()
 {
 	Ray ray(GetLookPosition(), Pitch, Yaw);
+	std::vector<Entity*> ReachableEntities;
+	Vector3<int> ChunkPosition = Vector::IntVector(Position) / ChunkSize;
+	for (int x = ChunkPosition.x - 1; x <= ChunkPosition.x + 1; x++)
+	{
+		for (int y = ChunkPosition.y - 1; y <= ChunkPosition.y + 1; y++)
+		{
+			for (int z = ChunkPosition.z - 1; z <= ChunkPosition.z + 1; z++)
+			{
+				Chunk* chunk = WorldManager::BaseWorld->GetChunkDirect({ x,y,z });
+				if (chunk == nullptr) continue;
+				for (Entity& entity : chunk->entities)
+				{
+					if (Math::Powd(entity.Position.x - Position.x, 2) + Math::Powd(entity.Position.y - Position.y, 2) + Math::Powd(entity.Position.z - Position.z, 2) <= Math::Powi(ReachDistance, 2))
+					{
+						ReachableEntities.push_back(&entity);
+					}
+				}
+			}
+		}
+	}
 	while (true)
 	{
-	}
+		for (Entity* entity : ReachableEntities)
+			if (ray.CurrentPosition.x >= entity->Position.x - entity->Hitbox.x / 2
+				&& ray.CurrentPosition.x <= entity->Position.x + entity->Hitbox.x / 2
+				&& ray.CurrentPosition.y >= entity->Position.y - entity->Hitbox.y / 2
+				&& ray.CurrentPosition.y <= entity->Position.y + entity->Hitbox.y / 2
+				&& ray.CurrentPosition.z >= entity->Position.z - entity->Hitbox.z / 2
+				&& ray.CurrentPosition.z <= entity->Position.z + entity->Hitbox.z / 2) return entity;
 
+		ray.Step(0.05);
+		if (ray.GetLengthSquared() > ReachDistance * ReachDistance)
+			return nullptr;
+	}
 }
 Block Player::GetFacingBlock()
 {
@@ -95,7 +126,7 @@ Block Player::GetFacingBlock()
 			}
 		}
 		ray.Step(0.05);
-		if (ray.GetLengthSquared() > 36.0)
+		if (ray.GetLengthSquared() > ReachDistance * ReachDistance)
 			return Block();
 		block = WorldManager::BaseWorld->GetBlock(Vector::FloorVector(ray.CurrentPosition));
 	}
@@ -136,7 +167,7 @@ Block Player::GetBlockToPlace()
 			}
 		}
 		ray.Step(0.05);
-		if (ray.GetLengthSquared() > 36.0)
+		if (ray.GetLengthSquared() > ReachDistance * ReachDistance)
 			return Block();
 		lastBlock = block;
 		block = WorldManager::BaseWorld->GetBlock(Vector::FloorVector(ray.CurrentPosition));

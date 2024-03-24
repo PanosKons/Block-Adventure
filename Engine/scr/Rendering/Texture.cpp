@@ -6,6 +6,7 @@ static unsigned char* m_LocalBuffer;
 static int m_Width, m_Height, m_BPR;
 static unsigned int m_RendererID;
 void Texture::Bind(unsigned int slot) {
+	/////////m_RendererID is per texture!!! should fix it
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, m_RendererID);
 }

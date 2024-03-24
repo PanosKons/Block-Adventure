@@ -193,6 +193,21 @@ static void GetPlayerFacingBlock(uint64_t UUID, CSBlock* csblock)
         csblock->BlockType = -1;
     }
 }
+static void GetPlayerFacingEntity(uint64_t UUID, Entity* csentity)
+{
+    Entity* entity = EntityManager::GetPlayer(UUID)->GetFacingEntity();
+    if (entity != nullptr)
+    {
+        csentity->entityType = entity->entityType;
+        csentity->Position = entity->Position;
+        csentity->Hitbox = entity->Hitbox;
+        csentity->UUID = entity->UUID;
+    }
+    else
+    {
+        csentity->entityType = 0;
+    }
+}
 static void GetPlayerBlockToPlace(uint64_t UUID, CSBlock* csblock)
 {
     Block block = EntityManager::GetPlayer(UUID)->GetBlockToPlace();
@@ -263,6 +278,13 @@ static void SetPosition(uint64_t UUID, Vector3<double> Position)
     data.UUID = UUID;
     NetworkingServer::SendDataAllClients(Packet::PlayerPosition, data);
 }
+static void GetPosition(uint64_t UUID, Vector3<double>* Position)
+{
+    Vector3<double> position = EntityManagerServer::GetPlayer(UUID)->Position;
+    Position->x = position.x;
+    Position->y = position.y;
+    Position->z = position.z;
+}
 static void IncrementRenderDistance(int value)
 {
     WorldManagerServer::IncrementRenderDistance(value);
@@ -301,11 +323,13 @@ void ScriptingManager::RegisterInternalCalls()
     mono_add_internal_call("Scripting.Player::AddItemToInventory", AddItemToInventory);
     mono_add_internal_call("Scripting.Player::RemoveItemFromInventory", RemoveItemFromInventory);
     mono_add_internal_call("Scripting.Player::SetPosition", SetPosition);
+    mono_add_internal_call("Scripting.Player::GetPosition", GetPosition);
     mono_add_internal_call("Scripting.Player::GetHoldingItemStack", GetHoldingItemStack);
     mono_add_internal_call("Scripting.Player::IncrementRenderDistance", IncrementRenderDistance);
     mono_add_internal_call("Scripting.Player::HandleGui", HandleGui);
 
     mono_add_internal_call("Scripting.Entity::Create", CreateEntity);
+    mono_add_internal_call("Scripting.Entity::GetPlayerFacingEntity", GetPlayerFacingEntity);
     mono_add_internal_call("Scripting.Entity::Kill", KillEntity);
 }
 

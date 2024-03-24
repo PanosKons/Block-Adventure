@@ -30,3 +30,13 @@ int Math::Powi(int a, int b)
 	}
 	return res;
 }
+
+double Math::Powd(double a, int b)
+{
+	double res = 1;
+	for (int i = 0; i < b; i++)
+	{
+		res *= a;
+	}
+	return res;
+}

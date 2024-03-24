@@ -16,9 +16,60 @@ namespace Renderer {
 	static std::vector<RenderCommand> RenderCommandQueue;
 
 	static View view = View::None;
-	static std::unique_ptr<Shader> m_Shader;
+	static std::unique_ptr<Shader> BaseShader;
+	static std::unique_ptr<Shader> PostShader;
 	static std::vector<std::string> m_Textures;
 	static glm::mat4 proj;
+
+
+	static unsigned int frameBuffer;
+	static unsigned int colorBuffer;
+
+	unsigned int Temp(unsigned int* colorbuffer)
+	{
+		int width = Client::ScreenWidth;
+		int height = Client::ScreenHeight;
+		glfwGetFramebufferSize(Client::ApplicationWindow, &width, &height);
+		unsigned int colorBuffer;
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glGenTextures(1, &colorBuffer);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+		*colorbuffer = colorBuffer;
+
+
+		glfwGetFramebufferSize(Client::ApplicationWindow, &width, &height);
+
+		unsigned int depthbuffer;
+		glGenRenderbuffers(1, &depthbuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+
+
+		unsigned int framebuffer;
+
+		glGenFramebuffers(1, &framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			GL_TEXTURE_2D, colorBuffer, 0);
+
+		glFramebufferRenderbuffer(
+			GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+			GL_RENDERBUFFER, depthbuffer);
+
+		////////////////////// DELETE WHEN MAKE CLASSES
+		//glDeleteRenderbuffers(1, &depthbuffer);
+		//glDeleteTextures(1, &colorbuffer);
+		//glDeleteFramebuffers(1, &framebuffer);
+
+		return framebuffer;
+	}
 
 	int CreateWindow(const std::string& name)
 	{
@@ -53,26 +104,38 @@ namespace Renderer {
 		unsigned int m_RendererID;
 		glCreateVertexArrays(1, &m_RendererID);
 		glBindVertexArray(m_RendererID);
+		
+		////////////////////////////////////////
+		frameBuffer = Temp(&colorBuffer);
 
-		m_Shader = std::make_unique<Shader>("res/shaders/Base.shader");
-		m_Shader->Bind();
+		BaseShader = std::make_unique<Shader>("res/shaders/Base.shader");
+		PostShader = std::make_unique<Shader>("res/shaders/Post.shader");
+
+		BaseShader->Bind();
 		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
-		m_Shader->SetUniform1iv("u_texture", textures, 32);
+		BaseShader->SetUniform1iv("u_texture", textures, 32);
+		//Slot 3 occupied by post processing
 		Texture::Load("res/textures/cursor.png", 12);
 		Texture::Load("res/textures/selected_slot.png", 15);
 		Texture::Load("res/textures/text.png", 13);
 		Texture::Load("res/textures/slot.png", 14);
 		Texture::Load("res/textures/selection.png", 1);
 		Texture::Load("res/textures/Robbie.png", 0);
+		PostShader->Bind();
+		PostShader->SetUniform1i("colorBuffer", 3);
 
 		MeshParser::ParseMesh("untitled.obj",0);
 		glFrontFace(GL_CW);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+
 		return 0;
 	}
 	void Render()
 	{
+		glEnable(GL_DEPTH_TEST);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		BaseShader->Bind();
 		glClearColor(0.4f, 0.6f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -103,11 +166,11 @@ namespace Renderer {
 
 					proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
 					glm::mat4 view = glm::lookAt(CameraPosition, CameraPosition + front, glm::vec3(0.0f, 1.0f, 0.0f));
-					m_Shader->SetUniformMat4f("u_V", proj * view);
+					BaseShader->SetUniformMat4f("u_V", proj * view);
 				}
 				else if (view == View::UI)
 				{
-					m_Shader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
+					BaseShader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
 				}
 			}
 			renderCommand.renderData->vertexBuffer.Bind();
@@ -129,6 +192,17 @@ namespace Renderer {
 			}
 		}
 		RenderCommandQueue.clear();
+
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
+		glClearColor(0.4f, 0.6f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		PostShader->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		glfwSwapBuffers(Client::ApplicationWindow);
 		glfwPollEvents();
 	}

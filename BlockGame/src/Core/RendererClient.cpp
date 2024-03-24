@@ -389,6 +389,9 @@ void RendererClient::RenderUI(double TimeStep)
 		Block LookBlock = EntityManagerClient::GetPlayer().GetFacingBlock();
 		if (LookBlock.data != nullptr)
 			RenderBuilder::AddText(UIRenderData, "Facing block:" + StringConvertions::ToString(LookBlock.Position.x) + "," + StringConvertions::ToString(LookBlock.Position.y) + "," + StringConvertions::ToString(LookBlock.Position.z), { 0.0f,Client::ScreenHeight - 100.0f });
+		Entity* LookEntity = EntityManagerClient::GetPlayer().GetFacingEntity();
+		if(LookEntity != nullptr)
+			RenderBuilder::AddText(UIRenderData, "Facing entity:" + StringConvertions::ToString(LookEntity->Position.x) + "," + StringConvertions::ToString(LookEntity->Position.y) + "," + StringConvertions::ToString(LookEntity->Position.z), { 0.0f,Client::ScreenHeight - 160.0f });
 	}
 	//Health and Inventory
 	{
