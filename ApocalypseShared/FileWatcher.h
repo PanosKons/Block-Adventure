@@ -3,6 +3,9 @@
 class FileWatcher
 {
 public:
-	static void WatchFile(std::string&& path, std::function<void()> callback);
+	FileWatcher(const std::string& path, std::function<void()> callback);
+	~FileWatcher();
+private:
+	void* watch;
 };
 

@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "../vendor/glm/glm.hpp"
 #include "../vendor/glm/gtc/matrix_transform.hpp"
+#include "FileWatcher.h"
 
 struct ShaderProgramSource {
 	std::string VertexSource;
@@ -18,6 +19,8 @@ public:
 	~Shader();
 	void Bind() const;
 	void UnBind() const;
+	bool Reload();
+	void SetChanged() { isChanged = true; };
 
 	//Set uniforms
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
@@ -30,4 +33,7 @@ private:
 	unsigned int CreateShaders(const std::string& VertexShader, const std::string& FragmentShader);
 	int GetUniformLocation(const std::string& name);
 	ShaderProgramSource ParseShader(const std::string& filepath);
+
+	FileWatcher ShaderWatcher;
+	bool isChanged = false;
 };

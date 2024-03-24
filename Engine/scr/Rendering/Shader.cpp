@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "Shader.h"
 #include <glad/glad.h>
+#include "Logger.h"
+
 Shader::Shader(const std::string& filepath)
-	:m_FilePath(filepath), m_Renderer_ID(0)
+	:m_FilePath(filepath), m_Renderer_ID(0), ShaderWatcher(filepath, [this]() {this->SetChanged(); })
 {
 	ShaderProgramSource source = ParseShader(filepath);
 	m_Renderer_ID = CreateShaders(source.VertexSource, source.FragmentSource);
@@ -69,6 +71,22 @@ void Shader::Bind() const {
 }
 void Shader::UnBind() const {
 	glUseProgram(0);
+}
+bool Shader::Reload()
+{
+	if (isChanged == true)
+	{
+		WARN("Shader ", m_FilePath, " modified");
+		WARN("Reloading shader...");
+		isChanged = false;
+
+		glDeleteProgram(m_Renderer_ID);
+		ShaderProgramSource source = ParseShader(m_FilePath);
+		m_Renderer_ID = CreateShaders(source.VertexSource, source.FragmentSource);
+
+		return true;
+	}
+	return false;
 }
 void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) {
 	glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);

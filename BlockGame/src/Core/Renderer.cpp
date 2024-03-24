@@ -70,6 +70,19 @@ namespace Renderer {
 
 		return framebuffer;
 	}
+	void ReloadShaders()
+	{
+		if (BaseShader->Reload())
+		{
+			BaseShader->Bind();
+			int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
+			BaseShader->SetUniform1iv("u_texture", textures, 32);
+		}
+		if (PostShader->Reload()) {
+			PostShader->Bind();
+			PostShader->SetUniform1i("colorBuffer", 3);
+		}
+	}
 
 	int CreateWindow(const std::string& name)
 	{
@@ -132,6 +145,8 @@ namespace Renderer {
 	}
 	void Render()
 	{
+		ReloadShaders();
+
 		glEnable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 		BaseShader->Bind();
