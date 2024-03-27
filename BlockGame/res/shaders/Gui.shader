@@ -5,12 +5,10 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 colorr;
 layout(location = 2) in vec2 texCoord;
 layout(location = 3) in float texId;
-layout(location = 4) in vec3 normalv;
 
 out vec4 v_color;
 out vec2 v_TexCoord;
 out float v_tex;
-out vec3 v_normal;
 
 
 uniform mat4 u_V;
@@ -21,7 +19,6 @@ void main()
 	v_TexCoord = texCoord;
 	v_color = colorr;
 	v_tex = texId;
-	v_normal = normalv;
 };
 
 #shader fragment
@@ -33,7 +30,6 @@ in vec2 v_TexCoord;
 uniform sampler2D u_texture[32];
 in vec4 v_color;
 in float v_tex;
-in vec3 v_normal;
 
 const float a_light = 0.3;
 void main()
@@ -47,8 +43,4 @@ void main()
 	else {
 		color = v_color;
 	}
-	float b_light = dot(v_normal, -vec3(-0.8,-0.5,-0.6)) * 0.5;
-	if(b_light < 0) b_light = 0;
-	b_light += a_light;
-	color = vec4(color.r * b_light ,color.g * b_light ,color.b * b_light, color.a);
 };

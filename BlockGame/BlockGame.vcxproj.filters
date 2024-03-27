@@ -93,5 +93,6 @@
   <ItemGroup>
     <None Include="res\shaders\Base.shader" />
     <None Include="res\shaders\Post.shader" />
+    <None Include="res\shaders\Gui.shader" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
+
 #define ONEOVER16 0.0625f
 void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction, unsigned char texture, float alpha)
 {
@@ -14,11 +15,12 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	float texcordsX = (texture % 16) / 16.0f;
 	float texcordsY = (texture / 16) / 16.0f;
 	a.texCords = { texcordsX, texcordsY };
+	a.color = { 1,1,1,alpha };
 	switch (direction)
 	{
 	case Direction::Backward:
 	{
-		a.color = { 0.9f,0.9f,0.9f,alpha };
+		a.normal = { 0,0,-1 };
 		a.position = Position;
 		vertexBuffer->Add(a);
 		a.position.x += Size.x;
@@ -34,7 +36,7 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Forward:
 	{
-		a.color = { 0.85f,0.85f,0.85f,alpha };
+		a.normal = { 0,0,1 };
 		a.position = Position;
 		a.position.x += Size.x;
 		vertexBuffer->Add(a);
@@ -51,7 +53,7 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Up:
 	{
-		a.color = { 1.0f,1.0f,1.0f,alpha };
+		a.normal = {0,1,0};
 		a.position = Position;
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
@@ -68,7 +70,7 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Down:
 	{
-		a.color = { 0.7f,0.7f,0.7f,alpha };
+		a.normal = { 0,-1,0 };
 		a.position = Position;
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
@@ -85,7 +87,7 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Left:
 	{
-		a.color = { 0.8f,0.8f,0.8f,alpha };
+		a.normal = { -1,0,0 };
 		a.position = Position;
 		a.position.z += Size.x;
 		a.texCords = { texcordsX, texcordsY };
@@ -103,7 +105,7 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Right:
 	{
-		a.color = { 0.75f,0.75f,0.75f,alpha };
+		a.normal = { 1,0,0 };
 		a.position = Position;
 		vertexBuffer->Add(a);
 		a.position.z += Size.x;
@@ -127,11 +129,11 @@ void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Ve
 	float texcordsX = 0.0f;
 	float texcordsY = 0.0f;
 	a.texCords = { texcordsX, texcordsY };
+	a.color = { 1,1,1,1 };
 	switch (direction)
 	{
 	case Direction::Backward:
 	{
-		a.color = { 0.9f,0.9f,0.9f,1 };
 		a.position = Position;
 		vertexBuffer->Add(a);
 		a.position.x += Size.x;
@@ -147,7 +149,6 @@ void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Ve
 	}
 	case Direction::Forward:
 	{
-		a.color = { 0.85f,0.85f,0.85f,1 };
 		a.position = Position;
 		a.position.x += Size.x;
 		vertexBuffer->Add(a);
@@ -164,7 +165,6 @@ void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Ve
 	}
 	case Direction::Up:
 	{
-		a.color = { 1.0f,1.0f,1.0f,1 };
 		a.position = Position;
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
@@ -181,7 +181,6 @@ void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Ve
 	}
 	case Direction::Down:
 	{
-		a.color = { 0.7f,0.7f,0.7f,1 };
 		a.position = Position;
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
@@ -198,7 +197,6 @@ void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Ve
 	}
 	case Direction::Left:
 	{
-		a.color = { 0.8f,0.8f,0.8f,1 };
 		a.position = Position;
 		a.position.z += Size.x;
 		a.texCords = { texcordsX, texcordsY };
@@ -216,7 +214,6 @@ void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Ve
 	}
 	case Direction::Right:
 	{
-		a.color = { 0.75f,0.75f,0.75f,1 };
 		a.position = Position;
 		vertexBuffer->Add(a);
 		a.position.z += Size.x;
@@ -269,7 +266,6 @@ void RendererClient::RenderBlock(VertexBuffer* vertexBuffer, IndexBuffer* indexB
 			RenderBlockFace(vertexBuffer, indexBuffer, face.position + Vector::FloatVector(block.Position), face.size, face.direction, bp.textureSides[face.textureIndex], alpha);
 	}
 }
-
 void RendererClient::RenderChunk(Chunk* chunk)
 {
 	ASSERT(chunk, "Invalid chunk in rendering");
@@ -337,7 +333,6 @@ void RendererClient::RenderWorld(World* world)
 		RenderChunk(chunk);
 	}
 }
-
 void RendererClient::RenderEntities()
 {
 	RenderBuilder::Begin(EntityRenderData);

@@ -17,7 +17,7 @@ namespace Renderer
 	{
 		RenderData* renderData;
 		View view;
-		bool Depth;
+		bool Depth; //Gui or world geometry
 	};
 	int CreateWindow(const std::string& name);
 	void Render();

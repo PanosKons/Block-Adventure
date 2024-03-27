@@ -17,6 +17,7 @@ namespace Renderer {
 
 	static View view = View::None;
 	static std::unique_ptr<Shader> BaseShader;
+	static std::unique_ptr<Shader> GuiShader;
 	static std::unique_ptr<Shader> PostShader;
 	static std::vector<std::string> m_Textures;
 	static glm::mat4 proj;
@@ -78,6 +79,12 @@ namespace Renderer {
 			int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 			BaseShader->SetUniform1iv("u_texture", textures, 32);
 		}
+		if (GuiShader->Reload())
+		{
+			GuiShader->Bind();
+			int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
+			GuiShader->SetUniform1iv("u_texture", textures, 32);
+		}
 		if (PostShader->Reload()) {
 			PostShader->Bind();
 			PostShader->SetUniform1i("colorBuffer", 3);
@@ -122,10 +129,14 @@ namespace Renderer {
 
 		BaseShader = std::make_unique<Shader>("res/shaders/Base.shader");
 		PostShader = std::make_unique<Shader>("res/shaders/Post.shader");
+		GuiShader = std::make_unique<Shader>("res/shaders/Gui.shader");
 
 		BaseShader->Bind();
 		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 		BaseShader->SetUniform1iv("u_texture", textures, 32);
+		GuiShader->Bind();
+		BaseShader->SetUniform1iv("u_texture", textures, 32);
+
 		//Slot 3 occupied by post processing
 		Texture::Load("res/textures/cursor.png", 12);
 		Texture::Load("res/textures/selected_slot.png", 15);
@@ -149,7 +160,6 @@ namespace Renderer {
 
 		glEnable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-		BaseShader->Bind();
 		glClearColor(0.4f, 0.6f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -180,11 +190,13 @@ namespace Renderer {
 
 					proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
 					glm::mat4 view = glm::lookAt(CameraPosition, CameraPosition + front, glm::vec3(0.0f, 1.0f, 0.0f));
+					BaseShader->Bind();
 					BaseShader->SetUniformMat4f("u_V", proj * view);
 				}
 				else if (view == View::UI)
 				{
-					BaseShader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
+					GuiShader->Bind();
+					GuiShader->SetUniformMat4f("u_V", glm::ortho(0.0f, (float)Client::ScreenWidth, 0.0f, (float)Client::ScreenHeight, -30.0f, 30.0f));
 				}
 			}
 			renderCommand.renderData->vertexBuffer.Bind();
@@ -193,14 +205,17 @@ namespace Renderer {
 			layout.Push<float>(4);
 			layout.Push<float>(2);
 			layout.Push<float>(1);
+			layout.Push<float>(3);
 			layout.Calculate();
 			if (renderCommand.Depth == true)
 			{
+				BaseShader->Bind();
 				//glDepthFunc(GL_ALWAYS);
 				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 			}
 			else
 			{
+				GuiShader->Bind();
 				//glDepthFunc(GL_LEQUAL);
 				glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 			}

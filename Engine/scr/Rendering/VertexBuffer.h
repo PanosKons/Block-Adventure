@@ -8,6 +8,7 @@ public:
 	Vector4<float> color;
 	Vector2<float> texCords;
 	float texId;
+	Vector3<float> normal;
 };
 class VertexBuffer
 {

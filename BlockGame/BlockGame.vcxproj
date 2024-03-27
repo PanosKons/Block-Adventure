@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Base.shader" />
+    <None Include="res\shaders\Gui.shader" />
     <None Include="res\shaders\Post.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
