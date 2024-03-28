@@ -26,8 +26,7 @@ void MainMenuScene::Update(double TimeStep)
 void MainMenuScene::Render(double TimeStep)
 {
 	Renderer::RenderCommand renderCommand;
-	renderCommand.view = Renderer::View::UI;
-	renderCommand.Depth = false;
+	renderCommand.renderCommandType = Renderer::RenderCommandType::UI2D;
 	renderCommand.renderData = &m_RenderData;
 	Renderer::AddCommand(renderCommand);
 }

@@ -47,4 +47,5 @@ MouseState Input::GetMouseState(int Mouse)
 		HoldState[Mouse] = true;
 	}
 	return ReturnState;
+	return MouseState();
 }

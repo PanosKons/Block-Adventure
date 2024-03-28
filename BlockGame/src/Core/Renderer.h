@@ -9,21 +9,20 @@
 
 namespace Renderer
 {
-	enum View
+	enum RenderCommandType
 	{
-		None, Player, UI
+		World, UI2D, UI3D
 	};
 	struct RenderCommand
 	{
 		RenderData* renderData;
-		View view;
-		bool Depth; //Gui or world geometry
+		RenderCommandType renderCommandType;
 	};
 	int CreateWindow(const std::string& name);
 	void Render();
 	void ShutDown();
 	bool ShouldWindowClose();
-	void AddCommand(RenderCommand renderCommand);
+	void AddCommand(RenderCommand& renderCommand);
 	void HideCursor(bool value);
 };
 namespace RenderBuilder

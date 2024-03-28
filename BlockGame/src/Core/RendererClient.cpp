@@ -10,6 +10,7 @@
 #define ONEOVER16 0.0625f
 void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction, unsigned char texture, float alpha)
 {
+	////////FIX NORMALS
 	Vertex a;
 	a.texId = 0.0f;
 	float texcordsX = (texture % 16) / 16.0f;
@@ -53,16 +54,19 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Up:
 	{
-		a.normal = {0,1,0};
+		a.normal = {-1,1,-1};
 		a.position = Position;
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
+		a.normal = { 1,1,-1 };
 		a.position.x += Size.x;
 		a.texCords.x += ONEOVER16;
 		vertexBuffer->Add(a);
+		a.normal = { 1,1,1 };
 		a.position.z += Size.y;
 		a.texCords.y += ONEOVER16;
 		vertexBuffer->Add(a);
+		a.normal = { -1,1,1 };
 		a.position.x = Position.x;
 		a.texCords.x = texcordsX;
 		vertexBuffer->Add(a);
@@ -122,7 +126,7 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	indexBuffer->AddRectangle();
 }
-void RenderSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction)
+void RenderBlockSelectorFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction)
 {
 	Vertex a;
 	a.texId = 1.0f;
@@ -302,15 +306,13 @@ void RendererClient::RenderChunk(Chunk* chunk)
 	chunk->MeshChanged = false;
 	{
 		Renderer::RenderCommand command;
-		command.view = Renderer::View::Player;
-		command.Depth = true;
+		command.renderCommandType = Renderer::RenderCommandType::World;
 		command.renderData = &rd.Solid;
 		Renderer::AddCommand(command);
 	}
 	{
 		Renderer::RenderCommand command;
-		command.view = Renderer::View::Player;
-		command.Depth = true;
+		command.renderCommandType = Renderer::RenderCommandType::World;
 		command.renderData = &rd.Transparent;
 		Renderer::AddCommand(command);
 	}
@@ -346,7 +348,7 @@ void RendererClient::RenderEntities()
 	{
 		for (Face& face : facingblock.GetBlockModel().Faces)
 		{
-			RenderSelectorFace(&EntityRenderData.vertexBuffer,&EntityRenderData.indexBuffer,face.position + Vector::FloatVector(facingblock.Position),face.size,face.direction);
+			RenderBlockSelectorFace(&EntityRenderData.vertexBuffer,&EntityRenderData.indexBuffer,face.position + Vector::FloatVector(facingblock.Position),face.size,face.direction);
 		}
 	}
 	for (auto& [key, chunk] : *WorldManager::BaseWorld->GetChunkMap())
@@ -360,8 +362,7 @@ void RendererClient::RenderEntities()
 	RenderBuilder::End(EntityRenderData);
 
 	Renderer::RenderCommand command;
-	command.view = Renderer::View::Player;
-	command.Depth = true;
+	command.renderCommandType = Renderer::RenderCommandType::World;
 	command.renderData = &EntityRenderData;
 	Renderer::AddCommand(command);
 }
@@ -445,8 +446,7 @@ void RendererClient::RenderUI(double TimeStep)
 	}
 	RenderBuilder::End(UIRenderData);
 	Renderer::RenderCommand command;
-	command.view = Renderer::View::UI;
-	command.Depth = false;
+	command.renderCommandType = Renderer::RenderCommandType::UI2D;
 	command.renderData = &UIRenderData;
 	Renderer::AddCommand(command);
 }

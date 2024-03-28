@@ -88,6 +88,9 @@ bool Shader::Reload()
 	}
 	return false;
 }
+void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2) {
+	glUniform3f(GetUniformLocation(name), v0, v1, v2);
+}
 void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) {
 	glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
 }
@@ -106,7 +109,7 @@ int Shader::GetUniformLocation(const std::string& name) {
 	}
 	int location = glGetUniformLocation(m_Renderer_ID, name.c_str());
 	if (location == -1) {
-		std::cout << "Uniform" << name << "Doesnt exist" << std::endl;
+		std::cout << "Uniform " << name << " doesnt exist" << std::endl;
 	}
 	m_UniformLocationCache[name] = location;
 

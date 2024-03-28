@@ -94,6 +94,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="scr\Rendering\DepthBuffer.h" />
+    <ClInclude Include="scr\Rendering\FrameBuffer.h" />
     <ClInclude Include="scr\Rendering\MeshParser.h" />
     <ClInclude Include="scr\Rendering\RenderData.h" />
     <ClInclude Include="scr\Rendering\IndexBuffer.h" />
@@ -105,6 +107,8 @@
     <ClInclude Include="scr\vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="scr\Rendering\DepthBuffer.cpp" />
+    <ClCompile Include="scr\Rendering\FrameBuffer.cpp" />
     <ClCompile Include="scr\Rendering\MeshParser.cpp" />
     <ClCompile Include="scr\Rendering\IndexBuffer.cpp" />
     <ClCompile Include="scr\Rendering\Shader.cpp" />
