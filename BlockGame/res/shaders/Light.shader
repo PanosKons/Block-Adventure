@@ -22,6 +22,7 @@ void main()
 
 #shader fragment
 #version 330 core
+
 out vec4 FragColor;
   
 in vec2 fragmentTexCoord;
@@ -30,14 +31,17 @@ uniform sampler2D u_texture[32];
 uniform vec3 lightdir;
 
 void main()
-{             
-    vec3 FragPos = texture(u_texture[4], fragmentTexCoord).rgb;
+{
+    float shadow = texture(u_texture[4], fragmentTexCoord).r;
     vec3 Normal = texture(u_texture[5], fragmentTexCoord).rgb;
     vec3 Albedo = texture(u_texture[6], fragmentTexCoord).rgb;
-    vec3 lighting = Albedo * 0.3;
+     
 
-    vec3 diffuse = 0.5 * max(dot(Normal, lightdir), 0.0) * Albedo * vec3(0.9,0.9,0.8);
-    lighting += diffuse;
+    vec3 ambient = Albedo * 0.6;
+    vec3 diffuse = 1.0 * max(dot(Normal, lightdir), 0.0) * Albedo * vec3(0.9,0.9,0.8);
+    
+    vec3 specular = vec3(0,0,0);
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * Albedo;  
     
     FragColor = vec4(lighting, 1.0);
 }  

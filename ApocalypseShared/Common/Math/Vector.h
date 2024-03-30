@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include <math.h>
 #include "EngineMath.h"
 template<typename T>

@@ -10,6 +10,7 @@
 #include "World/WorldManagerClient.h"
 #include "RendererClient.h"
 #include "Logger.h"
+#include "Entities/Sun.h"
 
 void GameScene::Start()
 {
@@ -24,6 +25,7 @@ void GameScene::Update(double TimeStep)
 {
 	EntityManagerClient::Tick();
 	EntityManagerClient::GetPlayer().InputTick(TimeStep);
+	Sun::Update();
 }
 
 void GameScene::Render(double TimeStep)

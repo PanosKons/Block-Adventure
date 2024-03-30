@@ -51,6 +51,9 @@
     <ClCompile Include="src\World\WorldManagerClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Entities\Sun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\GameManager.h">
@@ -89,11 +92,15 @@
     <ClInclude Include="src\World\WorldManagerClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Entities\Sun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\World.shader" />
     <None Include="res\shaders\Post.shader" />
     <None Include="res\shaders\Gui.shader" />
     <None Include="res\shaders\Light.shader" />
+    <None Include="res\shaders\LightDepth.shader" />
   </ItemGroup>
 </Project>

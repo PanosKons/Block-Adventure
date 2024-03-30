@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
+#include "Entities/Sun.h"
 
 #define ONEOVER16 0.0625f
 void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction, unsigned char texture, float alpha)
@@ -54,19 +55,16 @@ void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vecto
 	}
 	case Direction::Up:
 	{
-		a.normal = {-1,1,-1};
+		a.normal = {0,1,0};
 		a.position = Position;
 		a.texCords = { texcordsX, texcordsY };
 		vertexBuffer->Add(a);
-		a.normal = { 1,1,-1 };
 		a.position.x += Size.x;
 		a.texCords.x += ONEOVER16;
 		vertexBuffer->Add(a);
-		a.normal = { 1,1,1 };
 		a.position.z += Size.y;
 		a.texCords.y += ONEOVER16;
 		vertexBuffer->Add(a);
-		a.normal = { -1,1,1 };
 		a.position.x = Position.x;
 		a.texCords.x = texcordsX;
 		vertexBuffer->Add(a);
@@ -359,6 +357,7 @@ void RendererClient::RenderEntities()
 			RenderBuilder::AddCube(EntityRenderData, { (float)(entity.Position.x - entity.Hitbox.x / 2),(float)(entity.Position.y),(float)(entity.Position.z - entity.Hitbox.z / 2) }, Vector::FloatVector(entity.Hitbox), { 0.8f,0.8f,0.8f,1.0f });
 		}
 	}
+	RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(Sun::GetPosition()) , {1,1,1}, {1,1,1,1}); //SUN TEMP
 	RenderBuilder::End(EntityRenderData);
 
 	Renderer::RenderCommand command;
@@ -372,6 +371,7 @@ constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
 constexpr float SlotsX = 64.0f;
 constexpr float charHeight = 16.0f;
+
 
 void RendererClient::RenderUI(double TimeStep)
 {

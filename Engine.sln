@@ -7,15 +7,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlockGame", "BlockGame\Bloc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{9BE7875D-2E8D-4DB2-93E0-AEFBA89EBBCF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW", "GLFW\GLFW.vcxproj", "{154B857C-0182-860D-AA6E-6C109684020F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glad", "Glad\Glad.vcxproj", "{BDD6857C-A90D-870D-52FA-6C103E10030F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApocalypseServer", "ApocalypseServer\ApocalypseServer.vcxproj", "{38AD3C9C-0218-4547-9F07-B7D9A5786DF9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApocalypseShared", "ApocalypseShared\ApocalypseShared.vcxproj", "{31A60EA1-63B4-4987-BC9D-61F81582D43B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptCore", "ScriptCore\ScriptCore.csproj", "{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScriptCore", "ScriptCore\ScriptCore.csproj", "{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,18 +49,6 @@ Global
 		{9BE7875D-2E8D-4DB2-93E0-AEFBA89EBBCF}.Release|Any CPU.Build.0 = Release|x64
 		{9BE7875D-2E8D-4DB2-93E0-AEFBA89EBBCF}.Release|x64.ActiveCfg = Release|x64
 		{9BE7875D-2E8D-4DB2-93E0-AEFBA89EBBCF}.Release|x64.Build.0 = Release|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|Any CPU.Build.0 = Debug|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|x64.ActiveCfg = Debug|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|x64.Build.0 = Debug|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Dist|Any CPU.ActiveCfg = Dist|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Dist|Any CPU.Build.0 = Dist|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Dist|x64.ActiveCfg = Dist|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Dist|x64.Build.0 = Dist|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Release|Any CPU.ActiveCfg = Release|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Release|Any CPU.Build.0 = Release|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Release|x64.ActiveCfg = Release|x64
-		{154B857C-0182-860D-AA6E-6C109684020F}.Release|x64.Build.0 = Release|x64
 		{BDD6857C-A90D-870D-52FA-6C103E10030F}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{BDD6857C-A90D-870D-52FA-6C103E10030F}.Debug|Any CPU.Build.0 = Debug|x64
 		{BDD6857C-A90D-870D-52FA-6C103E10030F}.Debug|x64.ActiveCfg = Debug|x64

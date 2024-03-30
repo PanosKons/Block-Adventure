@@ -10,6 +10,7 @@
 #include "GameManager.h"
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
+#include "Entities/Sun.h"
 
 namespace Renderer {
 
@@ -19,6 +20,7 @@ namespace Renderer {
 	static std::unique_ptr<Shader> GuiShader;
 	static std::unique_ptr<Shader> PostShader;
 	static std::unique_ptr<Shader> LightShader;
+	static std::unique_ptr<Shader> LightDepthShader;
 
 	static glm::mat4 proj;
 
@@ -36,33 +38,34 @@ namespace Renderer {
 
 	static unsigned int gBuffer;
 	static unsigned int gPosition, gNormal, gAlbedoSpec, gDepth;
+	static unsigned int sBuffer;
+	static unsigned int sDepth;
 
 	void ReloadShaders()
 	{
+		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 		if (BaseShader->Reload())
 		{
 			BaseShader->Bind();
-			int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 			BaseShader->SetUniform1iv("u_texture", textures, 32);
 		}
 		if (GuiShader->Reload())
 		{
 			GuiShader->Bind();
-			int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
 			GuiShader->SetUniform1iv("u_texture", textures, 32);
 		}
 		if (LightShader->Reload())
 		{
-			LightShader->Bind();
-			int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
+			LightShader->Bind();			
 			LightShader->SetUniform1iv("u_texture", textures, 32);
 		}
 		if (PostShader->Reload()) {
 			PostShader->Bind();
-			PostShader->SetUniform1i("colorBuffer", 3);
+			PostShader->SetUniform1iv("u_texture", textures, 32);
+		}
+		if (LightDepthShader->Reload()) {
 		}
 	}
-
 	void createFrameBuffer()
 	{
 		glGenFramebuffers(1, &gBuffer);
@@ -95,7 +98,7 @@ namespace Renderer {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
 
-		// - tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+		// - tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
 		unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 		glDrawBuffers(3, attachments);
 
@@ -104,8 +107,25 @@ namespace Renderer {
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Client::ScreenWidth, Client::ScreenHeight);
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gDepth);
-	}
+	
+		//Shadow mapping
+		glGenFramebuffers(1, &sBuffer);
+		glActiveTexture(GL_TEXTURE0 + 7);
+		glGenTextures(1, &sDepth);
+		glBindTexture(GL_TEXTURE_2D, sDepth);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+			Client::ScreenWidth, Client::ScreenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);//Shadowmap resolution (you might want it different)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, sBuffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sDepth, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 	int CreateWindow(const std::string& name)
 	{
 		if (!glfwInit())
@@ -146,6 +166,7 @@ namespace Renderer {
 		PostShader = std::make_unique<Shader>("res/shaders/Post.shader");
 		GuiShader = std::make_unique<Shader>("res/shaders/Gui.shader");
 		LightShader = std::make_unique<Shader>("res/shaders/Light.shader");
+		LightDepthShader = std::make_unique<Shader>("res/shaders/LightDepth.shader");
 
 		BaseShader->Bind();
 		int textures[32] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31 };
@@ -154,6 +175,8 @@ namespace Renderer {
 		GuiShader->SetUniform1iv("u_texture", textures, 32);
 		LightShader->Bind();
 		LightShader->SetUniform1iv("u_texture", textures, 32);
+		PostShader->Bind();
+		PostShader->SetUniform1iv("u_texture", textures, 32);
 
 		//Slot 3 occupied by post processing
 		CursorTexture = std::make_unique<Texture>("res/textures/cursor.png", 12);
@@ -162,8 +185,6 @@ namespace Renderer {
 		SlotTexture = std::make_unique<Texture>("res/textures/slot.png", 14);
 		SelectionTexture = std::make_unique<Texture>("res/textures/selection.png", 1);
 		WorldTexture = std::make_unique<Texture>("res/textures/Robbie.png", 0);
-		PostShader->Bind();
-		PostShader->SetUniform1i("colorBuffer", 3);
 
 		createFrameBuffer();
 
@@ -174,14 +195,8 @@ namespace Renderer {
 
 		return 0;
 	}
-
-	void WorldRenderPass()
+	glm::mat4 getPlayerMatrix()
 	{
-		//glEnable(GL_DEPTH_TEST);
-		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		Vector3<double> LookPosition = EntityManagerClient::GetPlayer().GetLookPosition();
 		glm::vec3 CameraPosition = { LookPosition.x,LookPosition.y,LookPosition.z };
 
@@ -200,13 +215,23 @@ namespace Renderer {
 		}
 		glm::normalize(front);
 
-		proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, -30.0f);
+		proj = glm::perspective(glm::radians(EntityManagerClient::GetPlayer().Fov), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 0.1f, 100.0f);
 		glm::mat4 view = glm::lookAt(CameraPosition, CameraPosition + front, glm::vec3(0.0f, 1.0f, 0.0f));
-		BaseShader->Bind();
-		BaseShader->SetUniformMat4f("u_V", proj * view);
+		return proj * view;
+	}
+	glm::mat4 getSunMatrix()
+	{
+		auto position = Sun::GetPosition();
+		auto sunDir = Sun::GetDirection();
+		glm::mat4 lightProjection = glm::perspective(glm::radians(120.0f), (float)Client::ScreenWidth / (float)Client::ScreenHeight, 3.0f, 1000.0f);
+		glm::mat4 lightView = glm::lookAt({ position.x,position.y,position.z }, glm::vec3(position.x - sunDir.x, position.y - sunDir.y, position.z - sunDir.z), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		return lightProjection * lightView;
+	}
+	void RenderWorld()
+	{
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-
 		for (RenderCommand& renderCommand : RenderCommandQueue)
 		{
 			if (renderCommand.renderCommandType != RenderCommandType::World) continue;
@@ -221,6 +246,17 @@ namespace Renderer {
 
 			glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 		}
+	}
+	void WorldRenderPass()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		BaseShader->Bind();
+		BaseShader->SetUniformMat4f("u_V", getPlayerMatrix());
+		BaseShader->SetUniformMat4f("lightSpaceMatrix", getSunMatrix());
+		RenderWorld();
 	}
 	void UIRenderPass()
 	{
@@ -242,23 +278,32 @@ namespace Renderer {
 			glDrawElements(GL_TRIANGLES, (GLsizei)(renderCommand.renderData->indexBuffer.GetData().size()), GL_UNSIGNED_INT, renderCommand.renderData->indexBuffer.GetData().data());
 		}
 	}
-	float angle = 0.0f;
 	void LightingPass()
 	{
-		//////
-		angle += 0.01f;
-		////// 
-		//glDisable(GL_DEPTH_TEST);/////
+		//glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f); //change far_plane, near plane in point lights to render only needed objects
+		auto position = Sun::GetPosition();
+		auto sunDir = Sun::GetDirection();
+		//glm::mat4 lightView = glm::lookAt(glm::vec3(position.x, position.y, position.z),
+		//	glm::vec3(sunDir.x, sunDir.y, sunDir.z),
+		//	glm::vec3(0.0f, 1.0f, 0.0f));
+		//glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+
+
 		worldFrameBuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		LightShader->Bind();
-		LightShader->SetUniform3f("lightdir", cos(angle), sin(angle), 0);
+		
+		LightShader->SetUniform3f("lightdir", sunDir.x , sunDir.y, sunDir.z);
 		glActiveTexture(GL_TEXTURE0 + 4);
 		glBindTexture(GL_TEXTURE_2D, gPosition);
 		glActiveTexture(GL_TEXTURE0 + 5);
 		glBindTexture(GL_TEXTURE_2D, gNormal);
 		glActiveTexture(GL_TEXTURE0 + 6);
 		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+		glActiveTexture(GL_TEXTURE0 + 7);
+		glBindTexture(GL_TEXTURE_2D, sDepth);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//Post processing
@@ -268,11 +313,19 @@ namespace Renderer {
 		PostShader->Bind();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-
 	void Render()
 	{
 		//Shader reloading from file
 		ReloadShaders();
+
+		LightDepthShader->Bind();
+		LightDepthShader->SetUniformMat4f("lightSpaceMatrix", getSunMatrix());
+
+		glViewport(0, 0, Client::ScreenWidth, Client::ScreenHeight); //Shadowmap resolution (you might want it different)
+		glBindFramebuffer(GL_FRAMEBUFFER, sBuffer);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		RenderWorld();
+		glViewport(0, 0, Client::ScreenWidth, Client::ScreenHeight);
 
 		WorldRenderPass();
 		LightingPass();

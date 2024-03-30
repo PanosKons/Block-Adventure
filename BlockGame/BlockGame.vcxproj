@@ -59,13 +59,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\Glad\include;$(SolutionDir)\Engine\Dependencies\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Engine\Dependencies\GLFW</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);glfw3.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -76,7 +78,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/Core;src/Core/World;src/Core/UI;src/Core/Player;src/Core/Inventory;src;$(SolutionDir)\Engine\scr;$(SolutionDir)\Glad\include;$(SolutionDir)\Glad\include;$(SolutionDir)\Engine\Dependencies\GLFW\include;$(SolutionDir)\ApocalypseShared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -85,6 +87,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Engine\Dependencies\GLFW</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);glfw3.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -100,6 +104,7 @@
     <ClCompile Include="src\Core\Client.cpp" />
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\World\WorldManagerClient.cpp" />
+    <ClCompile Include="src\Entities\Sun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\RendererClient.h" />
@@ -114,6 +119,7 @@
     <ClInclude Include="src\Core\Client.h" />
     <ClInclude Include="src\Core\Renderer.h" />
     <ClInclude Include="src\World\WorldManagerClient.h" />
+    <ClInclude Include="src\Entities\Sun.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApocalypseShared\ApocalypseShared.vcxproj">
@@ -125,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Light.shader" />
+    <None Include="res\shaders\LightDepth.shader" />
     <None Include="res\shaders\World.shader" />
     <None Include="res\shaders\Gui.shader" />
     <None Include="res\shaders\Post.shader" />

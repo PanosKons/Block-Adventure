@@ -25,13 +25,13 @@ void main()
 
 in vec2 fragmentTexCoord;
 
-uniform sampler2D colorBuffer;
+uniform sampler2D u_texture[32];
 
 out vec4 color;
 
 void main()
 {
-    if(true){
+    if(false){
     float Pi = 6.28318530718; // Pi*2
     
     // GAUSSIAN BLUR SETTINGS {{{
@@ -45,14 +45,14 @@ void main()
     // Normalized pixel coordinates (from 0 to 1)
     vec2 uv = fragmentTexCoord;
     // Pixel colour
-    vec4 Color = texture(colorBuffer, uv);
+    vec4 Color = texture(u_texture[3], uv);
     
     // Blur calculations
     for( float d=0.0; d<Pi; d+=Pi/Directions)
     {
 		for(float i=1.0/Quality; i<=1.0; i+=1.0/Quality)
         {
-			Color += texture( colorBuffer, uv+vec2(cos(d),sin(d))*Radius*i);
+			Color += texture( u_texture[3], uv+vec2(cos(d),sin(d))*Radius*i);
         }
     }
     
@@ -60,9 +60,13 @@ void main()
     Color /= Quality * Directions;
     color = vec4(Color.r, Color.g, Color.b, 1.0);
     }
-    else
+    else if(true)
     {
-        vec4 pixel = texture(colorBuffer, fragmentTexCoord);
+        vec4 pixel = texture(u_texture[3], fragmentTexCoord);
         color = vec4(pixel.r, pixel.g, pixel.b, 1.0);
+    }
+    else{
+        float depthValue = texture(u_texture[4], fragmentTexCoord).x;
+        color = vec4(vec3(depthValue), 1.0);
     }
 }
