@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rendering\RenderBuilder.cpp" />
     <ClCompile Include="src\Core\RendererClient.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Entities\PlayerClient.cpp" />
@@ -107,6 +108,7 @@
     <ClCompile Include="src\Entities\Sun.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rendering\RenderBuilder.h" />
     <ClInclude Include="src\Core\RendererClient.h" />
     <ClInclude Include="src\Core\Input.h" />
     <ClInclude Include="src\Entities\PlayerClient.h" />

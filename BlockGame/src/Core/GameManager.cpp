@@ -29,7 +29,16 @@ void GameManager::Start()
 	}
 	Client::ScreenWidth = 1280;
 	Client::ScreenHeight = 720;
-	Renderer::CreateWindow("GAME");
+
+	Renderer::Init();
+	Client::ApplicationWindow = Renderer::ConstructWindow("Block Adventure", false);
+	Client::ImGuiWindow = Renderer::ConstructWindow("ImGui", true);
+
+	Renderer::BindWindow(Client::ImGuiWindow);
+	Renderer::SetupImGui();
+
+	Renderer::BindWindow(Client::ApplicationWindow);
+	Renderer::Setup();
 
 	s_Scene = (Scene*)new MainMenuScene();
 	s_Scene->Start();

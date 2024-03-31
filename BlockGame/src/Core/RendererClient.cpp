@@ -7,6 +7,7 @@
 #include "Client.h"
 #include "Entities/EntityManagerClient.h"
 #include "Entities/Sun.h"
+#include "Rendering/RenderBuilder.h"
 
 #define ONEOVER16 0.0625f
 void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction, unsigned char texture, float alpha)
@@ -357,7 +358,7 @@ void RendererClient::RenderEntities()
 			RenderBuilder::AddCube(EntityRenderData, { (float)(entity.Position.x - entity.Hitbox.x / 2),(float)(entity.Position.y),(float)(entity.Position.z - entity.Hitbox.z / 2) }, Vector::FloatVector(entity.Hitbox), { 0.8f,0.8f,0.8f,1.0f });
 		}
 	}
-	RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(Sun::GetPosition()) , {1,1,1}, {1,1,1,1}); //SUN TEMP
+	RenderBuilder::AddCube(EntityRenderData, Vector::FloatVector(Sun::GetPosition()) , {10,10,10}, {1,1,1,1}); //SUN TEMP
 	RenderBuilder::End(EntityRenderData);
 
 	Renderer::RenderCommand command;

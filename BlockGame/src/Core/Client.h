@@ -5,6 +5,7 @@ namespace Client {
 	extern int ScreenWidth;
 	extern int ScreenHeight;
 	extern GLFWwindow* ApplicationWindow;
+	extern GLFWwindow* ImGuiWindow;
 	extern std::wstring ip;
 	extern int port;
 	extern bool ShouldStop;

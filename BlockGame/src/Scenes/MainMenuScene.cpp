@@ -5,6 +5,7 @@
 #include "GameManager.h"
 #include "GameScene.h"
 #include "Logger.h"
+#include "Rendering/RenderBuilder.h"
 
 void MainMenuScene::Start()
 {

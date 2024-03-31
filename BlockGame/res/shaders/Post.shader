@@ -66,7 +66,7 @@ void main()
         color = vec4(pixel.r, pixel.g, pixel.b, 1.0);
     }
     else{
-        float depthValue = texture(u_texture[4], fragmentTexCoord).x;
+        float depthValue = texture(u_texture[7], fragmentTexCoord).x;
         color = vec4(vec3(depthValue), 1.0);
     }
 }

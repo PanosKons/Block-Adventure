@@ -54,7 +54,7 @@ float getShadow(){
 	vec2 coords = projCoords.xy;
     float depth = v_FragPosLightSpace.z / v_FragPosLightSpace.w;
     depth = (1.0 - 0.0) * 0.5 * depth + (1.0 + 0.0) * 0.5;
-	float bias = 0.005;
+	float bias = 0.002;
 	return depth - bias > texture(u_texture[7], coords).r  ? 1.0 : 0.0;
 }
 

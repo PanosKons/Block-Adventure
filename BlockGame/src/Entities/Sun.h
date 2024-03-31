@@ -7,6 +7,7 @@ public:
 	static void Update();
 	static Vector3<double> GetPosition();
 	static Vector3<float> GetDirection();
+	static float* getAngle() { return &angle; };
 private:
 	inline static float angle = 1.0f;
 };

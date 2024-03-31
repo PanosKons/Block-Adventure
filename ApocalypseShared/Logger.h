@@ -16,7 +16,7 @@
 #define INFO(...) Logger::SetConsoleColor(Logger::Gray); Logger::Log(__VA_ARGS__)
 #define WARN(...) Logger::SetConsoleColor(Logger::Yellow); Logger::Log(__VA_ARGS__)
 #define ERR(...) Logger::SetConsoleColor(Logger::Red); Logger::Log(__VA_ARGS__)
-#define ASSERT(x,y) if(x==0) { ERR(y); }
+#define ASSERT(x, y) if(x==0) { ERR(__FUNCTION__," [", __LINE__,"]: ", y); }
 #define PROFILE Timer timer(__FUNCTION__)
 #else
 #define TRACE(...)

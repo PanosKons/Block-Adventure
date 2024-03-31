@@ -5,11 +5,13 @@
 #include "Common/Math/Vector.h"
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
+#include "Client.h"
 #undef CreateWindow
 
-namespace Renderer
+class Renderer
 {
-	enum RenderCommandType
+public:
+	enum class RenderCommandType
 	{
 		World, UI2D, UI3D
 	};
@@ -18,19 +20,15 @@ namespace Renderer
 		RenderData* renderData;
 		RenderCommandType renderCommandType;
 	};
-	int CreateWindow(const std::string& name);
-	void Render();
-	void ShutDown();
-	bool ShouldWindowClose();
-	void AddCommand(RenderCommand& renderCommand);
-	void HideCursor(bool value);
-};
-namespace RenderBuilder
-{
-	void Begin(RenderData& renderData);
-	void AddSquare(RenderData& renderData, Vector2<float> Position, Vector2<float> Size, Vector4<float> Color, Vector2<float> TexCords, Vector2<float> TexSize, float TextureID, float layer = 0.0f);
-	void AddText(RenderData& renderData, std::string_view Text, Vector2<float> Position, float layer = 0.0f);
-	void AddCube(RenderData& renderData, Vector3<float> Position, Vector3<float> Size, Vector4<float> Color);
-	void AddMesh(RenderData& renderData, Vector3<float> Position, Vector3<float> Size, Vector4<float> Color, unsigned int slot);
-	void End(RenderData& renderData);
+	static void Init();
+	static GLFWwindow* ConstructWindow(const std::string& name, bool resizable);
+	static void Setup();
+	static void SetupImGui();
+	static void Render();
+	static void ShutDown();
+	static bool ShouldWindowClose(GLFWwindow* window);
+	static void AddCommand(RenderCommand& renderCommand);
+	static void HideCursor(bool value);
+	static void BindWindow(GLFWwindow* window);
+private:
 };
