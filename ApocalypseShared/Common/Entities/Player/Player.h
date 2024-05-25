@@ -30,7 +30,7 @@ enum Action
 {
 	Release, Press, Repeat
 };
-constexpr int MaxGUISlots = 10;
+constexpr int MaxGUISlots = 64;
 struct Gui
 {
 	struct Slot

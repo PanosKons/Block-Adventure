@@ -30,6 +30,7 @@ static MonoClass* DataClass = nullptr;
 static MonoMethod* LeftMouseEventMethod = nullptr;
 static MonoMethod* RightMouseEventMethod = nullptr;
 static MonoMethod* MiddleMouseEventMethod = nullptr;
+static MonoMethod* KeyEventMethod = nullptr;
 static MonoMethod* GlobalUpdateMethod = nullptr;
 static MonoMethod* CommandEventMethod = nullptr;
 static MonoMethod* PlayerUpdateMethod = nullptr;
@@ -124,6 +125,7 @@ void ScriptingManager::Load()
     LeftMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnLeftClick", 1);
     RightMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnRightClick", 1);
     MiddleMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnMiddleClick", 1);
+    KeyEventMethod = mono_class_get_method_from_name(EventClass, "OnKeyPress", 1);
     GlobalUpdateMethod = mono_class_get_method_from_name(EventClass, "GlobalUpdateEvent", 0);
     PlayerUpdateMethod = mono_class_get_method_from_name(EventClass, "PlayerUpdateEvent", 1);
 
@@ -375,12 +377,17 @@ void ScriptingManager::OnCommandEvent(uint64_t UUID, Command& command)
     mono_runtime_invoke(CommandEventMethod, nullptr, parameters.data(), nullptr);
 }
 
-void ScriptingManager::OnKeyEvent(bool PKeyPressed, bool RKeyPressed)
+void ScriptingManager::OnKeyEvent(uint64_t UUID, bool PKeyPressed, bool RKeyPressed, bool EKeyPressed)
 {
     if (PKeyPressed == true)
     {
         WARN("Reloading c# assembly...");
         ReloadAssembly();
+    }
+    if (EKeyPressed == true)
+    {
+        void* UUIDp = &UUID;
+        mono_runtime_invoke(KeyEventMethod, nullptr, &UUIDp, nullptr);
     }
 }
 
@@ -400,7 +407,7 @@ void ScriptingManager::GlobalUpdateEvent(double TimeStep)
     KeyEvent* keyEvent;
     while ((keyEvent = EventManager::GetKeyEvent()) != nullptr)
     {
-        OnKeyEvent(keyEvent->PKeyPressed,keyEvent->RKeyPressed);
+        OnKeyEvent(keyEvent->UUID ,keyEvent->PKeyPressed,keyEvent->RKeyPressed, keyEvent->EKeyPressed);
     }
     CommandEvent* commandEvent;
     while ((commandEvent = EventManager::GetCommandEvent()) != nullptr)

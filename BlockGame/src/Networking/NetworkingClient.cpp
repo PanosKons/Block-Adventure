@@ -68,7 +68,7 @@ void HandleMessage()
 		{
 			GuiData data = NetworkingClient::GetDataFromServer<GuiData>();
 			EntityManagerClient::GetPlayer().IsGUIOpen = data.Open;
-			EntityManagerClient::GetPlayer().gui = data.gui;
+			EntityManagerClient::GetPlayer().activeGui = data.gui;
 			break;
 		}
 		case Packet::CreateEntity:

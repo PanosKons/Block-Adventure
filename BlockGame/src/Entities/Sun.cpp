@@ -9,8 +9,7 @@ void Sun::Update()
 Vector3<double> Sun::GetPosition()
 {
 	Vector3<double>& position = EntityManagerClient::GetPlayer().Position;
-	//Vector3<double> position = { 0,70,0 };
-	return { 200 * cos(angle) + (float)position.x, 200 * sin(angle) + (float)position.y, (float)position.z };
+	return { 200 * cos(angle) + (float)floor(position.x), 200 * sin(angle) + (float)floor(position.y), (float)floor(position.z) };
 }
 
 Vector3<float> Sun::GetDirection()

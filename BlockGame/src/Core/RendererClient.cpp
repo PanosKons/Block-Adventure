@@ -434,7 +434,7 @@ void RendererClient::RenderUI(double TimeStep)
 	{
 		if (EntityManagerClient::GetPlayer().IsGUIOpen == true)
 		{
-			Gui& gui = EntityManagerClient::GetPlayer().gui;
+			Gui& gui = EntityManagerClient::GetPlayer().activeGui;
 			RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 4, (float)Client::ScreenHeight / 4 }, { (float)Client::ScreenWidth / 2, (float)Client::ScreenHeight / 2 }, gui.Color, { 0,0 }, { 1,1 }, -1);
 			for (auto& slot : gui.Slots)
 			{

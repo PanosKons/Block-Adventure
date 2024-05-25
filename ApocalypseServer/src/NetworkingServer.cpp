@@ -59,7 +59,8 @@ namespace NetworkingServer {
 				case Packet::KeyPress:
 				{
 					auto data = GetDataFromClient<KeyData>(credentials);
-					KeyEvent keyEvent(data.PKeyPressed, data.RKeyPressed);
+
+					KeyEvent keyEvent(credentials.UUID,data.PKeyPressed, data.RKeyPressed, data.EKeyPressed);
 					EventManager::AddKeyEvent(keyEvent);
 					break;
 				}

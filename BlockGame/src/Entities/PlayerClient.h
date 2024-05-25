@@ -19,7 +19,7 @@ public:
 	bool firstMouse = true;
 
 	bool IsGUIOpen = false;
-	Gui gui;
+	Gui activeGui;
 
 	std::string chatbox;
 	std::string lastCommand;

@@ -20,6 +20,10 @@ namespace Scripting
     {
         Invalid, LivingBox
     }
+    public enum Key
+    {
+
+    }
 
     public struct WorldGenerationData
     {
@@ -447,6 +451,9 @@ namespace Scripting
         public static void OnMiddleClick(ulong UUID)
         {
             Player.IncrementRenderDistance(1);
+        }
+        public static void OnKeyPress(ulong UUID)
+        {
             Gui gui = new()
             {
                 Color = new(0.6f, 0.6f, 0.6f, 0.7f),

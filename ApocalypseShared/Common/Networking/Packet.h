@@ -79,6 +79,7 @@ struct KeyData
 {
 	bool PKeyPressed = false;
 	bool RKeyPressed = false;
+	bool EKeyPressed = false;
 };
 struct CommandData
 {

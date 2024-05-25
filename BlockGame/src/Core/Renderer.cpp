@@ -46,6 +46,7 @@ static unsigned int sDepth;
 static glm::vec4 ortho = glm::vec4(-1280 /16, 1280 /16, -720/16, 720 / 16);
 static glm::vec3 ortho2 = glm::vec3(0,0,0);
 static glm::vec2 nearfar = glm::vec2(3.0f, 300.0f);
+static Vector2<float> shadowResolution = {2000,2000};
 
 void ReloadShaders()
 	{
@@ -120,7 +121,7 @@ void createFrameBuffer()
 		glGenTextures(1, &sDepth);
 		glBindTexture(GL_TEXTURE_2D, sDepth);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-			Client::ScreenWidth, Client::ScreenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);//Shadowmap resolution (you might want it different)
+			shadowResolution.x, shadowResolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -237,7 +238,7 @@ glm::mat4 getSunMatrix()
 	auto sunDir = Sun::GetDirection();
 	auto playerPos = EntityManagerClient::GetPlayer().Position;
 	glm::mat4 lightProjection = glm::ortho(ortho.x, ortho.y, ortho.z, ortho.w, nearfar.x, nearfar.y); //change far_plane, near plane in point lights to render only needed objects
-	glm::mat4 lightView = glm::lookAt({ position.x,position.y,position.z }, { playerPos.x,playerPos.y,playerPos.z }, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightView = glm::lookAt({ position.x,position.y,position.z }, { (float)floor(playerPos.x),(float)floor(playerPos.y),(float)floor(playerPos.z) }, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	return lightProjection * lightView;
 }
@@ -304,11 +305,11 @@ void RenderShadowMap()
 {
 	LightDepthShader->Bind();
 	LightDepthShader->SetUniformMat4f("lightSpaceMatrix", getSunMatrix());
-	//glViewport(0, 0, Client::ScreenWidth, Client::ScreenHeight); //Shadowmap resolution (you might want it different)
+	glViewport(0, 0, shadowResolution.x, shadowResolution.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, sBuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	RenderWorld();
-	//glViewport(0, 0, Client::ScreenWidth, Client::ScreenHeight);
+	glViewport(0, 0, Client::ScreenWidth, Client::ScreenHeight);
 }
 void UIPass()
 {

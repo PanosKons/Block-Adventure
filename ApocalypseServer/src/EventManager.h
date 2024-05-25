@@ -27,8 +27,10 @@ public:
 };
 struct KeyEvent
 {
+	uint64_t UUID;
 	bool PKeyPressed;
 	bool RKeyPressed;
+	bool EKeyPressed;
 };
 class EventManager
 {

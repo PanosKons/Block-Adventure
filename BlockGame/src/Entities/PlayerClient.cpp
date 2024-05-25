@@ -59,7 +59,8 @@ void PlayerClient::KeyPressed(int key, int action)
 	}
 	if (key == Key::BackSpace && IsGUIOpen)
 	{
-		chatbox.pop_back();
+		if(!chatbox.empty())
+			chatbox.pop_back();
 	}
 }
 void PlayerClient::CursorMoved(double xpos, double ypos)
@@ -98,7 +99,6 @@ void PlayerClient::CursorMoved(double xpos, double ypos)
 		NetworkingClient::SendDataToServer(Packet::PlayerRotation,data);
 	}
 }
-
 void PlayerClient::InputTick(double TimeStep)
 {
 	Renderer::HideCursor(!IsGUIOpen);
@@ -125,7 +125,19 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		else if(Input::GetKeyState(Key::P) == Action::Release) prev = false;
 	}
-	//Use K to toggle godmode
+	//Use E open inventory
+	{
+		static bool prev = false;
+		if (Input::GetKeyState(Key::E) == Action::Press && !IsGUIOpen && !prev)
+		{
+			prev = true;
+			KeyData data;
+			data.EKeyPressed = true;
+			NetworkingClient::SendDataToServer(Packet::KeyPress, data);
+		}
+		else if (Input::GetKeyState(Key::E) == Action::Release) prev = false;
+	}
+	//Use K to toggle editor mode
 	{
 		static Action lastState = Action::Release;
 		if (Input::GetKeyState(Key::K) == Action::Press && !IsGUIOpen)
