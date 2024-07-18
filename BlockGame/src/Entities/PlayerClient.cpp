@@ -18,14 +18,14 @@ PlayerClient::PlayerClient(Credentials& credentials)
 }
 void PlayerClient::TextInput(int codepoint)
 {
-	if (IsGUIOpen && codepoint <= 255)
+	if (currentScreen == Screen::ChatBox && codepoint <= 255)
 	{
 		chatbox += (char)codepoint;
 	}
 }
 void PlayerClient::KeyPressed(int key, int action)
 {
-	if (key >= Key::n1 && key <= Key::n9 && action == Action::Press && !IsGUIOpen)
+	if (key >= Key::n1 && key <= Key::n9 && action == Action::Press && currentScreen == Screen::Game)
 	{
 		ActiveSlot = key - 49;
 		//Notify the server
@@ -33,31 +33,32 @@ void PlayerClient::KeyPressed(int key, int action)
 			NetworkingClient::SendDataToServer(Packet::SelectSlot, /*SelectSlotData*/ ActiveSlot);
 		}
 	}
-	if (key == Key::Slash && !IsGUIOpen)
+	if (key == Key::Slash && currentScreen == Screen::Game)
 	{
-		IsGUIOpen = true;
+		currentScreen = Screen::ChatBox;
 	}
 	if (key == Key::UpArrow)
 	{
 		chatbox = lastCommand;
 	}
-	if (key == Key::Enter && IsGUIOpen)
+	if (key == Key::Enter && currentScreen == Screen::ChatBox)
 	{
 		{
 			CommandData data;
 			strcpy_s(data.command.data(),data.command.size() - 1, chatbox.c_str());
 			NetworkingClient::SendDataToServer(Packet::Command, data);
 		}
+
 		lastCommand = chatbox;
 		chatbox = "";
-		IsGUIOpen = false;
+		currentScreen = Screen::Game;
 	}
-	if (key == Key::EscapeKey && IsGUIOpen)
+	if (key == Key::EscapeKey && currentScreen != Screen::Game)
 	{
 		chatbox = "";
-		IsGUIOpen = false;
+		currentScreen = Screen::Game;
 	}
-	if (key == Key::BackSpace && IsGUIOpen)
+	if (key == Key::BackSpace && currentScreen == Screen::ChatBox)
 	{
 		if(!chatbox.empty())
 			chatbox.pop_back();
@@ -65,7 +66,7 @@ void PlayerClient::KeyPressed(int key, int action)
 }
 void PlayerClient::CursorMoved(double xpos, double ypos)
 {
-	if (IsGUIOpen) return;
+	if (currentScreen != Screen::Game) return;
 	if (firstMouse)
 	{
 		lastX = (float)xpos;
@@ -101,10 +102,10 @@ void PlayerClient::CursorMoved(double xpos, double ypos)
 }
 void PlayerClient::InputTick(double TimeStep)
 {
-	Renderer::HideCursor(!IsGUIOpen);
+	Renderer::HideCursor(currentScreen == Screen::Game);
 	//Use C to zoom
 	{
-		if (Input::GetKeyState(Key::C) == Action::Press && !IsGUIOpen)
+		if (Input::GetKeyState(Key::C) == Action::Press && currentScreen == Screen::Game)
 		{
 			EntityManagerClient::GetPlayer().Fov = 30.0f;
 		}
@@ -116,7 +117,7 @@ void PlayerClient::InputTick(double TimeStep)
 	//Use P to reload assembly
 	{
 		static bool prev = false;
-		if (Input::GetKeyState(Key::P) == Action::Press && !IsGUIOpen && !prev)
+		if (Input::GetKeyState(Key::P) == Action::Press && currentScreen == Screen::Game && !prev)
 		{
 			prev = true;
 			KeyData data;
@@ -128,7 +129,7 @@ void PlayerClient::InputTick(double TimeStep)
 	//Use E open inventory
 	{
 		static bool prev = false;
-		if (Input::GetKeyState(Key::E) == Action::Press && !IsGUIOpen && !prev)
+		if (Input::GetKeyState(Key::E) == Action::Press && currentScreen == Screen::Game && !prev)
 		{
 			prev = true;
 			KeyData data;
@@ -140,7 +141,7 @@ void PlayerClient::InputTick(double TimeStep)
 	//Use K to toggle editor mode
 	{
 		static Action lastState = Action::Release;
-		if (Input::GetKeyState(Key::K) == Action::Press && !IsGUIOpen)
+		if (Input::GetKeyState(Key::K) == Action::Press && currentScreen == Screen::Game)
 		{
 			if (lastState == Action::Release)
 			{
@@ -156,7 +157,7 @@ void PlayerClient::InputTick(double TimeStep)
 	//Use F5 to toggle CameraMode
 	{
 		static Action lastState = Action::Release;
-		if (Input::GetKeyState(Key::F5) == Action::Press && !IsGUIOpen)
+		if (Input::GetKeyState(Key::F5) == Action::Press && currentScreen == Screen::Game)
 		{
 			if (lastState == Action::Release)
 			{
@@ -177,12 +178,12 @@ void PlayerClient::InputTick(double TimeStep)
 	//Check whether to crouch or sprint
 	{
 		Crouch = false;
-		if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen && Grounded)
+		if (Input::GetKeyState(Key::Shift) == Action::Press && currentScreen == Screen::Game && Grounded)
 		{
 			Speed = 2.0f;
 			Crouch = true;
 		}
-		else if (Input::GetKeyState(Key::Control) == Action::Press && !IsGUIOpen)
+		else if (Input::GetKeyState(Key::Control) == Action::Press && currentScreen == Screen::Game)
 		{
 			Speed = 6.0f;
 			if (Godmode) Speed = 100.0f;
@@ -194,22 +195,22 @@ void PlayerClient::InputTick(double TimeStep)
 	}
 	//Apply movement
 	{
-		if (Input::GetKeyState(Key::W) == Action::Press && !IsGUIOpen)
+		if (Input::GetKeyState(Key::W) == Action::Press && currentScreen == Screen::Game)
 		{
 			Velocity.x = Speed * cos(Math::Radians(Yaw));
 			Velocity.z = Speed * sin(Math::Radians(Yaw));
 		}
-		else if (Input::GetKeyState(Key::S) == Action::Press && !IsGUIOpen)
+		else if (Input::GetKeyState(Key::S) == Action::Press && currentScreen == Screen::Game)
 		{
 			Velocity.x = -Speed * cos(Math::Radians(Yaw));
 			Velocity.z = -Speed * sin(Math::Radians(Yaw));
 		}
-		else if (Input::GetKeyState(Key::D) == Action::Press && !IsGUIOpen)
+		else if (Input::GetKeyState(Key::D) == Action::Press && currentScreen == Screen::Game)
 		{
 			Velocity.x = Speed * cos(Math::Radians(Yaw + 90));
 			Velocity.z = Speed * sin(Math::Radians(Yaw + 90));
 		}
-		else if (Input::GetKeyState(Key::A) == Action::Press && !IsGUIOpen)
+		else if (Input::GetKeyState(Key::A) == Action::Press && currentScreen == Screen::Game)
 		{
 			Velocity.x = -Speed * cos(Math::Radians(Yaw + 90));
 			Velocity.z = -Speed * sin(Math::Radians(Yaw + 90));
@@ -221,11 +222,11 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		if (Godmode == true)
 		{
-			if (Input::GetKeyState(Key::Space) == Action::Press && !IsGUIOpen)
+			if (Input::GetKeyState(Key::Space) == Action::Press && currentScreen == Screen::Game)
 			{
 				Velocity.y = Speed;
 			}
-			else if (Input::GetKeyState(Key::Shift) == Action::Press && !IsGUIOpen)
+			else if (Input::GetKeyState(Key::Shift) == Action::Press && currentScreen == Screen::Game)
 			{
 				Velocity.y = -Speed;
 			}
@@ -242,7 +243,7 @@ void PlayerClient::InputTick(double TimeStep)
 	//Jump mechanic
 	{
 		JumpCooldown -= (float)TimeStep;
-		if (Input::GetKeyState(Key::Space) == Action::Press && Grounded && !Godmode && !IsGUIOpen && JumpCooldown <= 0)
+		if (Input::GetKeyState(Key::Space) == Action::Press && Grounded && !Godmode && currentScreen == Screen::Game && JumpCooldown <= 0)
 		{
 			Crouch = false;
 			Velocity.y = 7.2f;
@@ -293,7 +294,7 @@ void PlayerClient::InputTick(double TimeStep)
 	}
 	//Apply the velocity to the position
 	Position += Velocity * TimeStep;
-	if (!IsGUIOpen)
+	if (currentScreen == Screen::Game)
 	{
 		MouseStateData data;
 		data.LeftMouse = Input::GetMouseState(Mouse::Left);

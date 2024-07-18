@@ -1,6 +1,11 @@
 #pragma once
 #include "Common\Entities\Player\Player.h"
 
+enum class Screen
+{
+	Game, ChatBox, GUI
+};
+
 class PlayerClient : public Player
 {
 public:
@@ -18,7 +23,7 @@ public:
 	float lastY = 0.0f;
 	bool firstMouse = true;
 
-	bool IsGUIOpen = false;
+	Screen currentScreen = Screen::Game;
 	Gui activeGui;
 
 	std::string chatbox;

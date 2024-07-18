@@ -105,7 +105,7 @@ public:
 	}
 	T Magnitude()
 	{
-		return sqrt(powf(x, 2) + powf(y, 2) + powf(z, 2));
+		return sqrt(powf((float)x, 2) + powf((float)y, 2) + powf((float)z, 2));
 	}
 	Vector3 operator*(T value)
 	{

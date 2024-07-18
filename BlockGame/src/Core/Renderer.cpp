@@ -121,7 +121,7 @@ void createFrameBuffer()
 		glGenTextures(1, &sDepth);
 		glBindTexture(GL_TEXTURE_2D, sDepth);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-			shadowResolution.x, shadowResolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+			(GLsizei)shadowResolution.x, (GLsizei)shadowResolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -305,7 +305,7 @@ void RenderShadowMap()
 {
 	LightDepthShader->Bind();
 	LightDepthShader->SetUniformMat4f("lightSpaceMatrix", getSunMatrix());
-	glViewport(0, 0, shadowResolution.x, shadowResolution.y);
+	glViewport(0, 0, (GLsizei)shadowResolution.x, (GLsizei)shadowResolution.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, sBuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	RenderWorld();

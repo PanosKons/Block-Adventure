@@ -53,6 +53,9 @@ Vector3<double> Player::GetLookPosition()
 		break;
 	}
 	}
+
+	ERR("Player::GetLookPosition");
+	return Vector3<double>();
 }
 Entity* Player::GetFacingEntity()
 {
@@ -69,7 +72,7 @@ Entity* Player::GetFacingEntity()
 				if (chunk == nullptr) continue;
 				for (Entity& entity : chunk->entities)
 				{
-					if (Math::Powd(entity.Position.x - Position.x, 2) + Math::Powd(entity.Position.y - Position.y, 2) + Math::Powd(entity.Position.z - Position.z, 2) <= Math::Powi(ReachDistance, 2))
+					if (Math::Powd(entity.Position.x - Position.x, 2) + Math::Powd(entity.Position.y - Position.y, 2) + Math::Powd(entity.Position.z - Position.z, 2) <= Math::Powi((int)ReachDistance, 2))
 					{
 						ReachableEntities.push_back(&entity);
 					}

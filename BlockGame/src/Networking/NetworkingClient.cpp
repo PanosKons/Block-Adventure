@@ -67,7 +67,11 @@ void HandleMessage()
 		case Packet::HandleGui:
 		{
 			GuiData data = NetworkingClient::GetDataFromServer<GuiData>();
-			EntityManagerClient::GetPlayer().IsGUIOpen = data.Open;
+			if (data.Open)
+				EntityManagerClient::GetPlayer().currentScreen = Screen::GUI;
+			else
+				EntityManagerClient::GetPlayer().currentScreen = Screen::Game;
+
 			EntityManagerClient::GetPlayer().activeGui = data.gui;
 			break;
 		}

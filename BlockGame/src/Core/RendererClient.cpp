@@ -423,7 +423,7 @@ void RendererClient::RenderUI(double TimeStep)
 		}
 		SlotPosition = { SlotsX,0.0f };
 		RenderBuilder::AddSquare(UIRenderData,{ SlotPosition.x + SlotWidth * EntityManagerClient::GetPlayer().ActiveSlot,SlotPosition.y }, { SlotWidth,SlotHeight }, { 1,1,1,1 }, { 0.0f,0.0f }, { 1.0f,1.0f }, 15, BaseLayer - 0.05f);
-		if (EntityManagerClient::GetPlayer().IsGUIOpen)
+		if (EntityManagerClient::GetPlayer().currentScreen == Screen::ChatBox)
 		{
 			Vector2<float> TypingText = { 0.0f,160.0f };
 			RenderBuilder::AddText(UIRenderData, EntityManagerClient::GetPlayer().chatbox, TypingText);
@@ -432,7 +432,7 @@ void RendererClient::RenderUI(double TimeStep)
 	}
 	//Add Gui
 	{
-		if (EntityManagerClient::GetPlayer().IsGUIOpen == true)
+		if (EntityManagerClient::GetPlayer().currentScreen == Screen::GUI)
 		{
 			Gui& gui = EntityManagerClient::GetPlayer().activeGui;
 			RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 4, (float)Client::ScreenHeight / 4 }, { (float)Client::ScreenWidth / 2, (float)Client::ScreenHeight / 2 }, gui.Color, { 0,0 }, { 1,1 }, -1);

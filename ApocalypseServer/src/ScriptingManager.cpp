@@ -116,7 +116,10 @@ void ScriptingManager::Load()
 {
     AppDomain = mono_domain_create_appdomain((char*)"GameDomain", nullptr);
 	mono_domain_set(AppDomain, true);
-    CoreAssembly = LoadCSharpAssembly("C:/CPP/Block-Adventure/ScriptCore/bin/Release/net7.0/ScriptCore.dll");
+
+    WARN("Absolute file path");
+    CoreAssembly = LoadCSharpAssembly("C:/Users/pkons/Desktop/Panos/Projects/C++ Projects/Block-Adventure/ScriptCore/bin/Release/net7.0/ScriptCore.dll");
+
     RegisterInternalCalls();
 
     EventClass = GetClassInAssembly(CoreAssembly, "Scripting", "Event");
