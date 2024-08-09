@@ -49,3 +49,10 @@ MouseState Input::GetMouseState(int Mouse)
 	return ReturnState;
 	return MouseState();
 }
+Vector2<double> Input::GetCursorPosition()
+{
+	Vector2<double> ret;
+	glfwGetCursorPos(Client::ApplicationWindow, &ret.x, &ret.y);
+	ret.y = Client::ScreenHeight - ret.y;
+	return ret;
+}

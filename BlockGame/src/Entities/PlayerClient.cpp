@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "Networking/NetworkingClient.h"
 #include "Renderer.h"
+#include "RendererClient.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
@@ -126,10 +127,10 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		else if(Input::GetKeyState(Key::P) == Action::Release) prev = false;
 	}
-	//Use E open inventory
+	//Use E open test server gui // Bug: it doesnt close
 	{
 		static bool prev = false;
-		if (Input::GetKeyState(Key::E) == Action::Press && currentScreen == Screen::Game && !prev)
+		if (Input::GetKeyState(Key::E) == Action::Press && currentScreen != Screen::ChatBox && !prev)
 		{
 			prev = true;
 			KeyData data;
@@ -137,6 +138,16 @@ void PlayerClient::InputTick(double TimeStep)
 			NetworkingClient::SendDataToServer(Packet::KeyPress, data);
 		}
 		else if (Input::GetKeyState(Key::E) == Action::Release) prev = false;
+	}
+	//Use I to open player inventory
+	{
+		static bool prev = false;
+		if (Input::GetKeyState(Key::I) == Action::Press && currentScreen != Screen::ChatBox && !prev)
+		{
+			prev = true;
+			//Open gui
+		}
+		else if (Input::GetKeyState(Key::I) == Action::Release) prev = false;
 	}
 	//Use K to toggle editor mode
 	{
@@ -294,6 +305,25 @@ void PlayerClient::InputTick(double TimeStep)
 	}
 	//Apply the velocity to the position
 	Position += Velocity * TimeStep;
+
+	//Inventory
+	if (currentScreen == Screen::GUI && Input::GetMouseState(Mouse::Left) == MouseState::Click)
+	{
+		Vector2<double> cursorPosition = Input::GetCursorPosition();
+		for (int i = 0; i < activeGui.Slots.size(); i++)
+		{
+			if (activeGui.Slots[i].Active) {
+				Vector2<float> Position = RendererClient::SlotToPixel(activeGui.Slots[i].Position);
+				if (cursorPosition.x >= Position.x && cursorPosition.x <= Position.x + SlotsX - 2 &&
+					cursorPosition.y >= Position.y && cursorPosition.y <= Position.y + SlotsX - 2)
+				{
+					INFO("Clicked Slot:", i);
+					break;
+				}
+			}
+		}
+	}
+
 	if (currentScreen == Screen::Game)
 	{
 		MouseStateData data;

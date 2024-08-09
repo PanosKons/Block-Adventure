@@ -370,7 +370,6 @@ void RendererClient::RenderEntities()
 constexpr float SlotWidth = 64.0f;
 constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
-constexpr float SlotsX = 64.0f;
 constexpr float charHeight = 16.0f;
 
 
@@ -440,7 +439,7 @@ void RendererClient::RenderUI(double TimeStep)
 			{
 				if (slot.Active == true)
 				{
-					RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 4 + SlotsX * slot.Position.x + 2, (float)Client::ScreenHeight / 4 + SlotsX * slot.Position.y + 2 }, { SlotsX - 2,SlotsX -2 }, { 1.0f,1.0f,1.0f,1.0f }, { 0,0 }, {0,0}, -1);
+					RenderBuilder::AddSquare(UIRenderData, SlotToPixel(slot.Position), {SlotsX - 2,SlotsX - 2}, {1.0f,1.0f,1.0f,1.0f}, {0,0}, {0,0}, -1);
 				}
 			}
 		}
@@ -450,4 +449,9 @@ void RendererClient::RenderUI(double TimeStep)
 	command.renderCommandType = Renderer::RenderCommandType::UI2D;
 	command.renderData = &UIRenderData;
 	Renderer::AddCommand(command);
+}
+
+Vector2<float> RendererClient::SlotToPixel(Vector2<float> cords)
+{
+	return { (float)Client::ScreenWidth / 4 + SlotsX * cords.x + 2, (float)Client::ScreenHeight / 4 + SlotsX * cords.y + 2 };
 }

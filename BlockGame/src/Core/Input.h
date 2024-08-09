@@ -1,4 +1,5 @@
 #pragma once
+#include "Common/Math/Vector.h"
 enum MouseState;
 class Input
 {
@@ -10,4 +11,5 @@ public:
 
 	static int GetKeyState(int key);
 	static MouseState GetMouseState(int Mouse);
+	static Vector2<double> GetCursorPosition();
 };
