@@ -18,7 +18,7 @@ Player::Player(Credentials& credentials)
 	Yaw = -1.0f;
 	Grounded = false;
 	ActiveSlot = 0;
-	Inventory = {};
+	PlayerInventory = {};
 	BlockPlaceDelay = 0.3f;
 	JumpCooldown = 0.0f;
 	Crouch = false;

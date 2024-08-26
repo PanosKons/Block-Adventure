@@ -7,6 +7,8 @@
 #include "Entities/EntityManagerClient.h"
 #include "Logger.h"
 #include "World/WorldManagerClient.h"
+#include "Common/InputAction.h"
+
 void HandleMessage()
 {
 	while (Client::ShouldStop == false)
@@ -61,7 +63,7 @@ void HandleMessage()
 		case Packet::PlayerInventory:
 		{
 			PlayerInventoryData data = NetworkingClient::GetDataFromServer<PlayerInventoryData>();
-			EntityManager::GetPlayer(data.UUID)->Inventory = data.Inventory;
+			EntityManager::GetPlayer(data.UUID)->PlayerInventory = data.Inventory;
 			break;
 		}
 		case Packet::HandleGui:
@@ -73,6 +75,7 @@ void HandleMessage()
 				EntityManagerClient::GetPlayer().currentScreen = Screen::Game;
 
 			EntityManagerClient::GetPlayer().activeGui = data.gui;
+			EntityManagerClient::GetPlayer().activeInventory = EntityManagerClient::GetPlayer().PlayerInventory;
 			break;
 		}
 		case Packet::CreateEntity:
@@ -126,6 +129,10 @@ void NetworkingClient::Connect()
 	for (int i = 0; i < data.ItemCount; i++)
 	{
 		Item::itemProperties.push_back(NetworkingClient::GetDataFromServer<ItemProperties>());
+	}
+	for (int i = 0; i < data.InputActionCount; i++)
+	{
+		InputAction::inputActions.push_back(NetworkingClient::GetDataFromServer<InputAction>());
 	}
 
 	EntityManagerClient::CreateSelf(*NetworkingClient::credentials, &data.player);

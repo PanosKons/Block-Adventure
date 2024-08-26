@@ -55,7 +55,23 @@ float getShadow(){
     float depth = v_FragPosLightSpace.z / v_FragPosLightSpace.w;
     depth = (1.0 - 0.0) * 0.5 * depth + (1.0 + 0.0) * 0.5;
 	float bias = 0.002;
-	return depth - bias > texture(u_texture[7], coords).r  ? 1.0 : 0.0;
+
+	float shadow = 0.0;
+	int range = 3;
+	
+	for(int y = -range; y <= range; y++)
+	{
+		for(int x = -range; x <= range; x++)
+		{
+			vec2 cord = vec2(coords.x + 2500 * x, coords.y + 2500 * y);
+			if(depth - bias > texture(u_texture[7], cord).r)
+			{
+				shadow += 1.0;
+			}
+		}
+	}
+	shadow = shadow / ((2*range + 1) * (2*range + 1));
+	return shadow;
 }
 
 void main()

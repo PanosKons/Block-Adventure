@@ -14,6 +14,7 @@ public:
 	void CursorMoved(double xpos, double ypos);
 	void KeyPressed(int key, int action);
 	void TextInput(int codepoint);
+	void MousePressed(int mouse, int action);
 
 	void InputTick(double TimeStep);
 
@@ -24,7 +25,10 @@ public:
 	bool firstMouse = true;
 
 	Screen currentScreen = Screen::Game;
+
 	Gui activeGui;
+	Inventory activeInventory;
+	int selectedSlot = -1;
 
 	std::string chatbox;
 	std::string lastCommand;

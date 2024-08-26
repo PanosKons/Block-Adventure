@@ -5,6 +5,7 @@
 #include "EntityManagerServer.h"
 #include "EventManager.h"
 #include "Common/Math/Noise.h"
+#include "Common/InputAction.h"
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "Version.lib")
 #pragma comment(lib, "Bcrypt.lib")
@@ -27,11 +28,8 @@ static MonoAssembly* CoreAssembly = nullptr;
 static MonoClass* EventClass = nullptr;
 static MonoClass* DataClass = nullptr;
 
-static MonoMethod* LeftMouseEventMethod = nullptr;
-static MonoMethod* RightMouseEventMethod = nullptr;
-static MonoMethod* MiddleMouseEventMethod = nullptr;
-static MonoMethod* KeyEventMethod = nullptr;
 static MonoMethod* GlobalUpdateMethod = nullptr;
+static MonoMethod* ActionEventMethod = nullptr;
 static MonoMethod* CommandEventMethod = nullptr;
 static MonoMethod* PlayerUpdateMethod = nullptr;
 
@@ -125,14 +123,11 @@ void ScriptingManager::Load()
     EventClass = GetClassInAssembly(CoreAssembly, "Scripting", "Event");
     DataClass = GetClassInAssembly(CoreAssembly, "Scripting", "Data");
 
-    LeftMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnLeftClick", 1);
-    RightMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnRightClick", 1);
-    MiddleMouseEventMethod = mono_class_get_method_from_name(EventClass, "OnMiddleClick", 1);
-    KeyEventMethod = mono_class_get_method_from_name(EventClass, "OnKeyPress", 1);
     GlobalUpdateMethod = mono_class_get_method_from_name(EventClass, "GlobalUpdateEvent", 0);
     PlayerUpdateMethod = mono_class_get_method_from_name(EventClass, "PlayerUpdateEvent", 1);
 
     CommandEventMethod = mono_class_get_method_from_name(EventClass, "OnCommand", 2);
+    ActionEventMethod = mono_class_get_method_from_name(EventClass, "OnAction", 2);
 
     // Allocate an instance of our class
     //MonoObject* classInstance = mono_object_new(AppDomain, eventClass);
@@ -252,25 +247,25 @@ static void AddItemToInventory(uint64_t UUID, ItemStack item)
 {
     PlayerInventoryData data;
     data.UUID = UUID;
-    data.Inventory = EntityManager::GetPlayer(UUID)->Inventory;
+    data.Inventory = EntityManager::GetPlayer(UUID)->PlayerInventory;
     ItemStack& stack = data.Inventory[GetFirstAvaiableSlot(data.Inventory, item)];
     stack = { item.GetItemType(),item.GetCount() + stack.GetCount() };
-    EntityManager::GetPlayer(UUID)->Inventory = data.Inventory;
+    EntityManager::GetPlayer(UUID)->PlayerInventory = data.Inventory;
     NetworkingServer::SendDataAllClients(Packet::PlayerInventory, data);
 }
 static void RemoveItemFromInventory(uint64_t UUID, ItemStack item)
 {
     PlayerInventoryData data;
     data.UUID = UUID;
-    data.Inventory = EntityManager::GetPlayer(UUID)->Inventory;
+    data.Inventory = EntityManager::GetPlayer(UUID)->PlayerInventory;
     ItemStack& stack = data.Inventory[GetFirstAvaiableSlot(data.Inventory, item)];
     stack = { item.GetItemType(),stack.GetCount() - item.GetCount() };
-    EntityManager::GetPlayer(UUID)->Inventory = data.Inventory;
+    EntityManager::GetPlayer(UUID)->PlayerInventory = data.Inventory;
     NetworkingServer::SendDataAllClients(Packet::PlayerInventory, data);
 }
 static void GetHoldingItemStack(uint64_t UUID, ItemStack* item)
 {
-    ItemStack& itemStack = EntityManager::GetPlayer(UUID)->Inventory[EntityManager::GetPlayer(UUID)->ActiveSlot];
+    ItemStack& itemStack = EntityManager::GetPlayer(UUID)->PlayerInventory[EntityManager::GetPlayer(UUID)->ActiveSlot];
     item->Count = itemStack.Count;
     item->ItemType = itemStack.ItemType;
 }
@@ -338,25 +333,6 @@ void ScriptingManager::RegisterInternalCalls()
     mono_add_internal_call("Scripting.Entity::Kill", KillEntity);
 }
 
-void ScriptingManager::OnMouseEvent(uint64_t UUID, MouseState LeftMouse, MouseState RightMouse, MouseState MiddleMouse)
-{
-    void* UUIDp = &UUID;
-    if (LeftMouse == MouseState::Click)
-    {
-        if (LeftMouseEventMethod == nullptr) return;
-        mono_runtime_invoke(LeftMouseEventMethod, nullptr, &UUIDp, nullptr);
-    }
-    if (RightMouse == MouseState::Click)
-    {
-        if (RightMouseEventMethod == nullptr) return;
-        mono_runtime_invoke(RightMouseEventMethod, nullptr, &UUIDp, nullptr);
-    }
-    if (MiddleMouse == MouseState::Click)
-    {
-        if (MiddleMouseEventMethod == nullptr) return;
-        mono_runtime_invoke(MiddleMouseEventMethod, nullptr, &UUIDp, nullptr);
-    }
-}
 void ScriptingManager::OnGlobalUpdateEvent(double TimeStep)
 {
     if (GlobalUpdateMethod == nullptr) return;
@@ -379,19 +355,15 @@ void ScriptingManager::OnCommandEvent(uint64_t UUID, Command& command)
     };
     mono_runtime_invoke(CommandEventMethod, nullptr, parameters.data(), nullptr);
 }
-
-void ScriptingManager::OnKeyEvent(uint64_t UUID, bool PKeyPressed, bool RKeyPressed, bool EKeyPressed)
+void ScriptingManager::OnActionEvent(uint64_t UUID, int identifier)
 {
-    if (PKeyPressed == true)
-    {
-        WARN("Reloading c# assembly...");
-        ReloadAssembly();
-    }
-    if (EKeyPressed == true)
-    {
-        void* UUIDp = &UUID;
-        mono_runtime_invoke(KeyEventMethod, nullptr, &UUIDp, nullptr);
-    }
+    if (ActionEventMethod == nullptr) return;
+
+    std::array<void*, 2> parameters = {
+        &UUID,
+        (void*)&identifier
+    };
+    mono_runtime_invoke(ActionEventMethod, nullptr, parameters.data(), nullptr);
 }
 
 void ScriptingManager::GlobalUpdateEvent(double TimeStep)
@@ -402,20 +374,15 @@ void ScriptingManager::GlobalUpdateEvent(double TimeStep)
         OnPlayerUpdateEvent(UUID);
     }
 
-    MouseEvent* mouseEvent;
-    while ((mouseEvent = EventManager::GetMouseEvent()) != nullptr)
-    {
-        OnMouseEvent(mouseEvent->UUID, mouseEvent->LeftMouse, mouseEvent->RightMouse, mouseEvent->MiddleMouse);
-    }
-    KeyEvent* keyEvent;
-    while ((keyEvent = EventManager::GetKeyEvent()) != nullptr)
-    {
-        OnKeyEvent(keyEvent->UUID ,keyEvent->PKeyPressed,keyEvent->RKeyPressed, keyEvent->EKeyPressed);
-    }
     CommandEvent* commandEvent;
     while ((commandEvent = EventManager::GetCommandEvent()) != nullptr)
     {
         OnCommandEvent(commandEvent->UUID, commandEvent->command);
+    }
+    ActionEvent* actionEvent;
+    while ((actionEvent = EventManager::GetActionEvent()) != nullptr)
+    {
+        OnActionEvent(actionEvent->UUID, actionEvent->identifier);
     }
 }
 
@@ -473,4 +440,12 @@ void ScriptingManager::Start()
         Block::blockModels.emplace_back();
         std::copy(faces, faces + FaceCount, Block::blockModels[i].Faces.begin());
     }
+
+    MonoMethod* GetInputActionCount = mono_class_get_method_from_name(DataClass, "GetInputActionCount", 0);
+    MonoObject* acountObj = mono_runtime_invoke(GetInputActionCount, nullptr, nullptr, nullptr);
+    int InputActionCount = *(int*)mono_object_unbox(acountObj);
+    MonoMethod* GetInputActions = mono_class_get_method_from_name(DataClass, "GetInputActions", 0);
+    MonoObject* actionsObj = mono_runtime_invoke(GetInputActions, nullptr, nullptr, nullptr);
+    auto inputActions = *(InputAction**)mono_object_unbox(actionsObj);
+    InputAction::inputActions = std::vector(inputActions, inputActions + InputActionCount);
 }

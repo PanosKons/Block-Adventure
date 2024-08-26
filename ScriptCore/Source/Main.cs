@@ -20,11 +20,22 @@ namespace Scripting
     {
         Invalid, LivingBox
     }
-    public enum Key
+    public enum Button
     {
-
+        LeftMouse = -3, RightMouse =-2, MiddleMouse=-1,
+        Space = 32,
+        Slash = 47,
+        n0 = 48, n1, n2, n3, n4, n5, n6, n7, n8, n9,
+        A = 65, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+        Shift = 340, Control, Alt,
+        EscapeKey = 256, Enter, Tab, BackSpace,
+        RightArrow = 262, LeftArrow, DownArrow, UpArrow,
+        F1 = 290, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12
     }
-
+    public enum ActionName
+    {
+        LeftHandInteract , RightHandInteract, ReloadAssembly, OpenInventory, ActionNameSize
+    }
     public struct WorldGenerationData
     {
         public WorldGenerationData()
@@ -49,6 +60,8 @@ namespace Scripting
         public static BlockProperties[] Blocks = new BlockProperties[(int)BlockType.BlockTypeSize];
         public static ItemProperties[] Items = new ItemProperties[(int)ItemType.ItemTypeSize];
         public static Model[] BlockModels = new Model[(int)BlockModelType.ModelTypeSize];
+        public static InputAction[] InputActions = new InputAction[(int)ActionName.ActionNameSize];
+        public static Gui Inventory;
         public static WorldGenerationData GetWorldGenerationData()
         {
             return new WorldGenerationData();
@@ -56,6 +69,17 @@ namespace Scripting
         public static void* GetItems()
         {
             fixed (void* pointer = Items)
+            {
+                return pointer;
+            }
+        }
+        public static int GetInputActionCount()
+        {
+            return InputActions.Length;
+        }
+        public static void* GetInputActions()
+        {
+            fixed (void* pointer = InputActions)
             {
                 return pointer;
             }
@@ -161,6 +185,11 @@ namespace Scripting
     {
         public Vector3<int> Position;
         public BlockType Type;
+
+        public static void Register(BlockType blockType, BlockProperties blockProperties)
+        {
+            Data.Blocks[(int)blockType] = blockProperties;
+        }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern static void GetBlock(Vector3<int> Position, out Block block);
@@ -281,27 +310,42 @@ namespace Scripting
         }
         public byte ItemTexture;
     }
+    public struct InputAction
+    {
+        public InputAction(Button defaultButton, ActionName action)
+        {
+            DefaultButton = defaultButton;
+            Action = action;
+        }
+        public readonly Button DefaultButton;
+        public readonly ActionName Action;
+
+        public static void Register(InputAction inputAction)
+        {
+            Data.InputActions[(int)(inputAction.Action)] = new(inputAction.DefaultButton, inputAction.Action);
+        }
+    }
     public unsafe static class Event
     {
         public static void Initialize()
         {
             Console.WriteLine("Initialized C# !");
 
-            Data.Blocks[(int)BlockType.Air] = new BlockProperties(false, false, 1.0f, new Texture( 0, 0, 0, 0, 0, 0 ));
-            Data.Blocks[(int)BlockType.Grass] = new BlockProperties(true, false, 1.0f, new Texture( 1, 1, 1, 1, 0, 2 ));
-            Data.Blocks[(int)BlockType.Log] = new BlockProperties(true, false, 1.0f, new Texture(4, 4, 4, 4, 5, 5));
-            Data.Blocks[(int)BlockType.Dirt] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(2));
-            Data.Blocks[(int)BlockType.Stone] = new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(3));
-            Data.Blocks[(int)BlockType.Glass] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(7));
-            Data.Blocks[(int)BlockType.DryGrass] = new BlockProperties(true, false, 1.0f, new Texture(12, 12, 12, 12, 10, 2));
-            Data.Blocks[(int)BlockType.Iron] =  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(6));
-            Data.Blocks[(int)BlockType.Leaves] =  new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(8));
-            Data.Blocks[(int)BlockType.Water] = new BlockProperties(true, true, 0.4f, Texture.SimpleBlock(14));
-            Data.Blocks[(int)BlockType.DirtSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2),BlockModelType.Slab);
-            Data.Blocks[(int)BlockType.DirtStairs] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.Stairs);
-            Data.Blocks[(int)BlockType.DirtVerticalSlab] = new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.VerticalSlab);
-            Data.Blocks[(int)BlockType.LogCarpet] = new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5),BlockModelType.Carpet);
-            Data.Blocks[(int)BlockType.Haybale] = new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5), BlockModelType.FakeBall);
+            Block.Register(BlockType.Air, new BlockProperties(false, false, 1.0f, new Texture( 0, 0, 0, 0, 0, 0 )));
+            Block.Register(BlockType.Grass, new BlockProperties(true, false, 1.0f, new Texture( 1, 1, 1, 1, 0, 2 )));
+            Block.Register(BlockType.Log, new BlockProperties(true, false, 1.0f, new Texture(4, 4, 4, 4, 5, 5)));
+            Block.Register(BlockType.Dirt, new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(2)));
+            Block.Register(BlockType.Stone, new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(3)));
+            Block.Register(BlockType.Glass, new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(7)));
+            Block.Register(BlockType.DryGrass, new BlockProperties(true, false, 1.0f, new Texture(12, 12, 12, 12, 10, 2)));
+            Block.Register(BlockType.Iron,  new BlockProperties(true, false, 1.0f, Texture.SimpleBlock(6)));
+            Block.Register(BlockType.Leaves,  new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(8)));
+            Block.Register(BlockType.Water, new BlockProperties(true, true, 0.4f, Texture.SimpleBlock(14)));
+            Block.Register(BlockType.DirtSlab, new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2),BlockModelType.Slab));
+            Block.Register(BlockType.DirtStairs, new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.Stairs));
+            Block.Register(BlockType.DirtVerticalSlab, new BlockProperties(true, true, 1.0f, Texture.SimpleBlock(2), BlockModelType.VerticalSlab));
+            Block.Register(BlockType.LogCarpet, new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5),BlockModelType.Carpet));
+            Block.Register(BlockType.Haybale, new BlockProperties(true, true, 1.0f, new Texture(4, 4, 4, 4, 5, 5), BlockModelType.FakeBall));
 
             Data.Items[(int)BlockType.Air] = new ItemProperties(0);
             Data.Items[(int)BlockType.Grass] = new ItemProperties(1);
@@ -399,6 +443,27 @@ namespace Scripting
                     new Face(new Vector3<float>(0.0f,0.0f,0.0f), new Vector2<float>(0.6f,0.6f), Direction.Down, 32, 5),
                 }
             };
+
+            Data.Inventory = new()
+            {
+                Color = new(0.6f, 0.6f, 0.6f, 0.7f),
+                Slots = new Slot[] {
+                    new() { Position = new Vector2<float>(0, 0), Active = true},
+                    new() { Position = new Vector2<float>(1, 0), Active = true},
+                    new() { Position = new Vector2<float>(2, 0), Active = true},
+                    new() { Position = new Vector2<float>(3, 0), Active = true},
+                    new() { Position = new Vector2<float>(4, 0), Active = true},
+                    new() { Position = new Vector2<float>(5, 0), Active = true},
+                    new() { Position = new Vector2<float>(6, 0), Active = true},
+                    new() { Position = new Vector2<float>(7, 0), Active = true},
+                    new() { Position = new Vector2<float>(8, 0), Active = true},
+                }
+            };
+
+            InputAction.Register(new InputAction(Button.LeftMouse, ActionName.LeftHandInteract));
+            InputAction.Register(new InputAction(Button.RightArrow, ActionName.RightHandInteract));
+            InputAction.Register(new InputAction(Button.P, ActionName.ReloadAssembly));
+            InputAction.Register(new InputAction(Button.E, ActionName.OpenInventory));
         }
         public static void GlobalUpdateEvent()
         {
@@ -448,23 +513,25 @@ namespace Scripting
                 Player.AddItemToInventory(UUID, itemStack);
             }
         }
-        public static void OnMiddleClick(ulong UUID)
+        public static void OnAction(ulong UUID, int identifier)
         {
-            Player.IncrementRenderDistance(1);
-        }
-        public static void OnKeyPress(ulong UUID)
-        {
-            Gui gui = new()
+            ActionName action = (ActionName)identifier;
+            switch (action)
             {
-                Color = new(0.6f, 0.6f, 0.6f, 0.7f),
-                Slots = new Slot[] {
-                    new() { Position = new Vector2<float>(1, 1), Active = true},
-                    new() { Position = new Vector2<float>(0, 0), Active = true},
-                    new() { Position = new Vector2<float>(0, 1), Active = true},
-                    new() { Position = new Vector2<float>(1, 0), Active = true},
-                }
-            };
-            Player.HandleGui(UUID, gui, true);
+                case ActionName.ReloadAssembly:
+                    ///////////
+                    break;
+                case ActionName.OpenInventory:
+                    Player.HandleGui(UUID, Data.Inventory, true);
+                    break;
+                case ActionName.LeftHandInteract:
+                    OnLeftClick(UUID);
+                    break;
+                case ActionName.RightHandInteract:
+                    OnRightClick(UUID);
+                    break;
+                default: Console.WriteLine("[C#]: Unknown action"); break;
+            }
         }
         public static void OnCommand(ulong UUID, string Command)
         {

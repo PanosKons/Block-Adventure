@@ -8,6 +8,7 @@
 #include "Entities/EntityManagerClient.h"
 #include "Entities/Sun.h"
 #include "Rendering/RenderBuilder.h"
+#include "Input.h"
 
 #define ONEOVER16 0.0625f
 void RenderBlockFace(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Vector3<float> Position, Vector2<float> Size, Direction direction, unsigned char texture, float alpha)
@@ -389,7 +390,7 @@ void RendererClient::RenderUI(double TimeStep)
 		if(LookEntity != nullptr)
 			RenderBuilder::AddText(UIRenderData, "Facing entity:" + StringConvertions::ToString(LookEntity->Position.x) + "," + StringConvertions::ToString(LookEntity->Position.y) + "," + StringConvertions::ToString(LookEntity->Position.z), { 0.0f,Client::ScreenHeight - 160.0f });
 	}
-	//Health and Inventory
+	//Health and Hotbar
 	{
 		Vector2<float> SlotPosition = { SlotsX,0.0f};
 
@@ -397,15 +398,15 @@ void RendererClient::RenderUI(double TimeStep)
 		RenderBuilder::AddSquare(UIRenderData, HealthBarPosition, { 320.0f,40.0f }, { 1.0f,0.0f,0.0f,1.0f }, { 0.0f,0.0f }, {1.0f,1.0f}, -1, BaseLayer);
 		RenderBuilder::AddSquare(UIRenderData, HealthBarPosition, { 320.0f * EntityManagerClient::GetPlayer().Health / EntityManagerClient::GetPlayer().MaxHealth,40.0f }, { 0.0f,1.0f,0.0f,1.0f }, { 0.0f,0.0f }, { 1.0f,1.0f }, -1, BaseLayer);
 		RenderBuilder::AddText(UIRenderData,StringConvertions::ToString((int)EntityManagerClient::GetPlayer().Health) + "/" + StringConvertions::ToString((int)EntityManagerClient::GetPlayer().MaxHealth), HealthBarPosition, BaseLayer + 0.3f);
-		for (int i = 0; i < InventorySize; i++)
+		for (int i = 0; i < HotbarSize; i++)
 		{
 			RenderBuilder::AddSquare(UIRenderData, SlotPosition, { SlotWidth,SlotHeight }, { 1,1,1,1 }, { 0.0f,0.0f }, { 1.0f,1.0f },14, BaseLayer - 0.3f);
 			SlotPosition.x += SlotWidth;
 		}
 		SlotPosition = { SlotsX,0.0f };
-		for (int i = 0; i < InventorySize; i++)
+		for (int i = 0; i < HotbarSize; i++)
 		{
-			ItemStack& itemStack = EntityManagerClient::GetPlayer().Inventory[i];
+			ItemStack& itemStack = EntityManagerClient::GetPlayer().PlayerInventory[i];
 			if (itemStack.GetCount() != 0)
 			{
 				unsigned char TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
@@ -414,10 +415,10 @@ void RendererClient::RenderUI(double TimeStep)
 			SlotPosition.x += SlotWidth;
 		}
 		SlotPosition = { SlotsX,0.0f };
-		for (int i = 0; i < InventorySize; i++)
+		for (int i = 0; i < HotbarSize; i++)
 		{
-			if (EntityManagerClient::GetPlayer().Inventory[i].GetCount() > 1)
-				RenderBuilder::AddText(UIRenderData,StringConvertions::ToString(EntityManagerClient::GetPlayer().Inventory[i].GetCount()), SlotPosition, BaseLayer - 0.1f);
+			if (EntityManagerClient::GetPlayer().PlayerInventory[i].GetCount() > 1)
+				RenderBuilder::AddText(UIRenderData,StringConvertions::ToString(EntityManagerClient::GetPlayer().PlayerInventory[i].GetCount()), SlotPosition, BaseLayer - 0.1f);
 			SlotPosition.x += SlotWidth;
 		}
 		SlotPosition = { SlotsX,0.0f };
@@ -434,12 +435,30 @@ void RendererClient::RenderUI(double TimeStep)
 		if (EntityManagerClient::GetPlayer().currentScreen == Screen::GUI)
 		{
 			Gui& gui = EntityManagerClient::GetPlayer().activeGui;
+			Inventory& inventory = EntityManagerClient::GetPlayer().activeInventory;
 			RenderBuilder::AddSquare(UIRenderData, { (float)Client::ScreenWidth / 4, (float)Client::ScreenHeight / 4 }, { (float)Client::ScreenWidth / 2, (float)Client::ScreenHeight / 2 }, gui.Color, { 0,0 }, { 1,1 }, -1);
 			for (auto& slot : gui.Slots)
 			{
 				if (slot.Active == true)
 				{
-					RenderBuilder::AddSquare(UIRenderData, SlotToPixel(slot.Position), {SlotsX - 2,SlotsX - 2}, {1.0f,1.0f,1.0f,1.0f}, {0,0}, {0,0}, -1);
+					RenderBuilder::AddSquare(UIRenderData, SlotToPixel(slot.Position), {SlotsX - 2,SlotsX - 2}, {0.8f,0.8f,0.8f,1.0f}, {0,0}, {0,0}, -1);
+				}
+			}
+			for (int i = 0; i < gui.Slots.size(); i++)
+			{
+				if (gui.Slots[i].Active == true)
+				{
+					ItemStack& itemStack = inventory[i];
+					if (itemStack.GetCount() != 0)
+					{
+						Vector2<float> cords = SlotToPixel(gui.Slots[i].Position);
+						if (EntityManagerClient::GetPlayer().selectedSlot == i) cords = Vector::FloatVector(Input::GetCursorPosition());
+						unsigned char TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
+						RenderBuilder::AddSquare(UIRenderData, { cords.x + 8, cords.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (TextureId % 16) / 16.0f, (TextureId / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f, BaseLayer - 0.2f);
+						if (EntityManagerClient::GetPlayer().activeInventory[i].GetCount() > 1)
+							RenderBuilder::AddText(UIRenderData, StringConvertions::ToString(EntityManagerClient::GetPlayer().activeInventory[i].GetCount()), cords, BaseLayer - 0.1f);
+					}
+					
 				}
 			}
 		}

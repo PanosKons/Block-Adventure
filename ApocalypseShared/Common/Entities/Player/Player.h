@@ -7,29 +7,6 @@
 #include "Common/Entities/Entity.h"
 #include "Common/Entities/Credentials.h"
 
-enum Mouse
-{
-	Left, Right, Middle
-};
-enum Key
-{
-	Space = 32,
-	Slash = 47,
-	n0 = 48, n1, n2, n3, n4, n5, n6, n7, n8, n9,
-	A = 65, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-	Shift = 340, Control, Alt,
-	EscapeKey = 256, Enter, Tab, BackSpace,
-	RightArrow = 262, LeftArrow, DownArrow, UpArrow,
-	F1 = 290, F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12
-};
-enum MouseState
-{
-	Click, Hold, Idle
-};
-enum Action
-{
-	Release, Press, Repeat
-};
 constexpr int MaxGUISlots = 64;
 struct Gui
 {
@@ -46,6 +23,7 @@ enum class CameraMode
 {
 	FirstPerson,ThirdPersonBack,ThirdPersonFront
 };
+typedef std::array<ItemStack, InventorySize> Inventory;
 class Player
 {
 public:
@@ -72,7 +50,7 @@ public:
 	Credentials credentials;
 
 	char ActiveSlot;
-	std::array<ItemStack, InventorySize> Inventory;
+	Inventory PlayerInventory;
 
 	float BlockPlaceDelay = 0.3f;
 

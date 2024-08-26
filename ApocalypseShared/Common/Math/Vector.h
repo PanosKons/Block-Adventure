@@ -137,6 +137,7 @@ namespace Vector
 	inline Vector3<int> IntVector(const Vector3<double>& other) { return Vector3<int>((int)other.x, (int)other.y, (int)other.z); };
 	inline Vector3<float> FloatVector(const Vector3<int>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
 	inline Vector3<float> FloatVector(const Vector3<double>& other) { return Vector3<float>((float)other.x, (float)other.y, (float)other.z); };
+	inline Vector2<float> FloatVector(const Vector2<double>& other) { return Vector2<float>((float)other.x, (float)other.y); };
 };
 template <typename S>
 std::ostream& operator<<(std::ostream& os, Vector3<S> const& m) {

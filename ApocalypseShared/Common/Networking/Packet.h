@@ -26,16 +26,11 @@ enum class Packet
 	PlayerInventory,
 
 	//ServerBound
-	MouseState, //Server
-	KeyPress, //Server
 	Command, // Server
+	ActionPerformed // Server
 };
 
 constexpr int MAX_PLAYERS = 20;
-struct MouseStateData
-{
-	MouseState LeftMouse, RightMouse, MiddleMouse;
-};
 struct SelectSlotData
 {
 	char ActiveSlot;
@@ -69,17 +64,12 @@ struct StartData
 	int BlockCount;
 	int ItemCount;
 	int ModelCount;
+	int InputActionCount;
 };
 struct ReplaceBlockData
 {
 	Vector3<int> Position;
 	BlockType blockType;
-};
-struct KeyData
-{
-	bool PKeyPressed = false;
-	bool RKeyPressed = false;
-	bool EKeyPressed = false;
 };
 struct CommandData
 {
@@ -89,4 +79,8 @@ struct GuiData
 {
 	Gui gui;
 	bool Open;
+};
+struct ActionPerformedData
+{
+	int identifier;
 };

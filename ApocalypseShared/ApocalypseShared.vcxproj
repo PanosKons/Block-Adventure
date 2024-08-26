@@ -103,6 +103,7 @@
     <ClInclude Include="Common\Entities\EntityManager.h" />
     <ClInclude Include="Common\Entities\Inventory\ItemStack.h" />
     <ClInclude Include="Common\Entities\Player\Player.h" />
+    <ClInclude Include="Common\InputAction.h" />
     <ClInclude Include="Common\Math\Cuboid.h" />
     <ClInclude Include="Common\Math\EngineMath.h" />
     <ClInclude Include="Common\Math\mat4.h" />

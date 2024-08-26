@@ -31,7 +31,7 @@ out vec4 color;
 
 void main()
 {
-    if(false){
+    if(true){
     float Pi = 6.28318530718; // Pi*2
     
     // GAUSSIAN BLUR SETTINGS {{{

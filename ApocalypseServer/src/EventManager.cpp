@@ -1,21 +1,7 @@
 #include "EventManager.h"
 
-static std::mutex mouse_lock;
-static std::mutex key_lock;
 static std::mutex command_lock;
-
-void EventManager::AddMouseEvent(MouseEvent& mouseEvent)
-{
-	mouse_lock.lock();
-	MouseEvents.push_back(mouseEvent);
-	mouse_lock.unlock();
-}
-void EventManager::AddKeyEvent(KeyEvent& keyEvent)
-{
-	key_lock.lock();
-	KeyEvents.push_back(keyEvent);
-	key_lock.unlock();
-}
+static std::mutex action_lock;
 
 void EventManager::AddCommandEvent(CommandEvent& commandEvent)
 {
@@ -39,31 +25,24 @@ CommandEvent* EventManager::GetCommandEvent()
 	return ReturnPointer;
 }
 
-MouseEvent* EventManager::GetMouseEvent()
+void EventManager::AddActionEvent(ActionEvent& actionEvent)
 {
-	MouseEvent* ReturnPointer = nullptr;
-	mouse_lock.lock();
-	MouseEvent mouseEvent;
-	if (MouseEvents.size() != 0)
-	{
-		mouseEvent = MouseEvents[MouseEvents.size() - 1];
-		MouseEvents.pop_back();
-		ReturnPointer = &mouseEvent;
-	}
-	mouse_lock.unlock();
-	return ReturnPointer;
+	action_lock.lock();
+	ActionEvents.push_back(actionEvent);
+	action_lock.unlock();
 }
-KeyEvent* EventManager::GetKeyEvent()
+
+ActionEvent* EventManager::GetActionEvent()
 {
-	KeyEvent* ReturnPointer = nullptr;
-	key_lock.lock();
-	KeyEvent keyEvent;
-	if (KeyEvents.size() != 0)
+	ActionEvent* ReturnPointer = nullptr;
+	action_lock.lock();
+	ActionEvent actionEvent;
+	if (ActionEvents.size() != 0)
 	{
-		keyEvent = KeyEvents[KeyEvents.size() - 1];
-		KeyEvents.pop_back();
-		ReturnPointer = &keyEvent;
+		actionEvent = ActionEvents[ActionEvents.size() - 1];
+		ActionEvents.pop_back();
+		ReturnPointer = &actionEvent;
 	}
-	key_lock.unlock();
+	action_lock.unlock();
 	return ReturnPointer;
 }

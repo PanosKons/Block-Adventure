@@ -9,6 +9,7 @@
 #include "Networking/NetworkingClient.h"
 #include "Renderer.h"
 #include "RendererClient.h"
+#include "Common/InputAction.h"
 
 PlayerClient::PlayerClient(Credentials& credentials)
 	: Player(credentials)
@@ -16,6 +17,7 @@ PlayerClient::PlayerClient(Credentials& credentials)
 	Input::SetCursorCallback([](double xpos,double ypos) {EntityManagerClient::GetPlayer().CursorMoved(xpos,ypos); });
 	Input::SetKeyCallback([](int key, int actioncode, int action, int mods) {EntityManagerClient::GetPlayer().KeyPressed(key, action); });
 	Input::SetCharCallback([](unsigned int key) { EntityManagerClient::GetPlayer().TextInput(key); });
+	Input::SetMouseCallback([](int button, int action, int mods) { EntityManagerClient::GetPlayer().MousePressed(button, action); });
 }
 void PlayerClient::TextInput(int codepoint)
 {
@@ -24,9 +26,22 @@ void PlayerClient::TextInput(int codepoint)
 		chatbox += (char)codepoint;
 	}
 }
+void PlayerClient::MousePressed(int mouse, int action)
+{
+	if (action == ButtonState::Click) {
+		for (InputAction& inputAction : InputAction::inputActions)
+		{
+			if (inputAction.button + 3 != mouse) continue;
+			ActionPerformedData data;
+			data.identifier = inputAction.identifier;
+			NetworkingClient::SendDataToServer(Packet::ActionPerformed, data);
+			break;
+		}
+	}
+}
 void PlayerClient::KeyPressed(int key, int action)
 {
-	if (key >= Key::n1 && key <= Key::n9 && action == Action::Press && currentScreen == Screen::Game)
+	if (key >= Key::n1 && key <= Key::n9 && action == ButtonState::Click && currentScreen == Screen::Game)
 	{
 		ActiveSlot = key - 49;
 		//Notify the server
@@ -38,7 +53,7 @@ void PlayerClient::KeyPressed(int key, int action)
 	{
 		currentScreen = Screen::ChatBox;
 	}
-	if (key == Key::UpArrow)
+	if (key == Key::UpArrow && currentScreen == Screen::ChatBox)
 	{
 		chatbox = lastCommand;
 	}
@@ -63,6 +78,16 @@ void PlayerClient::KeyPressed(int key, int action)
 	{
 		if(!chatbox.empty())
 			chatbox.pop_back();
+	}
+	if (action == ButtonState::Click) {
+		for (InputAction& inputAction : InputAction::inputActions)
+		{
+			if (inputAction.button != key) continue;
+			ActionPerformedData data;
+			data.identifier = inputAction.identifier;
+			NetworkingClient::SendDataToServer(Packet::ActionPerformed, data);
+			break;
+		}
 	}
 }
 void PlayerClient::CursorMoved(double xpos, double ypos)
@@ -104,9 +129,9 @@ void PlayerClient::CursorMoved(double xpos, double ypos)
 void PlayerClient::InputTick(double TimeStep)
 {
 	Renderer::HideCursor(currentScreen == Screen::Game);
-	//Use C to zoom
+	if (currentScreen == Screen::Game)
 	{
-		if (Input::GetKeyState(Key::C) == Action::Press && currentScreen == Screen::Game)
+		if (Input::GetKeyState(Key::C) == ButtonState::Click)
 		{
 			EntityManagerClient::GetPlayer().Fov = 30.0f;
 		}
@@ -114,114 +139,54 @@ void PlayerClient::InputTick(double TimeStep)
 		{
 			EntityManagerClient::GetPlayer().Fov = 70.0f;
 		}
-	}
-	//Use P to reload assembly
-	{
-		static bool prev = false;
-		if (Input::GetKeyState(Key::P) == Action::Press && currentScreen == Screen::Game && !prev)
+
+		if (Input::GetKeyState(Key::K) == ButtonState::Click)
 		{
-			prev = true;
-			KeyData data;
-			data.PKeyPressed = true;
-			NetworkingClient::SendDataToServer(Packet::KeyPress, data);
+			Godmode = !Godmode;
 		}
-		else if(Input::GetKeyState(Key::P) == Action::Release) prev = false;
-	}
-	//Use E open test server gui // Bug: it doesnt close
-	{
-		static bool prev = false;
-		if (Input::GetKeyState(Key::E) == Action::Press && currentScreen != Screen::ChatBox && !prev)
+
+		if (Input::GetKeyState(Key::F5) == ButtonState::Click)
 		{
-			prev = true;
-			KeyData data;
-			data.EKeyPressed = true;
-			NetworkingClient::SendDataToServer(Packet::KeyPress, data);
+			if (cameraMode == CameraMode::FirstPerson)
+				cameraMode = CameraMode::ThirdPersonBack;
+			else if (cameraMode == CameraMode::ThirdPersonBack)
+				cameraMode = CameraMode::ThirdPersonFront;
+			else
+				cameraMode = CameraMode::FirstPerson;
 		}
-		else if (Input::GetKeyState(Key::E) == Action::Release) prev = false;
-	}
-	//Use I to open player inventory
-	{
-		static bool prev = false;
-		if (Input::GetKeyState(Key::I) == Action::Press && currentScreen != Screen::ChatBox && !prev)
-		{
-			prev = true;
-			//Open gui
-		}
-		else if (Input::GetKeyState(Key::I) == Action::Release) prev = false;
-	}
-	//Use K to toggle editor mode
-	{
-		static Action lastState = Action::Release;
-		if (Input::GetKeyState(Key::K) == Action::Press && currentScreen == Screen::Game)
-		{
-			if (lastState == Action::Release)
-			{
-				Godmode = !Godmode;
-				lastState = Action::Press;
-			}
-		}
-		else
-		{
-			lastState = Action::Release;
-		}
-	}
-	//Use F5 to toggle CameraMode
-	{
-		static Action lastState = Action::Release;
-		if (Input::GetKeyState(Key::F5) == Action::Press && currentScreen == Screen::Game)
-		{
-			if (lastState == Action::Release)
-			{
-				if(cameraMode == CameraMode::FirstPerson)
-					cameraMode = CameraMode::ThirdPersonBack;
-				else if (cameraMode == CameraMode::ThirdPersonBack)
-					cameraMode = CameraMode::ThirdPersonFront;
-				else
-					cameraMode = CameraMode::FirstPerson;
-				lastState = Action::Press;
-			}
-		}
-		else
-		{
-			lastState = Action::Release;
-		}
-	}
-	//Check whether to crouch or sprint
-	{
+
 		Crouch = false;
-		if (Input::GetKeyState(Key::Shift) == Action::Press && currentScreen == Screen::Game && Grounded)
+		if (Input::GetKeyState(Key::Shift) == ButtonState::Click || Input::GetKeyState(Key::Shift) == ButtonState::Hold && Grounded)
 		{
 			Speed = 2.0f;
 			Crouch = true;
 		}
-		else if (Input::GetKeyState(Key::Control) == Action::Press && currentScreen == Screen::Game)
+		else if (Input::GetKeyState(Key::Control) == ButtonState::Click || Input::GetKeyState(Key::Control) == ButtonState::Hold)
 		{
 			Speed = 6.0f;
-			if (Godmode) Speed = 100.0f;
+			if (Godmode) Speed = 50.0f;
 		}
 		else
 		{
 			Speed = 4.0f;
 		}
-	}
-	//Apply movement
-	{
-		if (Input::GetKeyState(Key::W) == Action::Press && currentScreen == Screen::Game)
+
+		if (Input::GetKeyState(Key::W) == ButtonState::Hold || Input::GetKeyState(Key::W) == ButtonState::Click)
 		{
 			Velocity.x = Speed * cos(Math::Radians(Yaw));
 			Velocity.z = Speed * sin(Math::Radians(Yaw));
 		}
-		else if (Input::GetKeyState(Key::S) == Action::Press && currentScreen == Screen::Game)
+		else if (Input::GetKeyState(Key::S) == ButtonState::Hold || Input::GetKeyState(Key::S) == ButtonState::Click)
 		{
 			Velocity.x = -Speed * cos(Math::Radians(Yaw));
 			Velocity.z = -Speed * sin(Math::Radians(Yaw));
 		}
-		else if (Input::GetKeyState(Key::D) == Action::Press && currentScreen == Screen::Game)
+		else if (Input::GetKeyState(Key::D) == ButtonState::Hold || Input::GetKeyState(Key::D) == ButtonState::Click)
 		{
 			Velocity.x = Speed * cos(Math::Radians(Yaw + 90));
 			Velocity.z = Speed * sin(Math::Radians(Yaw + 90));
 		}
-		else if (Input::GetKeyState(Key::A) == Action::Press && currentScreen == Screen::Game)
+		else if (Input::GetKeyState(Key::A) == ButtonState::Hold || Input::GetKeyState(Key::A) == ButtonState::Click)
 		{
 			Velocity.x = -Speed * cos(Math::Radians(Yaw + 90));
 			Velocity.z = -Speed * sin(Math::Radians(Yaw + 90));
@@ -233,11 +198,11 @@ void PlayerClient::InputTick(double TimeStep)
 		}
 		if (Godmode == true)
 		{
-			if (Input::GetKeyState(Key::Space) == Action::Press && currentScreen == Screen::Game)
+			if (Input::GetKeyState(Key::Space) == ButtonState::Click)
 			{
 				Velocity.y = Speed;
 			}
-			else if (Input::GetKeyState(Key::Shift) == Action::Press && currentScreen == Screen::Game)
+			else if (Input::GetKeyState(Key::Shift) == ButtonState::Click)
 			{
 				Velocity.y = -Speed;
 			}
@@ -246,22 +211,19 @@ void PlayerClient::InputTick(double TimeStep)
 				Velocity.y = 0.0;
 			}
 		}
-		else
-		{
-			Velocity.y -= GravityConstant * TimeStep;
-		}
-	}
-	//Jump mechanic
-	{
+
 		JumpCooldown -= (float)TimeStep;
-		if (Input::GetKeyState(Key::Space) == Action::Press && Grounded && !Godmode && currentScreen == Screen::Game && JumpCooldown <= 0)
+		if (Input::GetKeyState(Key::Space) == ButtonState::Click || Input::GetKeyState(Key::Space) == ButtonState::Hold && Grounded && !Godmode && JumpCooldown <= 0)
 		{
 			Crouch = false;
 			Velocity.y = 7.2f;
 			JumpCooldown += 0.4f;
 		}
 	}
-	//Not fall over the edge of a block
+
+	if (Godmode == false) Velocity.y -= GravityConstant * TimeStep;
+
+	//Check collisions
 	{
 		if (Crouch && Grounded)
 		{
@@ -274,9 +236,6 @@ void PlayerClient::InputTick(double TimeStep)
 				Velocity.z = 0;
 			}
 		}
-	}
-	//Check collisions
-	{
 		if (EntityManagerClient::CheckCollision({ Position.x + Velocity.x * TimeStep, Position.y, Position.z }, Hitbox))
 		{
 			Velocity.x = 0;
@@ -306,30 +265,40 @@ void PlayerClient::InputTick(double TimeStep)
 	//Apply the velocity to the position
 	Position += Velocity * TimeStep;
 
-	//Inventory
-	if (currentScreen == Screen::GUI && Input::GetMouseState(Mouse::Left) == MouseState::Click)
+	if (currentScreen == Screen::GUI)
 	{
-		Vector2<double> cursorPosition = Input::GetCursorPosition();
-		for (int i = 0; i < activeGui.Slots.size(); i++)
+		if (Input::GetMouseState(Mouse::Left) == ButtonState::Click)
 		{
-			if (activeGui.Slots[i].Active) {
-				Vector2<float> Position = RendererClient::SlotToPixel(activeGui.Slots[i].Position);
-				if (cursorPosition.x >= Position.x && cursorPosition.x <= Position.x + SlotsX - 2 &&
-					cursorPosition.y >= Position.y && cursorPosition.y <= Position.y + SlotsX - 2)
-				{
-					INFO("Clicked Slot:", i);
-					break;
+			Vector2<double> cursorPosition = Input::GetCursorPosition();
+			for (int i = 0; i < activeGui.Slots.size(); i++)
+			{
+				if (activeGui.Slots[i].Active) {
+					Vector2<float> Position = RendererClient::SlotToPixel(activeGui.Slots[i].Position);
+					if (cursorPosition.x >= Position.x && cursorPosition.x <= Position.x + SlotsX - 2 &&
+						cursorPosition.y >= Position.y && cursorPosition.y <= Position.y + SlotsX - 2)
+					{
+						if(selectedSlot == -1)
+							selectedSlot = i;
+						else
+						{
+							if (selectedSlot == i) selectedSlot = -1;
+							else if (activeInventory[i].IsValid())
+							{
+								ItemStack stack = activeInventory[i];
+								activeInventory[i] = activeInventory[selectedSlot];
+								activeInventory[selectedSlot] = stack;
+							}
+							else
+							{
+								activeInventory[i] = activeInventory[selectedSlot];
+								activeInventory[selectedSlot] = ItemStack();
+								selectedSlot = -1;
+							}
+						}
+						break;
+					}
 				}
 			}
 		}
-	}
-
-	if (currentScreen == Screen::Game)
-	{
-		MouseStateData data;
-		data.LeftMouse = Input::GetMouseState(Mouse::Left);
-		data.RightMouse = Input::GetMouseState(Mouse::Right);
-		data.MiddleMouse = Input::GetMouseState(Mouse::Middle);
-		NetworkingClient::SendDataToServer(Packet::MouseState, data);
 	}
 }

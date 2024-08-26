@@ -27,27 +27,39 @@ void Input::SetKeyCallback(void (*KeyCallback)(int key, int actioncode, int acti
 	glfwSetKeyCallback(Client::ApplicationWindow, [](GLFWwindow* window, int key, int actioncode,int action, int mods) {WKeyCallback(key, actioncode,action, mods); });
 }
 
-int Input::GetKeyState(int key)
+ButtonState Input::GetKeyState(Key key)
 {
-	return glfwGetKey(Client::ApplicationWindow, key);
-}
-MouseState Input::GetMouseState(int Mouse)
-{
-	static std::array<bool, 3> HoldState = {false,false,false};
-	MouseState ReturnState = MouseState::Idle;
-	int action = glfwGetMouseButton(Client::ApplicationWindow, Mouse);
+	static std::array<bool, 348> HoldState;
+	ButtonState ReturnState = ButtonState::Release;
+	int action = glfwGetKey(Client::ApplicationWindow, key);
 	if (action == GLFW_RELEASE)
-		HoldState[Mouse] = false;
+		HoldState[key] = false;
 	if (action == GLFW_PRESS)
 	{
-		if (HoldState[Mouse] == false)
-			ReturnState = MouseState::Click;
+		if (HoldState[key] == false)
+			ReturnState = ButtonState::Click;
 		else
-			ReturnState = MouseState::Hold;
-		HoldState[Mouse] = true;
+			ReturnState = ButtonState::Hold;
+		HoldState[key] = true;
 	}
 	return ReturnState;
-	return MouseState();
+}
+ButtonState Input::GetMouseState(Mouse mouse)
+{
+	static std::array<bool, 3> HoldState;
+	ButtonState ReturnState = ButtonState::Release;
+	int action = glfwGetMouseButton(Client::ApplicationWindow, mouse);
+	if (action == GLFW_RELEASE)
+		HoldState[mouse] = false;
+	if (action == GLFW_PRESS)
+	{
+		if (HoldState[mouse] == false)
+			ReturnState = ButtonState::Click;
+		else
+			ReturnState = ButtonState::Hold;
+		HoldState[mouse] = true;
+	}
+	return ReturnState;
 }
 Vector2<double> Input::GetCursorPosition()
 {

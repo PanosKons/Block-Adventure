@@ -10,6 +10,7 @@
 #include "Logger.h"
 #include "ScriptingManager.h"
 #include "EventManager.h"
+#include "Common/InputAction.h"
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #pragma comment(lib,"WS2_32")
@@ -47,28 +48,18 @@ namespace NetworkingServer {
 					EntityManagerServer::GetPlayer(credentials.UUID)->ActiveSlot = data.ActiveSlot;
 					break;
 				}
-				case Packet::MouseState:
-				{
-					auto data = GetDataFromClient<MouseStateData>(credentials);
-
-					MouseEvent mouseEvent(credentials.UUID,data.LeftMouse, data.RightMouse, data.MiddleMouse);
-					if (data.LeftMouse == MouseState::Click || data.MiddleMouse == MouseState::Click || data.RightMouse == MouseState::Click)
-						EventManager::AddMouseEvent(mouseEvent);
-					break;
-				}
-				case Packet::KeyPress:
-				{
-					auto data = GetDataFromClient<KeyData>(credentials);
-
-					KeyEvent keyEvent(credentials.UUID,data.PKeyPressed, data.RKeyPressed, data.EKeyPressed);
-					EventManager::AddKeyEvent(keyEvent);
-					break;
-				}
 				case Packet::Command:
 				{
 					auto data = GetDataFromClient<CommandData>(credentials);
 					CommandEvent commandEvent(credentials.UUID, data.command);
 					EventManager::AddCommandEvent(commandEvent);
+					break;
+				}
+				case Packet::ActionPerformed:
+				{
+					auto data = GetDataFromClient<ActionPerformedData>(credentials);
+					ActionEvent actionEvent(credentials.UUID, data.identifier);
+					EventManager::AddActionEvent(actionEvent);
 					break;
 				}
 			}
@@ -147,7 +138,8 @@ namespace NetworkingServer {
 			data.BlockCount = Block::GetBlockCount();
 			data.ItemCount = Item::GetItemCount();
 			data.ModelCount = Block::GetBlockModelCount();
-			SendDataToClient(credentials.UUID,Packet::None, data);
+			data.InputActionCount = InputAction::inputActions.size();
+			SendDataToClient(credentials.UUID, Packet::None, data);
 
 			for (int i = 0; i < Block::GetBlockCount(); i++)
 			{
@@ -160,6 +152,10 @@ namespace NetworkingServer {
 			for (int i = 0; i < Item::GetItemCount(); i++)
 			{
 				SendDataToClient(credentials.UUID, Packet::None, Item::itemProperties[i]);
+			}
+			for (int i = 0; i < InputAction::inputActions.size(); i++)
+			{
+				SendDataToClient(credentials.UUID, Packet::None, InputAction::inputActions[i]);
 			}
 			for (auto&[UUID, player] : EntityManagerServer::Players)
 			{
