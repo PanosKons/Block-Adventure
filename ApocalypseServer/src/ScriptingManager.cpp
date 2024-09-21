@@ -11,9 +11,9 @@
 #pragma comment(lib, "Bcrypt.lib")
 
 #if _DEBUG 1
-#pragma comment(lib, "mono/lib/bin/debug-libmono-static-sgen.lib")
+#pragma comment(lib, "mono/lib/debug-libmono-static-sgen.lib")
 #else
-#pragma comment(lib, "mono/lib/bin/libmono-static-sgen.lib")
+#pragma comment(lib, "mono/lib/libmono-static-sgen.lib")
 #endif
 
 #include "Common/Blocks/Block.h"
