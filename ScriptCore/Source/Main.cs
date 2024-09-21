@@ -36,6 +36,10 @@ namespace Scripting
     {
         LeftHandInteract , RightHandInteract, ReloadAssembly, OpenInventory, ActionNameSize
     }
+    public enum Screen
+    {
+        Game, Chatbox, Gui
+    }
     public struct WorldGenerationData
     {
         public WorldGenerationData()
@@ -312,17 +316,19 @@ namespace Scripting
     }
     public struct InputAction
     {
-        public InputAction(Button defaultButton, ActionName action)
+        public InputAction(Button defaultButton, ActionName action, Screen screen)
         {
-            DefaultButton = defaultButton;
-            Action = action;
+            this.DefaultButton = defaultButton;
+            this.Action = action;
+            this.screen = screen;
         }
         public readonly Button DefaultButton;
         public readonly ActionName Action;
+        public readonly Screen screen;
 
         public static void Register(InputAction inputAction)
         {
-            Data.InputActions[(int)(inputAction.Action)] = new(inputAction.DefaultButton, inputAction.Action);
+            Data.InputActions[(int)(inputAction.Action)] = inputAction;
         }
     }
     public unsafe static class Event
@@ -460,10 +466,10 @@ namespace Scripting
                 }
             };
 
-            InputAction.Register(new InputAction(Button.LeftMouse, ActionName.LeftHandInteract));
-            InputAction.Register(new InputAction(Button.RightArrow, ActionName.RightHandInteract));
-            InputAction.Register(new InputAction(Button.P, ActionName.ReloadAssembly));
-            InputAction.Register(new InputAction(Button.E, ActionName.OpenInventory));
+            InputAction.Register(new InputAction(Button.LeftMouse, ActionName.LeftHandInteract, Screen.Game));
+            InputAction.Register(new InputAction(Button.RightArrow, ActionName.RightHandInteract, Screen.Game));
+            InputAction.Register(new InputAction(Button.P, ActionName.ReloadAssembly, Screen.Game));
+            InputAction.Register(new InputAction(Button.E, ActionName.OpenInventory, Screen.Game));
         }
         public static void GlobalUpdateEvent()
         {

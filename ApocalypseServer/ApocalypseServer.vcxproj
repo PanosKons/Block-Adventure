@@ -117,8 +117,8 @@
     <ClInclude Include="src\World\WorldManagerServer.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="mono\lib\Debug\libmono-static-sgen.lib" />
-    <Library Include="mono\lib\Release\libmono-static-sgen.lib" />
+    <Library Include="mono\lib\bin\debug-libmono-static-sgen.lib" />
+    <Library Include="mono\lib\bin\libmono-static-sgen.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

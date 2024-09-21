@@ -14,6 +14,10 @@ public:
 	Vector2()
 		: x(0), y(0)
 	{}
+	Vector2 operator+(Vector2 other)
+	{
+		return { x + other.x, y + other.y };
+	}
 	void operator+=(Vector2 other)
 	{
 		x += other.x;

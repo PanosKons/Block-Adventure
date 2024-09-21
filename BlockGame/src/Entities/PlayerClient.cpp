@@ -80,9 +80,9 @@ void PlayerClient::KeyPressed(int key, int action)
 			chatbox.pop_back();
 	}
 	if (action == ButtonState::Click) {
-		for (InputAction& inputAction : InputAction::inputActions)
+ 		for (InputAction& inputAction : InputAction::inputActions)
 		{
-			if (inputAction.button != key) continue;
+			if (inputAction.button != key || (Screen)inputAction.screen != currentScreen) continue;
 			ActionPerformedData data;
 			data.identifier = inputAction.identifier;
 			NetworkingClient::SendDataToServer(Packet::ActionPerformed, data);
@@ -284,13 +284,53 @@ void PlayerClient::InputTick(double TimeStep)
 							if (selectedSlot == i) selectedSlot = -1;
 							else if (activeInventory[i].IsValid())
 							{
-								ItemStack stack = activeInventory[i];
-								activeInventory[i] = activeInventory[selectedSlot];
-								activeInventory[selectedSlot] = stack;
+								if (activeInventory[i].GetItemType() != activeInventory[selectedSlot].GetItemType())
+								{
+									ItemStack stack = activeInventory[i];
+									activeInventory[i] = activeInventory[selectedSlot];
+									activeInventory[selectedSlot] = stack;
+								}
+								else
+								{
+									activeInventory[i].Count += activeInventory[selectedSlot].Count;
+									activeInventory[selectedSlot] = ItemStack();
+									selectedSlot = -1;
+								}
 							}
 							else
 							{
 								activeInventory[i] = activeInventory[selectedSlot];
+								activeInventory[selectedSlot] = ItemStack();
+								selectedSlot = -1;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		if (Input::GetMouseState(Mouse::Right) == ButtonState::Click && selectedSlot != -1)
+		{
+			Vector2<double> cursorPosition = Input::GetCursorPosition();
+			for (int i = 0; i < activeGui.Slots.size(); i++)
+			{
+				if (activeGui.Slots[i].Active) {
+					Vector2<float> Position = RendererClient::SlotToPixel(activeGui.Slots[i].Position);
+					if (cursorPosition.x >= Position.x && cursorPosition.x <= Position.x + SlotsX - 2 &&
+						cursorPosition.y >= Position.y && cursorPosition.y <= Position.y + SlotsX - 2)
+					{
+						if (selectedSlot == i) selectedSlot = -1;
+						else if (!activeInventory[i].IsValid() || activeInventory[i].GetItemType() == activeInventory[selectedSlot].GetItemType())
+						{
+							int count = activeInventory[i].Count;
+							activeInventory[i] = activeInventory[selectedSlot];
+							activeInventory[i].Count = count + 1;
+							if (activeInventory[selectedSlot].Count > 1)
+							{
+								activeInventory[selectedSlot].Count--;
+							}
+							else
+							{
 								activeInventory[selectedSlot] = ItemStack();
 								selectedSlot = -1;
 							}

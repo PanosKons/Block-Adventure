@@ -373,7 +373,13 @@ constexpr float SlotHeight = 64.0f;
 constexpr float BaseLayer = 10.0f;
 constexpr float charHeight = 16.0f;
 
-
+void RenderItemStack(RenderData& renderData, Vector2<float> Position, ItemStack& itemStack)
+{
+	unsigned char TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
+	RenderBuilder::AddSquare(renderData, Position, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (TextureId % 16) / 16.0f, (TextureId / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f, BaseLayer - 0.2f);
+	if (itemStack.GetCount() > 1)
+		RenderBuilder::AddText(renderData, StringConvertions::ToString(itemStack.GetCount()), Position, BaseLayer - 0.1f);
+}
 void RendererClient::RenderUI(double TimeStep)
 {
 	RenderBuilder::Begin(UIRenderData);
@@ -451,16 +457,13 @@ void RendererClient::RenderUI(double TimeStep)
 					ItemStack& itemStack = inventory[i];
 					if (itemStack.GetCount() != 0)
 					{
-						Vector2<float> cords = SlotToPixel(gui.Slots[i].Position);
-						if (EntityManagerClient::GetPlayer().selectedSlot == i) cords = Vector::FloatVector(Input::GetCursorPosition());
-						unsigned char TextureId = Item::GetItemProperties(itemStack.GetItemType()).texture;
-						RenderBuilder::AddSquare(UIRenderData, { cords.x + 8, cords.y + 8 }, { SlotWidth - 16,SlotHeight - 16 }, { 1,1,1,1 }, { (TextureId % 16) / 16.0f, (TextureId / 16) / 16.0f }, { 1 / 16.0f, 1 / 16.0f }, 0.0f, BaseLayer - 0.2f);
-						if (EntityManagerClient::GetPlayer().activeInventory[i].GetCount() > 1)
-							RenderBuilder::AddText(UIRenderData, StringConvertions::ToString(EntityManagerClient::GetPlayer().activeInventory[i].GetCount()), cords, BaseLayer - 0.1f);
+						if (EntityManagerClient::GetPlayer().selectedSlot == i) continue;
+						RenderItemStack(UIRenderData, Vector2<float>{8, 8} + SlotToPixel(gui.Slots[i].Position), itemStack);
 					}
-					
 				}
 			}
+			if(EntityManagerClient::GetPlayer().selectedSlot != -1)
+				RenderItemStack(UIRenderData, Vector::FloatVector(Input::GetCursorPosition()) + Vector2<float>{-32, -32}, inventory[EntityManagerClient::GetPlayer().selectedSlot]);
 		}
 	}
 	RenderBuilder::End(UIRenderData);

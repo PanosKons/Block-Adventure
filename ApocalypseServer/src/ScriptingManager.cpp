@@ -11,9 +11,9 @@
 #pragma comment(lib, "Bcrypt.lib")
 
 #if _DEBUG 1
-#pragma comment(lib, "mono/lib/Debug/libmono-static-sgen.lib")
+#pragma comment(lib, "mono/lib/bin/debug-libmono-static-sgen.lib")
 #else
-#pragma comment(lib, "mono/lib/Release/libmono-static-sgen.lib")
+#pragma comment(lib, "mono/lib/bin/libmono-static-sgen.lib")
 #endif
 
 #include "Common/Blocks/Block.h"
@@ -440,7 +440,6 @@ void ScriptingManager::Start()
         Block::blockModels.emplace_back();
         std::copy(faces, faces + FaceCount, Block::blockModels[i].Faces.begin());
     }
-
     MonoMethod* GetInputActionCount = mono_class_get_method_from_name(DataClass, "GetInputActionCount", 0);
     MonoObject* acountObj = mono_runtime_invoke(GetInputActionCount, nullptr, nullptr, nullptr);
     int InputActionCount = *(int*)mono_object_unbox(acountObj);
