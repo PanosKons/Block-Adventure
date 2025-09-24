@@ -11,8 +11,6 @@ public:
 
 	static void ReloadAssembly();
 
-	static void RegisterInternalCalls();
-
 	static void OnCommandEvent(uint64_t UUID, Command& command);
 	static void OnActionEvent(uint64_t UUID, int identifier);
 	static void GlobalUpdateEvent(double TimeStep);

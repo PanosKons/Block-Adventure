@@ -138,7 +138,7 @@ namespace NetworkingServer {
 			data.BlockCount = Block::GetBlockCount();
 			data.ItemCount = Item::GetItemCount();
 			data.ModelCount = Block::GetBlockModelCount();
-			data.InputActionCount = InputAction::inputActions.size();
+			data.InputActionCount = (int)InputAction::inputActions.size();
 			SendDataToClient(credentials.UUID, Packet::None, data);
 
 			for (int i = 0; i < Block::GetBlockCount(); i++)

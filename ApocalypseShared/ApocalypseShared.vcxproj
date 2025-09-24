@@ -120,6 +120,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Common\World\WorldManager.h" />
+    <ClInclude Include="Common\Script\WorldGenerationData.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="vendor\FileWatch.h" />
   </ItemGroup>

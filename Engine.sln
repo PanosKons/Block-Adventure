@@ -10,10 +10,13 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glad", "Glad\Glad.vcxproj", "{BDD6857C-A90D-870D-52FA-6C103E10030F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApocalypseServer", "ApocalypseServer\ApocalypseServer.vcxproj", "{38AD3C9C-0218-4547-9F07-B7D9A5786DF9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE} = {4F6FC707-5EB4-4212-9854-2A35B76255DE}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApocalypseShared", "ApocalypseShared\ApocalypseShared.vcxproj", "{31A60EA1-63B4-4987-BC9D-61F81582D43B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScriptCore", "ScriptCore\ScriptCore.csproj", "{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MainMod", "MainMod\MainMod.vcxproj", "{4F6FC707-5EB4-4212-9854-2A35B76255DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,18 +88,18 @@ Global
 		{31A60EA1-63B4-4987-BC9D-61F81582D43B}.Release|Any CPU.Build.0 = Release|x64
 		{31A60EA1-63B4-4987-BC9D-61F81582D43B}.Release|x64.ActiveCfg = Release|x64
 		{31A60EA1-63B4-4987-BC9D-61F81582D43B}.Release|x64.Build.0 = Release|x64
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Debug|x64.Build.0 = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Dist|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Dist|Any CPU.Build.0 = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Dist|x64.ActiveCfg = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Dist|x64.Build.0 = Debug|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Release|x64.ActiveCfg = Release|Any CPU
-		{8E6B5A38-1D1D-4FDF-8641-B59170CB313C}.Release|x64.Build.0 = Release|Any CPU
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Debug|Any CPU.Build.0 = Debug|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Debug|x64.ActiveCfg = Debug|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Debug|x64.Build.0 = Debug|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Dist|Any CPU.ActiveCfg = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Dist|Any CPU.Build.0 = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Dist|x64.ActiveCfg = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Dist|x64.Build.0 = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Release|Any CPU.ActiveCfg = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Release|Any CPU.Build.0 = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Release|x64.ActiveCfg = Release|x64
+		{4F6FC707-5EB4-4212-9854-2A35B76255DE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
