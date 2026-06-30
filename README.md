@@ -1,3 +1,10 @@
 # Block-Adventure
-This is a sandbox game with infinite worlds made up by voxels
-Lua is used to modify the blocks and items that exist as well as the world generation
+This is a sandbox multiplayer engine with infinite worlds made up by voxels
+Features:
+-Multiplayer (dedicated server/client architecture)
+-Cubic chunks
+-Lighting
+-Block breaking/placing
+-Inventory
+-Entities (in progress)
+-Scripting (used to be in Lua, C# and then modding with dll in C++)
